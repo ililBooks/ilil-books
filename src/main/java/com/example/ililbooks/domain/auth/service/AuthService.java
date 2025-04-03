@@ -38,7 +38,7 @@ public class AuthService {
     /* 로그인 */
     @Transactional
     public AuthTokensResponseDto signin(AuthSigninRequestDto request) {
-        User user = userService.findUserByEmailOrElseThrow(request.getEmail());
+        User user = userService.getUserByEmail(request.getEmail());
 
         if (user.getDeletedAt() != null) {
             throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());
