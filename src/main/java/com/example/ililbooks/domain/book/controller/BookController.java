@@ -12,6 +12,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.ililbooks.domain.user.enums.UserRole.Authority.ADMIN;
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.PUBLISHER;
 
 @RestController
@@ -24,7 +25,7 @@ public class BookController {
     /**
      * 책 등록 API
      */
-    @Secured(PUBLISHER)
+    @Secured({ADMIN,PUBLISHER})
     @PostMapping
     public Response<BookResponse> createBook(
             @AuthenticationPrincipal AuthUser authUser,
@@ -46,7 +47,7 @@ public class BookController {
     /**
      * 책 수정 API
      */
-    @Secured(PUBLISHER)
+    @Secured({ADMIN, PUBLISHER})
     @PatchMapping("/{bookId}")
     public void updateBook(
             @PathVariable Long bookId,
@@ -58,7 +59,7 @@ public class BookController {
     /**
      * 책 삭제 API
      */
-    @Secured(PUBLISHER)
+    @Secured({ADMIN, PUBLISHER})
     @DeleteMapping("/{bookId}")
     public void deleteBook(
             @PathVariable Long bookId
