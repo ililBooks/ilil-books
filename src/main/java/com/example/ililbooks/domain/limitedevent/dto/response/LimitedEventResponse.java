@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LimitedEventResponse {
 
-    private final Long id;
+    private final Long limitedEventId;
     private final Long bookId;
     private final String title;
     private final LimitedEventStatus status;
@@ -22,7 +22,7 @@ public class LimitedEventResponse {
 
     public static LimitedEventResponse from(LimitedEvent event) {
         return new LimitedEventResponse(
-                event.getId(),
+                event.getLimitedEventId(),
                 event.getBookId(),
                 event.getTitle(),
                 event.getStatus(),

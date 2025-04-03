@@ -35,11 +35,11 @@ public class LimitedEventController {
     }
 
     /*/ 행사 단건 조회 */
-    @GetMapping("/{id}")
+    @GetMapping("/{limitedEventId}")
     public Response<LimitedEventResponse> getLimitedEvent(
-            @PathVariable Long id
+            @PathVariable Long limitedEventId
     ) {
-        return Response.of(limitedEventService.getLimitedEvent(id));
+        return Response.of(limitedEventService.getLimitedEvent(limitedEventId));
     }
 
     /*/ 행사 다건 조회 */
@@ -50,23 +50,23 @@ public class LimitedEventController {
 
     /*/ 행사 수정 (PUBLISHER 만 가능) */
     @Secured(PUBLISHER)
-    @PatchMapping("/{id}")
+    @PatchMapping("/{limitedEventId}")
     public Response<LimitedEventResponse> updateLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable Long id,
+            @PathVariable Long limitedEventId,
             @Valid @RequestBody LimitedEventUpdateRequest request
     ) {
-        return Response.of(limitedEventService.updateLimitedEvent(authUser, id, request));
+        return Response.of(limitedEventService.updateLimitedEvent(authUser, limitedEventId, request));
     }
 
     /*/ 행사 삭지 (PUBLISHER 만 가능) */
     @Secured(PUBLISHER)
-    @DeleteMapping
+    @DeleteMapping("/limitedEventId")
     public Response<Void> deleteLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable Long id
+            @PathVariable Long limitedEventId
     ) {
-        limitedEventService.deleteLimitedEvent(authUser, id);
+        limitedEventService.deleteLimitedEvent(authUser, limitedEventId);
         return Response.empty();
     }
 }

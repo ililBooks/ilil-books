@@ -28,7 +28,7 @@ public class LimitedEventService {
      */
     @Transactional
     public LimitedEventResponse createLimitedEvent(AuthUser authUser, LimitedEventCreateRequest request) {
-        LimitedEvent event = LimitedEvent.builder()
+        LimitedEvent limitedEvent = LimitedEvent.builder()
                 .bookId(request.getBookId())
                 .title(request.getTitle())
                 .startTime(request.getStartTime())
@@ -37,18 +37,18 @@ public class LimitedEventService {
                 .bookQuantity(request.getBookQuantity())
                 .build();
 
-        limitedEventRepository.save(event);
+        limitedEventRepository.save(limitedEvent);
 
-        return LimitedEventResponse.from(event);
+        return LimitedEventResponse.from(limitedEvent);
     }
 
     /*
      * 단일 행사 조회
      */
     @Transactional(readOnly = true)
-    public LimitedEventResponse getLimitedEvent(Long eventId) {
-        LimitedEvent event = findByIdOrElseThrow(eventId);
-        return LimitedEventResponse.from(event);
+    public LimitedEventResponse getLimitedEvent(Long limitedEventId) {
+        LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
+        return LimitedEventResponse.from(limitedEvent);
     }
 
     /*
@@ -65,36 +65,36 @@ public class LimitedEventService {
      * 한정판 행사 수정
      */
     @Transactional
-    public LimitedEventResponse updateLimitedEvent(AuthUser authUser, Long eventId, LimitedEventUpdateRequest request) {
-        LimitedEvent event = findByIdOrElseThrow(eventId);
+    public LimitedEventResponse updateLimitedEvent(AuthUser authUser, Long limitedEventId, LimitedEventUpdateRequest request) {
+        LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
 
-        if (event.getStatus().equals(LimitedEventStatus.ACTIVE)) {
+        if (limitedEvent.getStatus().equals(LimitedEventStatus.ACTIVE)) {
             throw new BadRequestException("이미 시작된 행사는 수정할 수 없습니다.");
         }
 
-        event.update(request.getTitle(), request.getStartTime(), request.getEndTime(), request.getContents(), request.getBookQuantity());
-        return LimitedEventResponse.from(event);
+        limitedEvent.update(request.getTitle(), request.getStartTime(), request.getEndTime(), request.getContents(), request.getBookQuantity());
+        return LimitedEventResponse.from(limitedEvent);
     }
 
     /*
      * 한정판 행사 삭제
      */
     @Transactional
-    public void deleteLimitedEvent(AuthUser authUser, Long eventId) {
-        LimitedEvent event = findByIdOrElseThrow(eventId);
+    public void deleteLimitedEvent(AuthUser authUser, Long limitedEventId) {
+        LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
 
-        if (event.getStatus().equals(LimitedEventStatus.ACTIVE)) {
+        if (limitedEvent.getStatus().equals(LimitedEventStatus.ACTIVE)) {
             throw new BadRequestException("이미 시작된 행사는 삭제할 수 없습니다.");
         }
 
-        limitedEventRepository.delete(event);
+        limitedEventRepository.delete(limitedEvent);
     }
 
     /*
      * 내부용 find 메서드
      */
-    private LimitedEvent findByIdOrElseThrow(Long eventId) {
-        return limitedEventRepository.findById(eventId).orElseThrow(
+    private LimitedEvent findByIdOrElseThrow(Long limitedEventId) {
+        return limitedEventRepository.findById(limitedEventId).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_TOKEN.getMessage())
         );
     }
