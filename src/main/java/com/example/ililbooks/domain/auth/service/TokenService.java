@@ -43,7 +43,7 @@ public class TokenService {
         }
         refreshToken.updateTokenStatus(INVALIDATED);
 
-        return userService.findUserByIdOrElseThrow(refreshToken.getUserId());
+        return userService.getUserById(refreshToken.getUserId());
     }
 
     private RefreshToken findByTokenOrElseThrow(String token) {

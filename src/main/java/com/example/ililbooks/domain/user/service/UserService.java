@@ -40,13 +40,13 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User findUserByEmailOrElseThrow(String email) {
+    public User getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new UnauthorizedException(USER_EMAIL_NOT_FOUND.getMessage())
         );
     }
 
-    public User findUserByIdOrElseThrow(Long userId) {
+    public User getUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(USER_ID_NOT_FOUND.getMessage())
         );
