@@ -1,6 +1,6 @@
 package com.example.ililbooks.global.exception;
 
-import com.example.ililbooks.global.response.ErrorResponse;
+import com.example.ililbooks.global.dto.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;

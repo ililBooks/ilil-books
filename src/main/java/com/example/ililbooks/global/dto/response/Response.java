@@ -1,4 +1,4 @@
-package com.example.ililbooks.global.response;
+package com.example.ililbooks.global.dto.response;
 
 import org.springframework.data.domain.Page;
 

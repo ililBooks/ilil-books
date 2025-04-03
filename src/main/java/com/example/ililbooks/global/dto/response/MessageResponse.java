@@ -1,4 +1,4 @@
-package com.example.ililbooks.global.response;
+package com.example.ililbooks.global.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
