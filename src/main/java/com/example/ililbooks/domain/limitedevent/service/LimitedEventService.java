@@ -6,6 +6,7 @@ import com.example.ililbooks.domain.limitedevent.dto.response.LimitedEventRespon
 import com.example.ililbooks.domain.limitedevent.entity.LimitedEvent;
 import com.example.ililbooks.domain.limitedevent.enums.LimitedEventStatus;
 import com.example.ililbooks.domain.limitedevent.repository.LimitedEventRepository;
+import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class LimitedEventService {
      * 한정판 행사 등록
      */
     @Transactional
-    public LimitedEventResponse createLimitedEvent(LimitedEventCreateRequest request) {
+    public LimitedEventResponse createLimitedEvent(AuthUser authUser, LimitedEventCreateRequest request) {
         LimitedEvent event = LimitedEvent.builder()
                 .bookId(request.getBookId())
                 .title(request.getTitle())
@@ -64,7 +65,7 @@ public class LimitedEventService {
      * 한정판 행사 수정
      */
     @Transactional
-    public LimitedEventResponse updateLimitedEvent(Long eventId, LimitedEventUpdateRequest request) {
+    public LimitedEventResponse updateLimitedEvent(AuthUser authUser, Long eventId, LimitedEventUpdateRequest request) {
         LimitedEvent event = findByIdOrElseThrow(eventId);
 
         if (event.getStatus().equals(LimitedEventStatus.ACTIVE)) {
@@ -79,7 +80,7 @@ public class LimitedEventService {
      * 한정판 행사 삭제
      */
     @Transactional
-    public void deleteLimitedEvent(Long eventId) {
+    public void deleteLimitedEvent(AuthUser authUser, Long eventId) {
         LimitedEvent event = findByIdOrElseThrow(eventId);
 
         if (event.getStatus().equals(LimitedEventStatus.ACTIVE)) {
