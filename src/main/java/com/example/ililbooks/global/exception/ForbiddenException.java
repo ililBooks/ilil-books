@@ -1,6 +1,6 @@
 package com.example.ililbooks.global.exception;
 
-public class ForbiddenException extends CustomException {
+public class ForbiddenException extends HandledException {
 
     public ForbiddenException() {
         super(ErrorCode.FORBIDDEN);
