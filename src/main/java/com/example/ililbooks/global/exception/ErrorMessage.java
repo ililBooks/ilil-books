@@ -24,7 +24,10 @@ public enum ErrorMessage {
 
     INVALID_JWT_SIGNATURE("유효하지 않는 JWT 서명입니다."),
     EXPIRED_JWT_TOKEN("만료된 JWT 토큰입니다."),
-    UNSUPPORTED_JWT_TOKEN("지원되지 않는 JWT 토큰입니다.");
+    UNSUPPORTED_JWT_TOKEN("지원되지 않는 JWT 토큰입니다."),
+    NOT_FOUND_BOOK("책을 찾을 수 없습니다.");
+
+
 
     private final String message;
 
