@@ -6,7 +6,6 @@ import com.example.ililbooks.domain.book.enums.SaleStatus;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -19,7 +18,7 @@ public class BookResponse {
 
     private final String author;
 
-    private final BigDecimal price;
+    private final Long price;
 
     private final String category;
 
@@ -38,7 +37,7 @@ public class BookResponse {
     private final LocalDateTime modifiedAt;
 
     @Builder
-    private BookResponse(Long id, Long userId, String title, String author, BigDecimal price, String category, int stock, SaleStatus saleStatus, LimitedType limitedType, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private BookResponse(Long id, Long userId, String title, String author, Long price, String category, int stock, SaleStatus saleStatus, LimitedType limitedType, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.userId = userId;
         this.title = title;

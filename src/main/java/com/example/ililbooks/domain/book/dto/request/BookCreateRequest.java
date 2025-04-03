@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.math.BigDecimal;
-
 import static com.example.ililbooks.global.dto.ValidationMessage.*;
 
 @Getter
@@ -21,7 +19,7 @@ public class BookCreateRequest {
     private String author;
 
     @NotNull(message = NOT_NULL_PRICE)
-    private BigDecimal price;
+    private Long price;
 
     private String category;
 
