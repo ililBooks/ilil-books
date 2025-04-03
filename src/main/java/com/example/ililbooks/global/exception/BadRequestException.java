@@ -1,7 +1,6 @@
 package com.example.ililbooks.global.exception;
 
-public class BadRequestException extends CustomException {
-
+public class BadRequestException extends HandledException {
 
     public BadRequestException() {
         super(ErrorCode.BAD_REQUEST);

@@ -1,6 +1,6 @@
 package com.example.ililbooks.global.exception;
 
-public class UnauthorizedException extends CustomException {
+public class UnauthorizedException extends HandledException {
     public UnauthorizedException() {
         super(ErrorCode.AUTHORIZATION);
     }
