@@ -64,7 +64,7 @@ public class Book extends TimeStamped {
         this.price = bookUpdateRequest.getPrice();
         this.category = bookUpdateRequest.getCategory();
         this.stock = bookUpdateRequest.getStock();
-        this.saleStatus = bookUpdateRequest.getSaleStatus();
-        this.limitedType = bookUpdateRequest.getLimitedType();
+        this.saleStatus = SaleStatus.valueOf(bookUpdateRequest.getSaleStatus());
+        this.limitedType = LimitedType.valueOf(bookUpdateRequest.getLimitedType());
     }
 }

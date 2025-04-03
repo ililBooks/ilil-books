@@ -32,9 +32,9 @@ public class BookUpdateRequest {
     @Min(value = 0, message = INVALID_STOCK)
     private int stock;
 
-    @NotNull(message = NOT_NULL_SALE_STATUS)
-    private SaleStatus saleStatus;
+    @NotBlank(message = NOT_NULL_SALE_STATUS)
+    private String saleStatus;
 
-    @NotNull(message = NOT_NULL_LIMITED_TYPE)
-    private LimitedType limitedType;
+    @NotBlank(message = NOT_NULL_LIMITED_TYPE)
+    private String limitedType;
 }
