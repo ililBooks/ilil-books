@@ -13,7 +13,7 @@ import static com.example.ililbooks.global.dto.ValidationMessage.*;
 @Getter
 @Builder
 @AllArgsConstructor
-public class AuthSignupRequestDto {
+public class AuthSignupRequest {
 
     @NotBlank(message = NOT_BLANK_EMAIL)
     @Email(message = PATTERN_EMAIL)

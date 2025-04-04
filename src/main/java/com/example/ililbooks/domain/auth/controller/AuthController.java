@@ -1,10 +1,10 @@
 package com.example.ililbooks.domain.auth.controller;
 
 import com.example.ililbooks.config.annotation.RefreshToken;
-import com.example.ililbooks.domain.auth.dto.request.AuthSigninRequestDto;
-import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequestDto;
-import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponseDto;
-import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponseDto;
+import com.example.ililbooks.domain.auth.dto.request.AuthSigninRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
+import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
+import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.auth.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,55 +13,54 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.ililbooks.config.util.JwtUtil.REFRESH_TOKEN_TIME;
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.*;
-
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
     private final AuthService authService;
-    private static final int REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60; // 7주일
 
     /* 회원가입 */
-    @PostMapping("/v1/auth/signup")
-    public AuthAccessTokenResponseDto signup(
-            @Valid @RequestBody AuthSignupRequestDto request,
+    @PostMapping("/signup")
+    public AuthAccessTokenResponse signup(
+            @Valid @RequestBody AuthSignupRequest request,
             HttpServletResponse httpServletResponse
     ) {
-        AuthTokensResponseDto tokensResponseDto = authService.signup(request);
+        AuthTokensResponse tokensResponseDto = authService.signup(request);
 
         setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
 
-        return new AuthAccessTokenResponseDto(tokensResponseDto.getAccessToken());
+        return AuthAccessTokenResponse.ofDto(tokensResponseDto.getAccessToken());
     }
 
     /* 로그인 */
-    @PostMapping("/v1/auth/signin")
-    public AuthAccessTokenResponseDto signin(
-            @Valid @RequestBody AuthSigninRequestDto request,
+    @PostMapping("/signin")
+    public AuthAccessTokenResponse signin(
+            @Valid @RequestBody AuthSigninRequest request,
             HttpServletResponse httpServletResponse
     ) {
-        AuthTokensResponseDto tokensResponseDto = authService.signin(request);
+        AuthTokensResponse tokensResponseDto = authService.signin(request);
 
         setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
 
-        return new AuthAccessTokenResponseDto(tokensResponseDto.getAccessToken());
+        return AuthAccessTokenResponse.ofDto(tokensResponseDto.getAccessToken());
     }
 
     /* 토큰 재발급 (로그인 기간 연장) */
     @Secured({USER, PUBLISHER, ADMIN})
-    @GetMapping("/v1/auth/refresh")
-    public AuthAccessTokenResponseDto refresh(
+    @GetMapping("/refresh")
+    public AuthAccessTokenResponse refresh(
             @RefreshToken String refreshToken,
             HttpServletResponse httpServletResponse
     ) {
-        AuthTokensResponseDto tokensResponseDto = authService.reissueAccessToken(refreshToken);
+        AuthTokensResponse tokensResponseDto = authService.reissueAccessToken(refreshToken);
 
         setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
 
-        return new AuthAccessTokenResponseDto(tokensResponseDto.getAccessToken());
+        return AuthAccessTokenResponse.ofDto(tokensResponseDto.getAccessToken());
     }
 
     /* http only 사용하기 위해 쿠키에 refreshToken 저장 */
