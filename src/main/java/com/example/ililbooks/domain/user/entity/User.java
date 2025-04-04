@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.user.entity;
 
+import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -35,6 +36,7 @@ public class User extends TimeStamped {
 
     private String contactNumber;
 
+    @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
     @Enumerated(EnumType.STRING)
@@ -65,6 +67,14 @@ public class User extends TimeStamped {
                 .nickname(authUser.getNickname())
                 .userRole(UserRole.of(authUser.getAuthorities().iterator().next().getAuthority()))
                 .build();
+    }
+
+    public void updateUser(UserUpdateRequest userUpdateRequest) {
+        this.nickname = userUpdateRequest.getNickname();
+        this.zipCode = userUpdateRequest.getZipCode();
+        this.roadAddress = userUpdateRequest.getRoadAddress();
+        this.detailedAddress = userUpdateRequest.getDetailedAddress();
+        this.contactNumber = userUpdateRequest.getContactNumber();
     }
 
     public void deleteUser() {
