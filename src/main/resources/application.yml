@@ -38,3 +38,7 @@ spring:
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
+
+book:
+  api:
+    key: ${BOOK_API_KEY}
