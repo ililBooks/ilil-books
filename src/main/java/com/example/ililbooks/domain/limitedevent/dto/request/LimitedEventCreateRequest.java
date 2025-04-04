@@ -1,6 +1,7 @@
 package com.example.ililbooks.domain.limitedevent.dto.request;
 
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,6 @@ public class LimitedEventCreateRequest {
     @NotBlank(message = NOT_BLANK_EVENT_DESCRIPTION)
     private String contents;
 
-    @NotNull(message = INVALID_EVENT_QUANTITY)
+    @Min(value = 1, message = INVALID_EVENT_QUANTITY)
     private Integer bookQuantity;
 }
