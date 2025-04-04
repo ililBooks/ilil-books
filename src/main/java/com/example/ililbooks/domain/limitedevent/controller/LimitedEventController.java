@@ -8,12 +8,13 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+import static com.example.ililbooks.domain.user.enums.UserRole.Authority.ADMIN;
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.PUBLISHER;
 
 @RestController
@@ -44,12 +45,12 @@ public class LimitedEventController {
 
     /*/ 행사 다건 조회 */
     @GetMapping
-    public Response<List<LimitedEventResponse>> getAllLimitedEvents() {
-        return Response.of(limitedEventService.getAllLimitedEvents());
+    public Response<Page<LimitedEventResponse>> getAllLimitedEvents(Pageable pageable) {
+        return Response.of(limitedEventService.getAllLimitedEvents(pageable));
     }
 
-    /*/ 행사 수정 (PUBLISHER 만 가능) */
-    @Secured(PUBLISHER)
+    /*/ 행사 수정 (PUBLISHER 와 ADMIN 만 가능) */
+    @Secured({PUBLISHER, ADMIN})
     @PatchMapping("/{limitedEventId}")
     public Response<LimitedEventResponse> updateLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,
@@ -59,8 +60,8 @@ public class LimitedEventController {
         return Response.of(limitedEventService.updateLimitedEvent(authUser, limitedEventId, request));
     }
 
-    /*/ 행사 삭지 (PUBLISHER 만 가능) */
-    @Secured(PUBLISHER)
+    /*/ 행사 삭제 (PUBLISHER 와 ADMIN 만 가능) */
+    @Secured({PUBLISHER, ADMIN})
     @DeleteMapping("/{limitedEventId}")
     public Response<Void> deleteLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,
