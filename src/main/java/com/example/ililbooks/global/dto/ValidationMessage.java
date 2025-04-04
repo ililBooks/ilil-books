@@ -22,5 +22,10 @@ public final class ValidationMessage {
     public static final String INVALID_EVENT_QUANTITY = "수량은 1개 이상이어야 합니다.";
     public static final String NOT_NULL_START_DATE = "시작 날짜는 필수 입력 값입니다.";
     public static final String NOT_NULL_END_DATE = "종료 날짜는 필수 입력 값입니다.";
+    public static final String NOT_NULL_AUTHOR = "저자는 필수 입력 값입니다.";
+    public static final String NOT_NULL_TITLE = "책 제목은 필수 입력 값입니다.";
+    public static final String INVALID_STOCK = "재고는 0 이상이어야 합니다.";
+    public static final String NOT_NULL_SALE_STATUS = "판매 상태를 입력해야합니다.";
+    public static final String NOT_NULL_LIMITED_TYPE = "한정판 상태를 입력해야합니다.";
 
 }
