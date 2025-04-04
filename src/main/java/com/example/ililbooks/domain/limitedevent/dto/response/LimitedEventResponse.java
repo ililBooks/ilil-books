@@ -2,13 +2,13 @@ package com.example.ililbooks.domain.limitedevent.dto.response;
 
 import com.example.ililbooks.domain.limitedevent.entity.LimitedEvent;
 import com.example.ililbooks.domain.limitedevent.enums.LimitedEventStatus;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
-@AllArgsConstructor
+@Builder
 public class LimitedEventResponse {
 
     private final Long limitedEventId;
@@ -20,16 +20,16 @@ public class LimitedEventResponse {
     private final String contents;
     private final int bookQuantity;
 
-    public static LimitedEventResponse from(LimitedEvent event) {
-        return new LimitedEventResponse(
-                event.getLimitedEventId(),
-                event.getBookId(),
-                event.getTitle(),
-                event.getStatus(),
-                event.getStartTime(),
-                event.getEndTime(),
-                event.getContents(),
-                event.getBookQuantity()
-        );
+    public static LimitedEventResponse from(LimitedEvent limitedEvent) {
+        return LimitedEventResponse.builder()
+                .limitedEventId(limitedEvent.getLimitedEventId())
+                .bookId(limitedEvent.getBookId())
+                .title(limitedEvent.getTitle())
+                .status(limitedEvent.getStatus())
+                .startTime(limitedEvent.getStartTime())
+                .endTime(limitedEvent.getEndTime())
+                .contents(limitedEvent.getContents())
+                .bookQuantity(limitedEvent.getBookQuantity())
+                .build();
     }
 }
