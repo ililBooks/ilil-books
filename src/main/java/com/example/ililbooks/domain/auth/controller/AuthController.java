@@ -6,6 +6,7 @@ import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.auth.service.AuthService;
+import com.example.ililbooks.global.dto.response.Response;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -25,7 +26,7 @@ public class AuthController {
 
     /* 회원가입 */
     @PostMapping("/signup")
-    public AuthAccessTokenResponse signup(
+    public Response<AuthAccessTokenResponse> signup(
             @Valid @RequestBody AuthSignupRequest request,
             HttpServletResponse httpServletResponse
     ) {
@@ -33,12 +34,12 @@ public class AuthController {
 
         setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
 
-        return AuthAccessTokenResponse.ofDto(tokensResponseDto.getAccessToken());
+        return Response.of(AuthAccessTokenResponse.ofDto(tokensResponseDto.getAccessToken()));
     }
 
     /* 로그인 */
     @PostMapping("/signin")
-    public AuthAccessTokenResponse signin(
+    public Response<AuthAccessTokenResponse> signin(
             @Valid @RequestBody AuthSigninRequest request,
             HttpServletResponse httpServletResponse
     ) {
@@ -46,13 +47,13 @@ public class AuthController {
 
         setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
 
-        return AuthAccessTokenResponse.ofDto(tokensResponseDto.getAccessToken());
+        return Response.of(AuthAccessTokenResponse.ofDto(tokensResponseDto.getAccessToken()));
     }
 
     /* 토큰 재발급 (로그인 기간 연장) */
     @Secured({USER, PUBLISHER, ADMIN})
     @GetMapping("/refresh")
-    public AuthAccessTokenResponse refresh(
+    public Response<AuthAccessTokenResponse> refresh(
             @RefreshToken String refreshToken,
             HttpServletResponse httpServletResponse
     ) {
@@ -60,7 +61,7 @@ public class AuthController {
 
         setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
 
-        return AuthAccessTokenResponse.ofDto(tokensResponseDto.getAccessToken());
+        return Response.of(AuthAccessTokenResponse.ofDto(tokensResponseDto.getAccessToken()));
     }
 
     /* http only 사용하기 위해 쿠키에 refreshToken 저장 */
