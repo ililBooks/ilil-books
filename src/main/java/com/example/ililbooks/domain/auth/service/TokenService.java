@@ -37,7 +37,7 @@ public class TokenService {
     /* Refresh Token 유효성 검사 */
     public User reissueToken(String token) {
 
-        RefreshToken refreshToken = getByToken(token);
+        RefreshToken refreshToken = getRefreshTokenByToken(token);
 
         if (refreshToken.getTokenState() == INVALIDATED) {
             throw new UnauthorizedException(EXPIRED_REFRESH_TOKEN.getMessage());
@@ -49,7 +49,7 @@ public class TokenService {
         return userService.getUserById(refreshToken.getUserId());
     }
 
-    private RefreshToken getByToken(String token) {
+    private RefreshToken getRefreshTokenByToken(String token) {
         return refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException(REFRESH_TOKEN_NOT_FOUND.getMessage()));
     }
