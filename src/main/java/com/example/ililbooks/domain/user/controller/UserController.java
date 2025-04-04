@@ -1,6 +1,8 @@
 package com.example.ililbooks.domain.user.controller;
 
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
+import com.example.ililbooks.domain.user.dto.request.UserDeleteRequest;
+import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -25,5 +27,25 @@ public class UserController {
     ) {
         AuthAccessTokenResponse authAccessTokenResponse = userService.updateUser(authUser, userUpdateRequest);
         return Response.of(authAccessTokenResponse);
+    }
+
+    /* 회원 비밀번호 수정 */
+    @PatchMapping("/password")
+    public Response<Void> updatePasswordUser(
+            @AuthenticationPrincipal AuthUser authUser,
+            @Valid @RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest
+    ) {
+        userService.updatePasswordUser(authUser, userUpdatePasswordRequest);
+        return Response.empty();
+    }
+
+    /* 회원 탈퇴 */
+    @DeleteMapping
+    public Response<Void> deleteUser(
+            @AuthenticationPrincipal AuthUser authUser,
+            @Valid @RequestBody UserDeleteRequest userDeleteRequest
+    ) {
+        userService.deleteUser(authUser, userDeleteRequest);
+        return Response.empty();
     }
 }

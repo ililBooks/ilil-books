@@ -6,6 +6,8 @@ import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.entity.TimeStamped;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -79,5 +81,9 @@ public class User extends TimeStamped {
 
     public void deleteUser() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
     }
 }

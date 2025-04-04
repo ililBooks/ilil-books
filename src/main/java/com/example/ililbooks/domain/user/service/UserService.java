@@ -2,6 +2,8 @@ package com.example.ililbooks.domain.user.service;
 
 import com.example.ililbooks.config.util.JwtUtil;
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
+import com.example.ililbooks.domain.user.dto.request.UserDeleteRequest;
+import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.dto.response.UserResponse;
 import com.example.ililbooks.domain.user.entity.User;
@@ -50,6 +52,7 @@ public class UserService {
     }
 
     /* 회원 수정 */
+    @Transactional
     public AuthAccessTokenResponse updateUser(AuthUser authUser, UserUpdateRequest userUpdateRequest) {
         User findUser = getUserById(authUser.getUserId());
         findUser.updateUser(userUpdateRequest);
@@ -57,6 +60,35 @@ public class UserService {
         String accessToken = jwtUtil.createAccessToken(findUser.getId(), findUser.getEmail(), findUser.getNickname(), findUser.getUserRole());
 
         return AuthAccessTokenResponse.ofDto(accessToken);
+    }
+
+    /* 회원 비밀번호 수정 */
+    @Transactional
+    public void updatePasswordUser(AuthUser authUser, UserUpdatePasswordRequest userUpdatePasswordRequest) {
+
+        if (!userUpdatePasswordRequest.getNewPassword().equals(userUpdatePasswordRequest.getNewPasswordCheck())) {
+            throw new BadRequestException(PASSWORD_CONFIRMATION_MISMATCH.getMessage());
+        }
+
+        User findUser = getUserById(authUser.getUserId());
+
+        if (!passwordEncoder.matches(userUpdatePasswordRequest.getOldPassword(), findUser.getPassword())) {
+            throw new BadRequestException(INVALID_PASSWORD.getMessage());
+        }
+
+        findUser.updatePassword(passwordEncoder.encode(userUpdatePasswordRequest.getNewPassword()));
+    }
+
+    /* 회원 삭제 */
+    @Transactional
+    public void deleteUser(AuthUser authUser, UserDeleteRequest userDeleteRequest) {
+        User findUser = getUserById(authUser.getUserId());
+
+        if (!passwordEncoder.matches(userDeleteRequest.getPassword(), findUser.getPassword())) {
+            throw new BadRequestException(INVALID_PASSWORD.getMessage());
+        }
+
+        findUser.deleteUser();
     }
 
     public User getUserByEmail(String email) {
