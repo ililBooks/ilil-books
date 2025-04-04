@@ -2,6 +2,7 @@ package com.example.ililbooks.domain.auth.service;
 
 import com.example.ililbooks.config.util.JwtUtil;
 import com.example.ililbooks.domain.auth.entity.RefreshToken;
+import com.example.ililbooks.domain.auth.enums.TokenState;
 import com.example.ililbooks.domain.auth.repository.RefreshTokenRepository;
 import com.example.ililbooks.domain.user.entity.User;
 import com.example.ililbooks.domain.user.service.UserService;
@@ -36,18 +37,20 @@ public class TokenService {
     /* Refresh Token 유효성 검사 */
     public User reissueToken(String token) {
 
-        RefreshToken refreshToken = findByTokenOrElseThrow(token);
+        RefreshToken refreshToken = getByToken(token);
 
         if (refreshToken.getTokenState() == INVALIDATED) {
             throw new UnauthorizedException(EXPIRED_REFRESH_TOKEN.getMessage());
         }
+
         refreshToken.updateTokenStatus(INVALIDATED);
+        refreshTokenRepository.save(refreshToken);
 
         return userService.getUserById(refreshToken.getUserId());
     }
 
-    private RefreshToken findByTokenOrElseThrow(String token) {
-        return refreshTokenRepository.findByToken(token).orElseThrow(
-                () -> new NotFoundException(REFRESH_TOKEN_NOT_FOUND.getMessage()));
+    private RefreshToken getByToken(String token) {
+        return refreshTokenRepository.findByToken(token)
+                .orElseThrow(() -> new NotFoundException(REFRESH_TOKEN_NOT_FOUND.getMessage()));
     }
 }

@@ -6,21 +6,22 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.util.UUID;
 
-@Entity
+import static com.example.ililbooks.config.util.JwtUtil.REFRESH_TOKEN_TIME;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@RedisHash(value = "refreshToken", timeToLive = REFRESH_TOKEN_TIME)
 public class RefreshToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String token;
 
     private Long userId;
-
-    private String token;
 
     @Enumerated(EnumType.STRING)
     private TokenState tokenState;
