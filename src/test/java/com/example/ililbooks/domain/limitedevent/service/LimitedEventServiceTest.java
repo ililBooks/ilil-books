@@ -14,11 +14,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -32,14 +37,16 @@ class LimitedEventServiceTest {
     @InjectMocks
     private LimitedEventService limitedEventService;
 
+    private static final Long TEST_LIMITED_EVENT_ID = 1L;
+    private static final AuthUser TEST_AUTH_USER = new AuthUser(1L, "test@sample.com", "닉네임", UserRole.ROLE_PUBLISHER);
+
     @Test
-    void 항정판_행사_등록성공() {
+    void 한정판_행사_등록성공() {
         // Given
-        AuthUser authUser = new AuthUser(1L, "test@email.com", "닉네임", UserRole.ROLE_PUBLISHER);
         LimitedEventCreateRequest request = new LimitedEventCreateRequest(1L, "이벤트제목", nowPlus(1), nowPlus(7), "행사내용", 100);
 
         // When
-        LimitedEventResponse response = limitedEventService.createLimitedEvent(authUser, request);
+        LimitedEventResponse response = limitedEventService.createLimitedEvent(TEST_AUTH_USER, request);
 
         // Then
         assertNotNull(response);
@@ -47,57 +54,53 @@ class LimitedEventServiceTest {
     }
 
     @Test
-    void 행사_조회성공() {
+    void 행사_단건_조회성공() {
         // Given
-        Long limitedEventId = 1L;
         LimitedEvent limitedEvent = createEvent();
 
-        given(limitedEventRepository.findById(limitedEventId)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findById(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When
-        LimitedEventResponse response = limitedEventService.getLimitedEvent(limitedEventId);
+        LimitedEventResponse response = limitedEventService.getLimitedEvent(TEST_LIMITED_EVENT_ID);
 
         // Then
-        assertEquals("행사이름", response.getTitle());
+        assertThat(response.getTitle()).isEqualTo("행사이름");
     }
 
     @Test
     void 존재하지_않는_행사_조회() {
         // Given
-        Long limitedEventId = 1L;
-
-        given(limitedEventRepository.findById(limitedEventId)).willReturn(Optional.empty());
+        given(limitedEventRepository.findById(TEST_LIMITED_EVENT_ID)).willReturn(Optional.empty());
 
         // When & Then
-        assertThrows(NotFoundException.class, () -> limitedEventService.getLimitedEvent(limitedEventId));
+        assertThrows(NotFoundException.class, () -> limitedEventService.getLimitedEvent(TEST_LIMITED_EVENT_ID));
     }
 
     @Test
     void 행사_전체_조회성공() {
         // Given
-        List<LimitedEvent> limitedEvents = List.of(createEvent(), createEvent(), createEvent());
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<LimitedEvent> eventPage = new PageImpl<>(List.of(createEvent(), createEvent(), createEvent()));
 
-        given(limitedEventRepository.findAll()).willReturn(limitedEvents);
+        given(limitedEventRepository.findAll(pageable)).willReturn(eventPage);
 
         // When
-        List<LimitedEventResponse> result = limitedEventService.getAllLimitedEvents();
+        Page<LimitedEventResponse> result = limitedEventService.getAllLimitedEvents(pageable);
 
         // Then
-        assertEquals(3, result.size());
+        assertThat(result.getTotalElements()).isEqualTo(3);
     }
 
     @Test
     void 행사_수정성공() {
         // Given
-        Long limitedEventId = 1L;
-        AuthUser authUser = new AuthUser(1L, "test@email.com", "닉네임", UserRole.ROLE_PUBLISHER);
         LimitedEvent limitedEvent = createEvent();
         LimitedEventUpdateRequest request = new LimitedEventUpdateRequest("수정된제목", nowPlus(3), nowPlus(14), "수정된내용", 150);
 
-        given(limitedEventRepository.findById(limitedEventId)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findById(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When
-        LimitedEventResponse response = limitedEventService.updateLimitedEvent(authUser, limitedEventId, request);
+        LimitedEventResponse response = limitedEventService.updateLimitedEvent(TEST_AUTH_USER, TEST_LIMITED_EVENT_ID, request);
 
         // Then
         assertEquals("수정된제목", response.getTitle());
@@ -105,31 +108,32 @@ class LimitedEventServiceTest {
     }
 
     @Test
-    void ACTIVE_상태로_행사_수정실패() {
+    void ACTIVE_상태에서_일부필드_수정성공() {
         // Given
-        Long limitedEventId = 1L;
-        AuthUser authUser = new AuthUser(1L, "test@email.com", "닉네임", UserRole.ROLE_PUBLISHER);
         LimitedEvent limitedEvent = createEvent();
         limitedEvent.activate();
-        LimitedEventUpdateRequest request = new LimitedEventUpdateRequest("수정된제목", nowPlus(3), nowPlus(14), "수정된내용", 150);
+        // 제한된 필드만 수정
+        LimitedEventUpdateRequest request = new LimitedEventUpdateRequest(null, null, nowPlus(30), null, 300);
 
-        given(limitedEventRepository.findById(limitedEventId)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findById(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
-        // When & Then
-        assertThrows(BadRequestException.class, () -> limitedEventService.updateLimitedEvent(authUser, limitedEventId, request));
+        // When
+        LimitedEventResponse response = limitedEventService.updateLimitedEvent(TEST_AUTH_USER, TEST_LIMITED_EVENT_ID, request);
+
+        // Then
+        LocalDateTime expectedEndTime = nowPlus(30);
+        assertThat(response.getBookQuantity()).isEqualTo(300);
     }
 
     @Test
     void 행사_삭제성공() {
         // Given
-        Long limitedEventId = 1L;
-        AuthUser authUser = new AuthUser(1L, "test@email.com", "닉네임", UserRole.ROLE_PUBLISHER);
         LimitedEvent limitedEvent = createEvent();
 
-        given(limitedEventRepository.findById(limitedEventId)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findById(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When
-        limitedEventService.deleteLimitedEvent(authUser, limitedEventId);
+        limitedEventService.deleteLimitedEvent(TEST_AUTH_USER, TEST_LIMITED_EVENT_ID);
 
         // Then
         verify(limitedEventRepository, times(1)).delete(limitedEvent);
@@ -138,15 +142,13 @@ class LimitedEventServiceTest {
     @Test
     void ACTIVE_상태로_행사_삭제실패() {
         // Given
-        Long limitedEventId = 1L;
-        AuthUser authUser = new AuthUser(1L, "test@email.com", "닉네임", UserRole.ROLE_PUBLISHER);
         LimitedEvent limitedEvent = createEvent();
         limitedEvent.activate();
 
-        given(limitedEventRepository.findById(limitedEventId)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findById(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When & Then
-        assertThrows(BadRequestException.class, () -> limitedEventService.deleteLimitedEvent(authUser, limitedEventId));
+        assertThrows(BadRequestException.class, () -> limitedEventService.deleteLimitedEvent(TEST_AUTH_USER, TEST_LIMITED_EVENT_ID));
     }
 
     // 헬퍼 메서드
