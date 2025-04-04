@@ -1,26 +1,24 @@
 package com.example.ililbooks.global.dto.response;
 
-import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 public interface Response<T> {
 
     T getData();
 
+    @ResponseStatus(value = HttpStatus.OK)
     static <T> Response<T> of(T data) {
         return new DefaultResponse<>(data);
     }
 
-    static <T> Response<T> empty() {
-        return new DefaultResponse<>(null);
+    @ResponseStatus(value = HttpStatus.CREATED)
+    static <T> Response<T>  created(T data) {
+        return new DefaultResponse<>(data);
     }
 
-    static <T> Response<T> fromPage(Page<T> pageData) {
-        return new PageResponse<>(
-                pageData.getContent(),
-                pageData.getPageable().getPageNumber(),
-                pageData.getPageable().getPageSize(),
-                pageData.getTotalPages(),
-                pageData.getTotalElements()
-        );
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    static <T> Response<T> empty() {
+        return new DefaultResponse<>(null);
     }
 }
