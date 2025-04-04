@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.limitedevent.entity;
 
+import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventUpdateRequest;
 import com.example.ililbooks.domain.limitedevent.enums.LimitedEventStatus;
 import com.example.ililbooks.global.entity.TimeStamped;
 import jakarta.persistence.*;
@@ -65,5 +66,14 @@ public class LimitedEvent extends TimeStamped {
         this.endTime = endTime;
         this.contents = contents;
         this.bookQuantity = bookQuantity;
+    }
+
+    /*
+     * 행사 수정(행사 시작 후)
+     */
+    public void updateAfterStart(LimitedEventUpdateRequest request) {
+        this.endTime = request.getEndTime();
+        this.contents = request.getContents();
+        this.bookQuantity = request.getBookQuantity();
     }
 }

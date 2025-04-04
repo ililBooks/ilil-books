@@ -8,12 +8,13 @@ import com.example.ililbooks.domain.limitedevent.enums.LimitedEventStatus;
 import com.example.ililbooks.domain.limitedevent.repository.LimitedEventRepository;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
+import com.example.ililbooks.global.exception.ErrorMessage;
 import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_TOKEN;
 
@@ -55,10 +56,9 @@ public class LimitedEventService {
      * 전체 행사 목록 조회
      */
     @Transactional(readOnly = true)
-    public List<LimitedEventResponse> getAllLimitedEvents() {
-        return limitedEventRepository.findAll().stream()
-                .map(LimitedEventResponse::from)
-                .toList();
+    public Page<LimitedEventResponse> getAllLimitedEvents(Pageable pageable) {
+        return limitedEventRepository.findAll(pageable)
+                .map(LimitedEventResponse::from);
     }
 
     /*
@@ -68,11 +68,14 @@ public class LimitedEventService {
     public LimitedEventResponse updateLimitedEvent(AuthUser authUser, Long limitedEventId, LimitedEventUpdateRequest request) {
         LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
 
-        if (limitedEvent.getStatus().equals(LimitedEventStatus.ACTIVE)) {
-            throw new BadRequestException("이미 시작된 행사는 수정할 수 없습니다.");
+        if (limitedEvent.getStatus() == LimitedEventStatus.ACTIVE) {
+            // 시작된 행사인 경우 제한된 필드만 수정 가능
+            limitedEvent.updateAfterStart(request);
+        } else {
+            // 아직 시작 안한 행사면 전체 필드 수정 가능
+            limitedEvent.update(request.getTitle(), request.getStartTime(), request.getEndTime(), request.getContents(), request.getBookQuantity());
         }
 
-        limitedEvent.update(request.getTitle(), request.getStartTime(), request.getEndTime(), request.getContents(), request.getBookQuantity());
         return LimitedEventResponse.from(limitedEvent);
     }
 
@@ -84,7 +87,7 @@ public class LimitedEventService {
         LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
 
         if (limitedEvent.getStatus().equals(LimitedEventStatus.ACTIVE)) {
-            throw new BadRequestException("이미 시작된 행사는 삭제할 수 없습니다.");
+            throw new BadRequestException(ErrorMessage.ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED.getMessage());
         }
 
         limitedEventRepository.delete(limitedEvent);
