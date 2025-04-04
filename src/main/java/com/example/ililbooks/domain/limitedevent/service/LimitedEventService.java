@@ -1,5 +1,7 @@
 package com.example.ililbooks.domain.limitedevent.service;
 
+import com.example.ililbooks.domain.book.entity.Book;
+import com.example.ililbooks.domain.book.repository.BookRepository;
 import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventCreateRequest;
 import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventUpdateRequest;
 import com.example.ililbooks.domain.limitedevent.dto.response.LimitedEventResponse;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_BOOK;
 import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_TOKEN;
 
 @Service
@@ -23,14 +26,19 @@ import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_TOKE
 public class LimitedEventService {
 
     private final LimitedEventRepository limitedEventRepository;
+    private final BookRepository bookRepository;
 
     /*
      * 한정판 행사 등록
      */
     @Transactional
     public LimitedEventResponse createLimitedEvent(AuthUser authUser, LimitedEventCreateRequest request) {
+        Book book = bookRepository.findById(request.getBookId()).orElseThrow(
+                () -> new NotFoundException(NOT_FOUND_BOOK.getMessage())
+        );
+
         LimitedEvent limitedEvent = LimitedEvent.builder()
-                .bookId(request.getBookId())
+                .book(book)
                 .title(request.getTitle())
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
@@ -57,7 +65,7 @@ public class LimitedEventService {
      */
     @Transactional(readOnly = true)
     public Page<LimitedEventResponse> getAllLimitedEvents(Pageable pageable) {
-        return limitedEventRepository.findAll(pageable)
+        return limitedEventRepository.findAllByDeletedAtIsNull(pageable)
                 .map(LimitedEventResponse::from);
     }
 
@@ -90,14 +98,14 @@ public class LimitedEventService {
             throw new BadRequestException(ErrorMessage.ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED.getMessage());
         }
 
-        limitedEventRepository.delete(limitedEvent);
+        limitedEvent.softDelete();
     }
 
     /*
      * 내부용 find 메서드
      */
     private LimitedEvent findByIdOrElseThrow(Long limitedEventId) {
-        return limitedEventRepository.findById(limitedEventId).orElseThrow(
+        return limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(limitedEventId).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_TOKEN.getMessage())
         );
     }

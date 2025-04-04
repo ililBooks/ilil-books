@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.limitedevent.entity;
 
+import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventUpdateRequest;
 import com.example.ililbooks.domain.limitedevent.enums.LimitedEventStatus;
 import com.example.ililbooks.global.entity.TimeStamped;
@@ -21,7 +22,9 @@ public class LimitedEvent extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long limitedEventId;
 
-    private Long bookId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_id", nullable = false)
+    private Book book;
 
     private String title;
 
@@ -36,12 +39,14 @@ public class LimitedEvent extends TimeStamped {
 
     private int bookQuantity;
 
+    private LocalDateTime deletedAt;
+
     /*
      * LimitedEvent 생성자
      */
     @Builder
-    public LimitedEvent(Long bookId, String title, LocalDateTime startTime, LocalDateTime endTime, String contents, int bookQuantity) {
-        this.bookId = bookId;
+    public LimitedEvent(Book book, String title, LocalDateTime startTime, LocalDateTime endTime, String contents, int bookQuantity) {
+        this.book = book;
         this.title = title;
         this.status = LimitedEventStatus.INACTIVE;
         this.startTime = startTime;
@@ -75,5 +80,19 @@ public class LimitedEvent extends TimeStamped {
         this.endTime = request.getEndTime();
         this.contents = request.getContents();
         this.bookQuantity = request.getBookQuantity();
+    }
+
+    /*
+     * soft delete 처리 여부 확인
+     */
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
+
+    /*
+     * soft delete 처리
+     */
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
     }
 }

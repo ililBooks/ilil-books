@@ -1,5 +1,7 @@
 package com.example.ililbooks.domain.limitedevent.service;
 
+import com.example.ililbooks.domain.book.entity.Book;
+import com.example.ililbooks.domain.book.repository.BookRepository;
 import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventCreateRequest;
 import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventUpdateRequest;
 import com.example.ililbooks.domain.limitedevent.dto.response.LimitedEventResponse;
@@ -34,6 +36,9 @@ class LimitedEventServiceTest {
     @Mock
     private LimitedEventRepository limitedEventRepository;
 
+    @Mock
+    private BookRepository bookRepository;
+
     @InjectMocks
     private LimitedEventService limitedEventService;
 
@@ -44,6 +49,16 @@ class LimitedEventServiceTest {
     void 한정판_행사_등록성공() {
         // Given
         LimitedEventCreateRequest request = new LimitedEventCreateRequest(1L, "이벤트제목", nowPlus(1), nowPlus(7), "행사내용", 100);
+
+        Book mockBook = Book.builder()
+                .title("책 제목")
+                .author("작가")
+                .price(15000L)
+                .category("카테고리")
+                .stock(50)
+                .build();
+
+        given(bookRepository.findById(1L)).willReturn(Optional.of(mockBook));
 
         // When
         LimitedEventResponse response = limitedEventService.createLimitedEvent(TEST_AUTH_USER, request);
@@ -58,7 +73,7 @@ class LimitedEventServiceTest {
         // Given
         LimitedEvent limitedEvent = createEvent();
 
-        given(limitedEventRepository.findById(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When
         LimitedEventResponse response = limitedEventService.getLimitedEvent(TEST_LIMITED_EVENT_ID);
@@ -70,7 +85,7 @@ class LimitedEventServiceTest {
     @Test
     void 존재하지_않는_행사_조회() {
         // Given
-        given(limitedEventRepository.findById(TEST_LIMITED_EVENT_ID)).willReturn(Optional.empty());
+        given(limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.empty());
 
         // When & Then
         assertThrows(NotFoundException.class, () -> limitedEventService.getLimitedEvent(TEST_LIMITED_EVENT_ID));
@@ -82,7 +97,7 @@ class LimitedEventServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<LimitedEvent> eventPage = new PageImpl<>(List.of(createEvent(), createEvent(), createEvent()));
 
-        given(limitedEventRepository.findAll(pageable)).willReturn(eventPage);
+        given(limitedEventRepository.findAllByDeletedAtIsNull(pageable)).willReturn(eventPage);
 
         // When
         Page<LimitedEventResponse> result = limitedEventService.getAllLimitedEvents(pageable);
@@ -97,7 +112,7 @@ class LimitedEventServiceTest {
         LimitedEvent limitedEvent = createEvent();
         LimitedEventUpdateRequest request = new LimitedEventUpdateRequest("수정된제목", nowPlus(3), nowPlus(14), "수정된내용", 150);
 
-        given(limitedEventRepository.findById(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When
         LimitedEventResponse response = limitedEventService.updateLimitedEvent(TEST_AUTH_USER, TEST_LIMITED_EVENT_ID, request);
@@ -115,7 +130,7 @@ class LimitedEventServiceTest {
         // 제한된 필드만 수정
         LimitedEventUpdateRequest request = new LimitedEventUpdateRequest(null, null, nowPlus(30), null, 300);
 
-        given(limitedEventRepository.findById(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When
         LimitedEventResponse response = limitedEventService.updateLimitedEvent(TEST_AUTH_USER, TEST_LIMITED_EVENT_ID, request);
@@ -130,13 +145,13 @@ class LimitedEventServiceTest {
         // Given
         LimitedEvent limitedEvent = createEvent();
 
-        given(limitedEventRepository.findById(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When
         limitedEventService.deleteLimitedEvent(TEST_AUTH_USER, TEST_LIMITED_EVENT_ID);
 
         // Then
-        verify(limitedEventRepository, times(1)).delete(limitedEvent);
+        assertNotNull(limitedEvent.getDeletedAt());
     }
 
     @Test
@@ -145,7 +160,7 @@ class LimitedEventServiceTest {
         LimitedEvent limitedEvent = createEvent();
         limitedEvent.activate();
 
-        given(limitedEventRepository.findById(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When & Then
         assertThrows(BadRequestException.class, () -> limitedEventService.deleteLimitedEvent(TEST_AUTH_USER, TEST_LIMITED_EVENT_ID));
@@ -153,8 +168,16 @@ class LimitedEventServiceTest {
 
     // 헬퍼 메서드
     private LimitedEvent createEvent() {
+        Book mockBook = Book.builder()
+                .title("책 제목")
+                .author("작가")
+                .price(10000L)
+                .category("카테고리")
+                .stock(50)
+                .build();
+
         return LimitedEvent.builder()
-                .bookId(1L)
+                .book(mockBook)
                 .title("행사이름")
                 .startTime(nowPlus(1))
                 .endTime(nowPlus(7))
