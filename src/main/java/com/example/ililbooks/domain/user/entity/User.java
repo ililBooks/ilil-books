@@ -44,7 +44,7 @@ public class User extends TimeStamped {
     private LocalDateTime deletedAt;
 
     @Builder
-    public User(Long id, String email, String nickname, String password, String zipCode, String roadAddress, String detailedAddress, String contactNumber, LoginType loginType, UserRole userRole, LocalDateTime deletedAt) {
+    private User(Long id, String email, String nickname, String password, String zipCode, String roadAddress, String detailedAddress, String contactNumber, LoginType loginType, UserRole userRole, LocalDateTime deletedAt) {
         this.id = id;
         this.email = email;
         this.nickname = nickname;

@@ -1,8 +1,8 @@
 package com.example.ililbooks.domain.auth.service;
 
-import com.example.ililbooks.domain.auth.dto.request.AuthSigninRequestDto;
-import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequestDto;
-import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponseDto;
+import com.example.ililbooks.domain.auth.dto.request.AuthSigninRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
+import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.user.entity.User;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -24,7 +24,7 @@ public class AuthService {
 
     /* 회원가입 */
     @Transactional
-    public AuthTokensResponseDto signup(AuthSignupRequestDto request) {
+    public AuthTokensResponse signup(AuthSignupRequest request) {
 
         if (!request.getPassword().equals(request.getPasswordCheck())) {
             throw new BadRequestException(PASSWORD_CONFIRMATION_MISMATCH.getMessage());
@@ -37,7 +37,7 @@ public class AuthService {
 
     /* 로그인 */
     @Transactional
-    public AuthTokensResponseDto signin(AuthSigninRequestDto request) {
+    public AuthTokensResponse signin(AuthSigninRequest request) {
         User user = userService.getUserByEmail(request.getEmail());
 
         if (user.getDeletedAt() != null) {
@@ -53,21 +53,18 @@ public class AuthService {
 
     /* Access Token, Refresh Token 재발급 */
     @Transactional
-    public AuthTokensResponseDto reissueAccessToken(String refreshToken) {
+    public AuthTokensResponse reissueAccessToken(String refreshToken) {
         User user = tokenService.reissueToken(refreshToken);
 
         return getTokenResponse(user);
     }
 
     /* Access Token, Refresh Token 생성 및 저장 */
-    private AuthTokensResponseDto getTokenResponse(User user) {
+    private AuthTokensResponse getTokenResponse(User user) {
 
         String accessToken = tokenService.createAccessToken(user);
         String refreshToken = tokenService.createRefreshToken(user);
 
-        return AuthTokensResponseDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        return AuthTokensResponse.ofDto(accessToken, refreshToken);
     }
 }

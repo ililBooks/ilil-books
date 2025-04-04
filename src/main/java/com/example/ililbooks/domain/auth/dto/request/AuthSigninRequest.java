@@ -5,11 +5,14 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
-@Builder
-public class AuthSigninRequestDto {
+public class AuthSigninRequest {
 
     private String email;
     private String password;
 
+    @Builder
+    public AuthSigninRequest(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
 }
