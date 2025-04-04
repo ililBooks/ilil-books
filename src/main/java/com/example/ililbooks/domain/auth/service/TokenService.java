@@ -2,17 +2,12 @@ package com.example.ililbooks.domain.auth.service;
 
 import com.example.ililbooks.config.util.JwtUtil;
 import com.example.ililbooks.domain.auth.entity.RefreshToken;
-import com.example.ililbooks.domain.auth.enums.TokenState;
 import com.example.ililbooks.domain.auth.repository.RefreshTokenRepository;
 import com.example.ililbooks.domain.user.entity.User;
-import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.exception.NotFoundException;
-import com.example.ililbooks.global.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import static com.example.ililbooks.domain.auth.enums.TokenState.INVALIDATED;
-import static com.example.ililbooks.global.exception.ErrorMessage.EXPIRED_REFRESH_TOKEN;
 import static com.example.ililbooks.global.exception.ErrorMessage.REFRESH_TOKEN_NOT_FOUND;
 
 @Service
@@ -20,7 +15,6 @@ import static com.example.ililbooks.global.exception.ErrorMessage.REFRESH_TOKEN_
 public class TokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserService userService;
     private final JwtUtil jwtUtil;
 
     /* Access Token 생성 */
@@ -34,22 +28,7 @@ public class TokenService {
         return refreshToken.getToken();
     }
 
-    /* Refresh Token 유효성 검사 */
-    public User reissueToken(String token) {
-
-        RefreshToken refreshToken = getRefreshTokenByToken(token);
-
-        if (refreshToken.getTokenState() == INVALIDATED) {
-            throw new UnauthorizedException(EXPIRED_REFRESH_TOKEN.getMessage());
-        }
-
-        refreshToken.updateTokenStatus(INVALIDATED);
-        refreshTokenRepository.save(refreshToken);
-
-        return userService.getUserById(refreshToken.getUserId());
-    }
-
-    private RefreshToken getRefreshTokenByToken(String token) {
+    public RefreshToken getRefreshToken(String token) {
         return refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException(REFRESH_TOKEN_NOT_FOUND.getMessage()));
     }

@@ -34,7 +34,7 @@ public class AuthController {
 
         setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
 
-        return Response.of(AuthAccessTokenResponse.ofDto(tokensResponseDto.getAccessToken()));
+        return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.getAccessToken()));
     }
 
     /* 로그인 */
@@ -47,7 +47,7 @@ public class AuthController {
 
         setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
 
-        return Response.of(AuthAccessTokenResponse.ofDto(tokensResponseDto.getAccessToken()));
+        return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.getAccessToken()));
     }
 
     /* 토큰 재발급 (로그인 기간 연장) */
@@ -57,11 +57,11 @@ public class AuthController {
             @RefreshToken String refreshToken,
             HttpServletResponse httpServletResponse
     ) {
-        AuthTokensResponse tokensResponseDto = authService.reissueAccessToken(refreshToken);
+        AuthTokensResponse tokensResponseDto = authService.reissueToken(refreshToken);
 
         setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
 
-        return Response.of(AuthAccessTokenResponse.ofDto(tokensResponseDto.getAccessToken()));
+        return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.getAccessToken()));
     }
 
     /* http only 사용하기 위해 쿠키에 refreshToken 저장 */
@@ -74,6 +74,4 @@ public class AuthController {
 
         response.addCookie(cookie);
     }
-
-
 }

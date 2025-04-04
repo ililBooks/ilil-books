@@ -5,7 +5,6 @@ import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.user.dto.request.UserDeleteRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
-import com.example.ililbooks.domain.user.dto.response.UserResponse;
 import com.example.ililbooks.domain.user.entity.User;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.enums.UserRole;
@@ -14,7 +13,6 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.example.ililbooks.global.exception.UnauthorizedException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -59,7 +57,7 @@ public class UserService {
 
         String accessToken = jwtUtil.createAccessToken(findUser.getId(), findUser.getEmail(), findUser.getNickname(), findUser.getUserRole());
 
-        return AuthAccessTokenResponse.ofDto(accessToken);
+        return AuthAccessTokenResponse.of(accessToken);
     }
 
     /* 회원 비밀번호 수정 */

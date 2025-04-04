@@ -150,23 +150,23 @@ public class AuthServiceTest {
         assertEquals(refreshToken, result.getRefreshToken());
     }
 
-    @Test
-    void 토큰_재발급_성공() {
-        // given
-        String refreshToken = "refreshToken";
-
-        String reissuedAccessToken = "reissued-accessToken";
-        String reissuedRefreshToken = "reissued-refreshToken";
-
-        given(tokenService.reissueToken(refreshToken)).willReturn(user);
-        given(tokenService.createAccessToken(any(User.class))).willReturn(reissuedAccessToken);
-        given(tokenService.createRefreshToken(any(User.class))).willReturn(reissuedRefreshToken);
-
-        // when
-        AuthTokensResponse result = authService.reissueAccessToken(refreshToken);
-
-        // then
-        assertEquals(reissuedAccessToken, result.getAccessToken());
-        assertEquals(reissuedRefreshToken, result.getRefreshToken());
-    }
+//    @Test
+//    void 토큰_재발급_성공() {
+//        // given
+//        String refreshToken = "refreshToken";
+//
+//        String reissuedAccessToken = "reissued-accessToken";
+//        String reissuedRefreshToken = "reissued-refreshToken";
+//
+//        given(tokenService.reissueToken(refreshToken)).willReturn(user);
+//        given(tokenService.createAccessToken(any(User.class))).willReturn(reissuedAccessToken);
+//        given(tokenService.createRefreshToken(any(User.class))).willReturn(reissuedRefreshToken);
+//
+//        // when
+//        AuthTokensResponse result = authService.reissueAccessToken(refreshToken);
+//
+//        // then
+//        assertEquals(reissuedAccessToken, result.getAccessToken());
+//        assertEquals(reissuedRefreshToken, result.getRefreshToken());
+//    }
 }

@@ -15,7 +15,7 @@ public class AuthTokensResponse {
         this.refreshToken = refreshToken;
     }
 
-    public static AuthTokensResponse ofDto(String accessToken, String refreshToken) {
+    public static AuthTokensResponse of(String accessToken, String refreshToken) {
         return AuthTokensResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

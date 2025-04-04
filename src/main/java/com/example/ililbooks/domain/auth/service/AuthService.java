@@ -3,6 +3,7 @@ package com.example.ililbooks.domain.auth.service;
 import com.example.ililbooks.domain.auth.dto.request.AuthSigninRequest;
 import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
+import com.example.ililbooks.domain.auth.entity.RefreshToken;
 import com.example.ililbooks.domain.user.entity.User;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -53,10 +54,14 @@ public class AuthService {
 
     /* Access Token, Refresh Token 재발급 */
     @Transactional
-    public AuthTokensResponse reissueAccessToken(String refreshToken) {
-        User user = tokenService.reissueToken(refreshToken);
+    public AuthTokensResponse reissueToken(String refreshToken) {
+        RefreshToken findRefreshToken = tokenService.getRefreshToken(refreshToken);
+        User findUser = userService.getUserById(findRefreshToken.getUserId());
 
-        return getTokenResponse(user);
+        String reissuedAccessToken = tokenService.createAccessToken(findUser);
+        String reissuedRefreshToken = findRefreshToken.updateToken();
+
+        return AuthTokensResponse.of(reissuedAccessToken, reissuedRefreshToken);
     }
 
     /* Access Token, Refresh Token 생성 및 저장 */
@@ -65,6 +70,6 @@ public class AuthService {
         String accessToken = tokenService.createAccessToken(user);
         String refreshToken = tokenService.createRefreshToken(user);
 
-        return AuthTokensResponse.ofDto(accessToken, refreshToken);
+        return AuthTokensResponse.of(accessToken, refreshToken);
     }
 }

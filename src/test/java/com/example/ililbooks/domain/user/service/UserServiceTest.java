@@ -3,7 +3,6 @@ package com.example.ililbooks.domain.user.service;
 import com.example.ililbooks.domain.user.entity.User;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.repository.UserRepository;
-import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.example.ililbooks.global.exception.UnauthorizedException;
