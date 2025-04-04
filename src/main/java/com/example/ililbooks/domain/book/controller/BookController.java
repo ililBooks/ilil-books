@@ -49,11 +49,12 @@ public class BookController {
      */
     @Secured({ADMIN, PUBLISHER})
     @PatchMapping("/{bookId}")
-    public void updateBook(
+    public Response<Void> updateBook(
             @PathVariable Long bookId,
             @Valid @RequestBody BookUpdateRequest bookUpdateRequest
     ) {
         bookService.updateBook(bookId, bookUpdateRequest);
+        return Response.empty();
     }
 
     /**
@@ -61,9 +62,10 @@ public class BookController {
      */
     @Secured({ADMIN, PUBLISHER})
     @DeleteMapping("/{bookId}")
-    public void deleteBook(
+    public Response<Void> deleteBook(
             @PathVariable Long bookId
     ) {
         bookService.deleteBook(bookId);
+        return Response.empty();
     }
 }
