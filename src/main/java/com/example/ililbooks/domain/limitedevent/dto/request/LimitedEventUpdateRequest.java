@@ -1,7 +1,5 @@
 package com.example.ililbooks.domain.limitedevent.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,18 +9,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LimitedEventUpdateRequest {
 
-    @NotBlank
-    String title;
+    private String title;
 
-    @NotNull
-    LocalDateTime startTime;
+    private LocalDateTime startTime;
 
-    @NotNull
-    LocalDateTime endTime;
+    private LocalDateTime endTime;
 
-    @NotBlank
-    String contents;
+    private String contents;
 
-    @NotNull
-    Integer bookQuantity;
+    private Integer bookQuantity;
 }
