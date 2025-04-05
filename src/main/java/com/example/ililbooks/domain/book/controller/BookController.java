@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.book.controller;
 
+import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
 import com.example.ililbooks.domain.book.service.BookService;
@@ -24,16 +25,29 @@ public class BookController {
     private final BookService bookService;
 
     /**
-     * 책 등록 API
+     * 직접 입력하여 책 저장
+     */
+    @Secured({ADMIN, PUBLISHER})
+    @PostMapping
+    public Response<BookResponse> creatBook(
+            @AuthenticationPrincipal AuthUser authUser,
+            @Valid @RequestBody BookCreateRequest bookCreateRequest
+    ) {
+        return Response.created(bookService.createBook(authUser, bookCreateRequest));
+    }
+
+    /**
+     * 외부 Open API를 통해 책 정보를 가져와 저장
      */
     @Secured({ADMIN,PUBLISHER})
-    @PostMapping
-    public Response<List<BookResponse>> createBook(
+    @PostMapping("/open-api")
+    public Response<Void> createBooksByOpenApi(
             @AuthenticationPrincipal AuthUser authUser,
             @RequestParam Integer pageNum,
             @RequestParam Integer pageSize
     ) {
-        return Response.created(bookService.createBook(authUser, pageNum, pageSize));
+        bookService.createBookByOpenApi(authUser, pageNum, pageSize);
+        return Response.empty();
     }
 
     /**

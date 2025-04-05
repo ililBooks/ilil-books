@@ -25,8 +25,9 @@ public final class ValidationMessage {
     public static final String NOT_NULL_AUTHOR = "저자는 필수 입력 값입니다.";
     public static final String NOT_NULL_TITLE = "책 제목은 필수 입력 값입니다.";
     public static final String INVALID_STOCK = "재고는 0 이상이어야 합니다.";
-    public static final String NOT_NULL_SALE_STATUS = "판매 상태를 입력해야합니다.";
-    public static final String NOT_NULL_LIMITED_TYPE = "한정판 상태를 입력해야합니다.";
+    public static final String NOT_NULL_SALE_STATUS = "판매 상태는 필수 입력 값 입니다.";
+    public static final String NOT_NULL_LIMITED_TYPE = "한정판 상태는 필수 입력 값 입니다.";
+    public static final String NOT_NULL_ISBN = "ISBN는 필수 입력 값 입니다.";
     public static final String NOT_NULL_BOOK_ID = "도서 ID는 필수 입력 값입니다.";
     public static final String NOT_NULL_EVENT_TITLE = "행사 제목은 필수 입력 값입니다.";
     public static final String FUTURE_EVENT_END_DATE = "행사 종료일은 현재 시각보다 이후여야 합니다.";

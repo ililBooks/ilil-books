@@ -2,6 +2,7 @@ package com.example.ililbooks.client;
 
 import com.example.ililbooks.client.dto.BookApiResponse;
 import com.example.ililbooks.client.dto.BookApiWrapper;
+import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,8 +31,8 @@ public class BookClient {
         this.objectMapper = objectMapper;
     }
 
-    public BookApiResponse[] getBooks(Integer pageNum, Integer pageSize) {
-        URI uri = buildBookApiUri(pageNum, pageSize);
+    public BookApiResponse[] getBooks(String nickname, Integer pageNum, Integer pageSize) {
+        URI uri = buildBookApiUri(nickname, pageNum, pageSize);
 
         // 응답을 문자열로 받기
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(uri, String.class);
@@ -56,13 +57,20 @@ public class BookClient {
         }
     }
 
-    private URI buildBookApiUri(Integer pageNum, Integer pageSize) {
+    /**
+     * kwd: 검색어 (닉네임(출판사)으로 검색)
+     * srchTarget: 검색 조건은 발행자(출판사)로 설정
+     * category: 도서에 관련된 것들만 검색
+     * pageNum: 현재 페이지
+     * pageSize: 페이지 크기 (default 10건)
+     */
+    private URI buildBookApiUri(String nickname, Integer pageNum, Integer pageSize) {
         return UriComponentsBuilder
                 .fromUriString("https://www.nl.go.kr/NL/search/openApi/search.do")
                 .queryParam("key", apiKey)
                 .queryParam("apiType", "json")
-                .queryParam("kwd", "길벗") // 검색어 (필수로 넣어주야 한다.)
-                .queryParam("srchTarget", "publisher") // 검색 조건 (전체 - 책, 제목, 저자, 발행자(출판사), 청구 기호)으로 설정
+                .queryParam("kwd", nickname)
+                .queryParam("srchTarget", "publisher")
                 .queryParam("category", "도서")
                 .queryParam("pageNum", pageNum)
                 .queryParam("pageSize", pageSize)

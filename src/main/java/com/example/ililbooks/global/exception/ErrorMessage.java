@@ -26,6 +26,7 @@ public enum ErrorMessage {
     EXPIRED_JWT_TOKEN("만료된 JWT 토큰입니다."),
     UNSUPPORTED_JWT_TOKEN("지원되지 않는 JWT 토큰입니다."),
     NOT_FOUND_BOOK("책을 찾을 수 없습니다."),
+    DUPLICATE_BOOK("이미 등록된 책 입니다."),
 
     ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다.");
 
