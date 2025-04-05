@@ -13,15 +13,12 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.internal.constraintvalidators.bv.time.future.FutureValidatorForInstant;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Stream;
 
 import static com.example.ililbooks.domain.book.dto.response.BookResponse.ofList;
 import static com.example.ililbooks.global.exception.ErrorMessage.DUPLICATE_BOOK;
@@ -38,7 +35,7 @@ public class BookService {
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {
         User findUser = userService.getUserById(authUser.getUserId());
 
-        //이미 등록된 책인 경우 저장하지 않음
+        //이미 등록된 책인 경우 (책 고유 번호로 판별)
         if(bookRepository.existsByIsbn(bookCreateRequest.getIsbn())) {
             throw new BadRequestException(DUPLICATE_BOOK.getMessage());
         }
@@ -63,17 +60,19 @@ public class BookService {
 
         User findUser = userService.getUserById(authUser.getUserId());
 
-        List<BookApiResponse> books = Arrays.stream(bookClient.getBooks(findUser.getNickname(), pageNum, pageSize)).toList();
+        //open api를 통해 책 리스트 가져오기
+        List<BookApiResponse> books = List.of(bookClient.getBooks(findUser.getNickname(), pageNum, pageSize));
 
+        //랜덤 가격 및 재고 생성을 위한 Random객체 선언
         Random random = new Random();
 
         for (BookApiResponse book : books) {
-            //랜덤 가격
+            //랜덤 가격 (Min: 5000, Max: 45000)
             long randomPrice = 5000 + random.nextLong(40000);
-            Long Price = Math.round(randomPrice / 1000.0) * 1000;
+            Long price = Math.round(randomPrice / 1000.0) * 1000;
 
-            //랜덤 재고
-            int randomStock = 1 + random.nextInt(100);
+            //랜덤 재고 (Min: 1, Max:101)
+            int randomStock = 1 +  random.nextInt(100);
 
             //이미 등록된 책인 경우 저장하지 않음
             if(bookRepository.existsByIsbn(book.getIsbn())) {
@@ -84,7 +83,7 @@ public class BookService {
                     .user(findUser)
                     .title(book.getTitle())
                     .author(book.getAuthor().replaceAll("<[^>]*>", ""))
-                    .price(Price)
+                    .price(price)
                     .category(book.getCategory())
                     .stock(randomStock)
                     .isbn(book.getIsbn())

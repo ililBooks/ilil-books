@@ -8,7 +8,6 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +25,7 @@ public class BookController {
     private final BookService bookService;
 
     /**
-     * 직접 입력하여 책 저장
+     * 직접 입력하여 책을 단건 저장하는 API
      */
     @Secured({ADMIN, PUBLISHER})
     @PostMapping
@@ -38,14 +37,14 @@ public class BookController {
     }
 
     /**
-     * 외부 Open API를 통해 책 정보를 가져와 저장
+     * 외부 Open API를 통해 책 정보를 가져와 저장하는 API
      */
     @Secured({ADMIN,PUBLISHER})
     @PostMapping("/open-api")
     public Response<Void> createBooksByOpenApi(
             @AuthenticationPrincipal AuthUser authUser,
-            @RequestParam Integer pageNum,
-            @RequestParam Integer pageSize
+            @RequestParam int pageNum,
+            @RequestParam int pageSize
     ) {
         bookService.createBookByOpenApi(authUser, pageNum, pageSize);
         return Response.empty();

@@ -2,7 +2,6 @@ package com.example.ililbooks.client;
 
 import com.example.ililbooks.client.dto.BookApiResponse;
 import com.example.ililbooks.client.dto.BookApiWrapper;
-import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 
+import static com.example.ililbooks.global.exception.ErrorMessage.BOOK_PARSING_FAILED;
 import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_BOOK;
 
 @Component
@@ -23,6 +23,7 @@ public class BookClient {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
+    //발급 키
     @Value("${book.api.key}")
     private String apiKey;
 
@@ -44,16 +45,19 @@ public class BookClient {
         String responseBody = responseEntity.getBody();
 
         try {
+
             BookApiWrapper wrapper = objectMapper.readValue(responseBody, BookApiWrapper.class);
 
             BookApiResponse[] books = wrapper.getResult();
+
             if (books == null || books.length == 0) {
                 throw new NotFoundException(NOT_FOUND_BOOK.getMessage());
             }
 
             return books;
+
         } catch (Exception e) {
-            throw new RuntimeException("도서 정보 파싱 실패", e);
+            throw new RuntimeException(BOOK_PARSING_FAILED.getMessage(), e);
         }
     }
 

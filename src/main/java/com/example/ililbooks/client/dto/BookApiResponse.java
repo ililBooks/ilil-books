@@ -5,6 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class BookApiResponse {
+
     @JsonProperty("titleInfo")
     private final String title;
 
