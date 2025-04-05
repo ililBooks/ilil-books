@@ -13,14 +13,15 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.hibernate.validator.internal.constraintvalidators.bv.time.future.FutureValidatorForInstant;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import static com.example.ililbooks.domain.book.dto.response.BookResponse.ofList;
 import static com.example.ililbooks.global.exception.ErrorMessage.DUPLICATE_BOOK;
@@ -98,6 +99,13 @@ public class BookService {
         Book findBook = getBookById(bookId);
 
         return BookResponse.of(findBook);
+    }
+
+    @Transactional(readOnly = true)
+    public List<BookResponse> getBooks(int pageNum, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
+
+        return ofList(bookRepository.findAll(pageable));
     }
 
     @Transactional

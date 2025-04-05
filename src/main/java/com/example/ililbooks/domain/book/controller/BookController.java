@@ -8,6 +8,7 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -58,6 +59,17 @@ public class BookController {
             @PathVariable Long bookId
     ) {
         return Response.of(bookService.getBookResponse(bookId));
+    }
+
+    /**
+     * 책 다건 조회 API
+     */
+    @GetMapping
+    public Response<List<BookResponse>> getBooks(
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return Response.of(bookService.getBooks(pageNum, pageSize));
     }
 
     /**
