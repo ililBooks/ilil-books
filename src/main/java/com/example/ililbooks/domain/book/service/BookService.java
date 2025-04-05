@@ -16,13 +16,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Random;
 
 import static com.example.ililbooks.domain.book.dto.response.BookResponse.ofList;
-import static com.example.ililbooks.global.exception.ErrorMessage.DUPLICATE_BOOK;
-import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_BOOK;
+import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -74,8 +74,13 @@ public class BookService {
             //랜덤 재고 (Min: 1, Max:101)
             int randomStock = 1 +  random.nextInt(100);
 
+            //책 고유번호가 없는 경우
+            if (!StringUtils.hasText(book.getIsbn())) {
+                throw new BadRequestException(BOOK_ISBN_MISSING.getMessage());
+            }
+
             //이미 등록된 책인 경우 저장하지 않음
-            if(bookRepository.existsByIsbn(book.getIsbn())) {
+            if (bookRepository.existsByIsbn(book.getIsbn())) {
                 continue;
             }
 

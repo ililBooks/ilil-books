@@ -14,8 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 
-import static com.example.ililbooks.global.exception.ErrorMessage.BOOK_PARSING_FAILED;
-import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_BOOK;
+import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Component
 public class BookClient {
@@ -39,7 +38,7 @@ public class BookClient {
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(uri, String.class);
 
         if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-            throw new RuntimeException("도서 API 응답 실패");
+            throw new RuntimeException(BOOK_API_RESPONSE_FAILED.getMessage());
         }
 
         String responseBody = responseEntity.getBody();

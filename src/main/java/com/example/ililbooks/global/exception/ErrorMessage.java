@@ -28,6 +28,8 @@ public enum ErrorMessage {
     NOT_FOUND_BOOK("책을 찾을 수 없습니다."),
     DUPLICATE_BOOK("이미 등록된 책 입니다."),
     BOOK_PARSING_FAILED("도서 정보 파싱 실패"),
+    BOOK_API_RESPONSE_FAILED("도서 API 응답 실패"),
+    BOOK_ISBN_MISSING("도서의 ISBN이 존재하지 않거나 비어 있습니다."),
 
     ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다.");
 
