@@ -5,8 +5,10 @@ import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.enums.SaleStatus;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 public class BookResponse {
@@ -65,5 +67,11 @@ public class BookResponse {
                 .createdAt(book.getCreatedAt())
                 .modifiedAt(book.getModifiedAt())
                 .build();
+    }
+
+    public static List<BookResponse> ofList(Page<Book> books) {
+        return books.stream()
+                .map(BookResponse::of)
+                .toList();
     }
 }

@@ -8,5 +8,6 @@ public class NotFoundException extends HandledException {
     public NotFoundException(String message) {
         super(ErrorCode.NOT_FOUND, message);
     }
+
 }
 
