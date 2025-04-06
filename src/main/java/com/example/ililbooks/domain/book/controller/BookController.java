@@ -14,8 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.example.ililbooks.domain.user.enums.UserRole.Authority.ADMIN;
-import static com.example.ililbooks.domain.user.enums.UserRole.Authority.PUBLISHER;
+import static com.example.ililbooks.domain.user.enums.UserRole.Authority.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,6 +52,7 @@ public class BookController {
     /**
      * 책 단건 조회 API
      */
+    @Secured({USER,ADMIN,PUBLISHER})
     @GetMapping("/{bookId}")
     public Response<BookResponse> getBook(
             @PathVariable Long bookId
@@ -63,6 +63,7 @@ public class BookController {
     /**
      * 책 다건 조회 API
      */
+    @Secured({USER,ADMIN,PUBLISHER})
     @GetMapping
     public Response<List<BookResponse>> getBooks(
             @RequestParam(defaultValue = "1") int pageNum,

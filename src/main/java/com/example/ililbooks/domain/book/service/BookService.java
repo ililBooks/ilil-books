@@ -7,6 +7,8 @@ import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.repository.BookRepository;
+import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
+import com.example.ililbooks.domain.review.service.ReviewFindService;
 import com.example.ililbooks.domain.user.entity.User;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -21,7 +23,6 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Random;
 
-import static com.example.ililbooks.domain.book.dto.response.BookResponse.ofList;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
@@ -30,6 +31,7 @@ public class BookService {
     private final BookRepository bookRepository;
     private final UserService userService;
     private final BookClient bookClient;
+    private final ReviewFindService reviewFindService;
 
     @Transactional
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {
@@ -102,14 +104,21 @@ public class BookService {
     public BookResponse getBookResponse(Long bookId) {
         Book findBook = getBookById(bookId);
 
-        return BookResponse.of(findBook);
+        List<ReviewResponse> reviews = reviewFindService.getReviews(findBook.getId());
+
+        return BookResponse.of(findBook, reviews);
     }
 
     @Transactional(readOnly = true)
     public List<BookResponse> getBooks(int pageNum, int pageSize) {
         Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
 
-        return ofList(bookRepository.findAll(pageable));
+        Page<Book> findBooks = bookRepository.findAll(pageable);
+
+        return findBooks.stream().map(book -> {
+            List<ReviewResponse> reviews = reviewFindService.getReviews(book.getId());
+            return BookResponse.of(book, reviews);
+        }).toList();
     }
 
     @Transactional
@@ -129,4 +138,5 @@ public class BookService {
     public Book getBookById(Long bookId) {
         return bookRepository.findById(bookId).orElseThrow(() -> new NotFoundException(NOT_FOUND_BOOK.getMessage()));
     }
+
 }
