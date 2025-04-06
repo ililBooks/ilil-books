@@ -1,8 +1,12 @@
 package com.example.ililbooks.domain.review.entity;
 
 import com.example.ililbooks.domain.book.entity.Book;
+import com.example.ililbooks.domain.review.dto.request.ReviewUpdateRequest;
 import com.example.ililbooks.domain.user.entity.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,5 +40,10 @@ public class Review {
         this.book = book;
         this.rating = rating;
         this.comments = comments;
+    }
+
+    public void updateReview(ReviewUpdateRequest reviewUpdateRequest) {
+        this.rating = reviewUpdateRequest.getRating();
+        this.comments = reviewUpdateRequest.getComments();
     }
 }

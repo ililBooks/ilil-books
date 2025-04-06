@@ -3,6 +3,7 @@ package com.example.ililbooks.domain.review.service;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.domain.review.dto.request.ReviewCreateRequest;
+import com.example.ililbooks.domain.review.dto.request.ReviewUpdateRequest;
 import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
 import com.example.ililbooks.domain.review.entity.Review;
 import com.example.ililbooks.domain.review.repository.ReviewRepository;
@@ -10,11 +11,13 @@ import com.example.ililbooks.domain.user.entity.User;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
+import com.example.ililbooks.global.exception.NotFoundException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import static com.example.ililbooks.global.exception.ErrorMessage.DUPLICATE_REVIEW;
+import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -46,5 +49,22 @@ public class ReviewService {
         Review savedReview = reviewRepository.save(review);
 
         return ReviewResponse.of(savedReview);
+    }
+
+    @Transactional
+    public void updateReview(Long reviewId, AuthUser authUser, ReviewUpdateRequest reviewUpdateRequest) {
+
+        Review findReview = getReview(reviewId);
+
+        //다른 사람의 리뷰를 수정하려고 하는 경우
+        if (!findReview.getUser().getId().equals(authUser.getUserId())) {
+            throw new BadRequestException(CANNOT_UPDATE_OTHERS_REVIEW.getMessage());
+        }
+
+        findReview.updateReview(reviewUpdateRequest);
+    }
+
+    public Review getReview(Long reviewId) {
+        return reviewRepository.findById(reviewId).orElseThrow(()-> new NotFoundException(NOT_FOUND_REVIEW.getMessage()));
     }
 }

@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.review.controller;
 
+import com.example.ililbooks.domain.review.dto.request.ReviewUpdateRequest;
 import com.example.ililbooks.domain.review.dto.request.ReviewCreateRequest;
 import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
 import com.example.ililbooks.domain.review.service.ReviewService;
@@ -9,10 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
 
@@ -32,5 +30,19 @@ public class ReviewController {
             @Valid @RequestBody ReviewCreateRequest reviewCreateRequest
     ) {
         return Response.of(reviewService.createReview(authUser, reviewCreateRequest));
+    }
+
+    /**
+     * 리뷰 수정
+     */
+    @Secured(USER)
+    @PatchMapping("/{reviewId}")
+    public Response<Void> updateReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal AuthUser authUser,
+            @Valid @RequestBody ReviewUpdateRequest reviewUpdateRequest
+    ) {
+        reviewService.updateReview(reviewId, authUser, reviewUpdateRequest);
+        return Response.empty();
     }
 }
