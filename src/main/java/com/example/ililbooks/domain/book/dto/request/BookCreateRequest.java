@@ -26,4 +26,7 @@ public class BookCreateRequest {
     @NotNull
     @Min(value = 0, message = INVALID_STOCK)
     private int stock;
+
+    @NotBlank(message = NOT_NULL_ISBN)
+    private String isbn;
 }

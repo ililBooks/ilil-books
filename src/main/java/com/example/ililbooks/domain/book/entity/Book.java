@@ -24,7 +24,7 @@ public class Book extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -38,6 +38,10 @@ public class Book extends TimeStamped {
 
     private int stock;
 
+    // 책의 고유 번호
+    @Column(unique = true)
+    private String isbn;
+
     @Enumerated(EnumType.STRING)
     private SaleStatus saleStatus;
 
@@ -45,13 +49,14 @@ public class Book extends TimeStamped {
     private LimitedType limitedType;
 
     @Builder
-    private Book(User user, String title, String author, Long price, String category, int stock) {
+    private Book(User user, String title, String author, Long price, String category, int stock, String isbn) {
         this.user = user;
         this.title = title;
         this.author = author;
         this.price = price;
         this.category = category;
         this.stock = stock;
+        this.isbn = isbn;
         this.saleStatus = ON_SALE;
         this.limitedType = REGULAR;
     }

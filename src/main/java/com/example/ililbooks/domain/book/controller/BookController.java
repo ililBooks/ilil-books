@@ -12,6 +12,8 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.ADMIN;
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.PUBLISHER;
 
@@ -23,15 +25,29 @@ public class BookController {
     private final BookService bookService;
 
     /**
-     * 책 등록 API
+     * 직접 입력하여 책을 단건 저장하는 API
      */
-    @Secured({ADMIN,PUBLISHER})
+    @Secured({ADMIN, PUBLISHER})
     @PostMapping
-    public Response<BookResponse> createBook(
+    public Response<BookResponse> creatBook(
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestBody BookCreateRequest bookCreateRequest
     ) {
-        return Response.of(bookService.createBook(authUser, bookCreateRequest));
+        return Response.created(bookService.createBook(authUser, bookCreateRequest));
+    }
+
+    /**
+     * 외부 Open API를 통해 책 정보를 가져와 저장하는 API
+     */
+    @Secured({ADMIN,PUBLISHER})
+    @PostMapping("/open-api")
+    public Response<Void> createBooksByOpenApi(
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestParam int pageNum,
+            @RequestParam int pageSize
+    ) {
+        bookService.createBookByOpenApi(authUser, pageNum, pageSize);
+        return Response.empty();
     }
 
     /**
@@ -45,15 +61,27 @@ public class BookController {
     }
 
     /**
+     * 책 다건 조회 API
+     */
+    @GetMapping
+    public Response<List<BookResponse>> getBooks(
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return Response.of(bookService.getBooks(pageNum, pageSize));
+    }
+
+    /**
      * 책 수정 API
      */
     @Secured({ADMIN, PUBLISHER})
     @PatchMapping("/{bookId}")
-    public void updateBook(
+    public Response<Void> updateBook(
             @PathVariable Long bookId,
             @Valid @RequestBody BookUpdateRequest bookUpdateRequest
     ) {
         bookService.updateBook(bookId, bookUpdateRequest);
+        return Response.empty();
     }
 
     /**
@@ -61,9 +89,10 @@ public class BookController {
      */
     @Secured({ADMIN, PUBLISHER})
     @DeleteMapping("/{bookId}")
-    public void deleteBook(
+    public Response<Void> deleteBook(
             @PathVariable Long bookId
     ) {
         bookService.deleteBook(bookId);
+        return Response.empty();
     }
 }
