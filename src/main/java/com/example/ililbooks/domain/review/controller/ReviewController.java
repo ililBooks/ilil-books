@@ -12,6 +12,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.ililbooks.domain.user.enums.UserRole.Authority.ADMIN;
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
 
 @RestController
@@ -33,7 +34,7 @@ public class ReviewController {
     }
 
     /**
-     * 리뷰 수정
+     * 리뷰 수정 API
      */
     @Secured(USER)
     @PatchMapping("/{reviewId}")
@@ -45,4 +46,18 @@ public class ReviewController {
         reviewService.updateReview(reviewId, authUser, reviewUpdateRequest);
         return Response.empty();
     }
+
+    /**
+     * 리뷰 삭제 API
+     */
+    @Secured({USER, ADMIN})
+    @DeleteMapping("/{reviewId}")
+    public Response<Void> deleteReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        reviewService.deleteReview(reviewId, authUser);
+        return Response.empty();
+    }
+
 }

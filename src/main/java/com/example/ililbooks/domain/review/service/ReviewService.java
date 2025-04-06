@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
@@ -62,6 +63,20 @@ public class ReviewService {
         }
 
         findReview.updateReview(reviewUpdateRequest);
+    }
+
+    @Transactional
+    public void deleteReview(Long reviewId, AuthUser authUser) {
+        Review findReview = getReview(reviewId);
+
+        //다른 사람의 리뷰를 삭제하려고 하는 경우 (ADMIN은 해당되지 않음)
+        String userRole = authUser.getAuthorities().iterator().next().getAuthority();
+
+        if (!findReview.getUser().getId().equals(authUser.getUserId()) && USER.equals(userRole)) {
+            throw new BadRequestException(CANNOT_DELETE_OTHERS_REVIEW.getMessage());
+        }
+
+        reviewRepository.delete(findReview);
     }
 
     public Review getReview(Long reviewId) {

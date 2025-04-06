@@ -34,6 +34,7 @@ public enum ErrorMessage {
     DUPLICATE_REVIEW("하나의 책에 하나의 리뷰만 등록할 수 있습니다."),
     NOT_FOUND_REVIEW("리뷰를 찾을 수 없습니다."),
     CANNOT_UPDATE_OTHERS_REVIEW("다른 사람의 리뷰를 수정할 수 없습니다."),
+    CANNOT_DELETE_OTHERS_REVIEW("다른 사람의 리뷰를 삭제할 수 없습니다."),
 
     ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다.");
 
