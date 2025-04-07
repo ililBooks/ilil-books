@@ -1,11 +1,11 @@
 package com.example.ililbooks.domain.book.entity;
 
-import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.enums.SaleStatus;
 import com.example.ililbooks.domain.user.entity.User;
 import com.example.ililbooks.global.dto.AuthUser;
+import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.global.entity.TimeStamped;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -28,7 +28,7 @@ public class Book extends TimeStamped {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    private Users users;
 
     private String title;
 
@@ -51,8 +51,8 @@ public class Book extends TimeStamped {
     private LimitedType limitedType;
 
     @Builder
-    private Book(User user, String title, String author, Long price, String category, int stock, String isbn) {
-        this.user = user;
+    private Book(Users users, String title, String author, Long price, String category, int stock, String isbn) {
+        this.users = users;
         this.title = title;
         this.author = author;
         this.price = price;
@@ -63,9 +63,9 @@ public class Book extends TimeStamped {
         this.limitedType = REGULAR;
     }
 
-    public static Book createFrom(User user, BookCreateRequest bookCreateRequest) {
+    public static Book createFrom(Users users, BookCreateRequest bookCreateRequest) {
         return Book.builder()
-                .user(user)
+                .users(users)
                 .title(bookCreateRequest.getTitle())
                 .author(bookCreateRequest.getAuthor())
                 .price(bookCreateRequest.getPrice())

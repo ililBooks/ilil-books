@@ -13,7 +13,7 @@ public class AuthAccessTokenResponse {
         this.accessToken = accessToken;
     }
 
-    public static AuthAccessTokenResponse ofDto(String accessToken) {
+    public static AuthAccessTokenResponse of(String accessToken) {
         return AuthAccessTokenResponse.builder()
                 .accessToken(accessToken)
                 .build();

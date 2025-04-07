@@ -10,6 +10,13 @@ public final class ValidationMessage {
     public static final String PATTERN_EMAIL = "이메일 형식으로 입력되어야 합니다.";
     public static final String NOT_BLANK_NICKNAME = "닉네임은 필수 입력 값입니다.";
     public static final String NOT_BLANK_PASSWORD = "비밀번호는 필수 입력 값입니다.";
+    public static final String NOT_BLANK_ZIPCODE = "우편번호는 필수 입력 값입니다.";
+    public static final String PATTERN_ZIPCODE = "우편번호는 숫자 5자리여야 합니다.";
+    public static final String PATTERN_ZIPCODE_REGEXP = "^[0-9]{5}$";
+    public static final String NOT_BLANK_ROAD_ADDRESS = "도로명주소는 필수 입력 값입니다.";
+    public static final String NOT_BLANK_DETAILED_ADDRESS = "상세주소는 필수 입력 값입니다.";
+    public static final String NOT_BLANK_CONTACT_NUMBER = "연락처는 필수 입력 값입니다.";
+    public static final String VALIDATE_CONTACT_NUMBER_SIZE = "연락처는 10~11자로 입력되어야 합니다.";
     public static final String NOT_NULL_SCORE = "별점은 필수 입력 값입니다.";
     public static final String NOT_BLANK_CONTENT = "컨텐트는 필수 입력 값입니다.";
     public static final String NOT_BLANK_PRODUCT_NAME = "상품명은 필수 입력 값입니다.";

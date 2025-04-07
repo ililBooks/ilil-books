@@ -7,6 +7,7 @@ import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.repository.BookRepository;
+import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
 import com.example.ililbooks.domain.review.service.ReviewFindService;
 import com.example.ililbooks.domain.user.entity.User;
@@ -37,14 +38,25 @@ public class BookService {
 
     @Transactional
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {
-        User findUser = userService.getUserById(authUser.getUserId());
+        Users findUsers = userService.findByIdOrElseThrow(authUser.getUserId());
 
         //이미 등록된 책인 경우 (책 고유 번호로 판별)
         if(bookRepository.existsByIsbn(bookCreateRequest.getIsbn())) {
             throw new BadRequestException(DUPLICATE_BOOK.getMessage());
         }
 
-        Book createBook = createFrom(findUser, bookCreateRequest);
+        Book savedBook = Book.builder()
+                .users(findUsers)
+                .title(bookCreateRequest.getTitle())
+                .author(bookCreateRequest.getAuthor())
+                .price(bookCreateRequest.getPrice())
+                .category(bookCreateRequest.getCategory())
+                .stock(bookCreateRequest.getStock())
+                .isbn(bookCreateRequest.getIsbn())
+                .build();
+
+        bookRepository.save(savedBook);
+        Book createBook = createFrom(findUsers, bookCreateRequest);
         Book savedBook = bookRepository.save(createBook);
 
         return BookResponse.of(savedBook);
@@ -53,10 +65,10 @@ public class BookService {
     @Transactional
     public void createBookByOpenApi(AuthUser authUser, Integer pageNum, Integer pageSize) {
 
-        User findUser = userService.getUserById(authUser.getUserId());
+        Users findUsers = userService.findByIdOrElseThrow(authUser.getUserId());
 
         //open api를 통해 책 리스트 가져오기
-        List<BookApiResponse> books = List.of(bookClient.getBooks(findUser.getNickname(), pageNum, pageSize));
+        List<BookApiResponse> books = List.of(bookClient.getBooks(findUsers.getNickname(), pageNum, pageSize));
 
         //랜덤 가격 및 재고 생성을 위한 Random객체 선언
         Random random = new Random();
@@ -80,7 +92,7 @@ public class BookService {
             }
 
             Book savedBook = Book.builder()
-                    .user(findUser)
+                    .users(findUsers)
                     .title(book.getTitle())
                     .author(book.getAuthor().replaceAll("<[^>]*>", ""))
                     .price(price)
