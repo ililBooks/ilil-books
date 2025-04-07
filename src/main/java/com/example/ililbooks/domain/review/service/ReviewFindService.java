@@ -9,14 +9,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ReviewFindService {
     private final ReviewRepository reviewRepository;
 
-    public List<ReviewResponse> getReviews(Long bookId, int pageNum, int pageSize) {
+    public Page<ReviewResponse> getReviews(Long bookId, int pageNum, int pageSize) {
         Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
         Page<Review> findReviews = reviewRepository.findAllByBookId(bookId, pageable);
         return ReviewResponse.ofList(findReviews);

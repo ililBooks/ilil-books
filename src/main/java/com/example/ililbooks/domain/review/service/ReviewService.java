@@ -16,8 +16,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
@@ -32,7 +30,7 @@ public class ReviewService {
     public ReviewResponse createReview(AuthUser authUser, ReviewCreateRequest reviewCreateRequest) {
 
         User findUser = userService.getUserById(authUser.getUserId());
-        Book findBook = bookService.getBookById(reviewCreateRequest.getBookId());
+        Book findBook = bookService.findBookById(reviewCreateRequest.getBookId());
 
         //이미 리뷰를 등록한 경우
         if (reviewRepository.existsByBookIdAndUserId(findBook.getId(), findUser.getId())) {

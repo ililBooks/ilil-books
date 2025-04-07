@@ -1,9 +1,11 @@
 package com.example.ililbooks.domain.book.entity;
 
+import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.enums.SaleStatus;
 import com.example.ililbooks.domain.user.entity.User;
+import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.entity.TimeStamped;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -59,6 +61,18 @@ public class Book extends TimeStamped {
         this.isbn = isbn;
         this.saleStatus = ON_SALE;
         this.limitedType = REGULAR;
+    }
+
+    public static Book createFrom(User user, BookCreateRequest bookCreateRequest) {
+        return Book.builder()
+                .user(user)
+                .title(bookCreateRequest.getTitle())
+                .author(bookCreateRequest.getAuthor())
+                .price(bookCreateRequest.getPrice())
+                .category(bookCreateRequest.getCategory())
+                .stock(bookCreateRequest.getStock())
+                .isbn(bookCreateRequest.getIsbn())
+                .build();
     }
 
     public void updateBook(BookUpdateRequest bookUpdateRequest) {

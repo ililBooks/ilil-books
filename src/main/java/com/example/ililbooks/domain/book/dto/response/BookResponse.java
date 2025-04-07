@@ -27,7 +27,7 @@ public class BookResponse {
 
     private final int stock;
 
-    private final List<ReviewResponse> reviews;
+    private final Page<ReviewResponse> reviews;
 
     //todo: 이미지 추가
 
@@ -40,7 +40,7 @@ public class BookResponse {
     private final LocalDateTime modifiedAt;
 
     @Builder
-    private BookResponse(Long id, Long userId, String title, String author, Long price, String category, int stock, List<ReviewResponse> reviews, SaleStatus saleStatus, LimitedType limitedType, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private BookResponse(Long id, Long userId, String title, String author, Long price, String category, int stock, Page<ReviewResponse> reviews, SaleStatus saleStatus, LimitedType limitedType, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.userId = userId;
         this.title = title;
@@ -70,13 +70,11 @@ public class BookResponse {
                 .build();
     }
 
-    public static List<BookResponse> ofList(Page<Book> books) {
-        return books.stream()
-                .map(BookResponse::of)
-                .toList();
+    public static Page<BookResponse> ofList(Page<Book> books) {
+        return books.map(BookResponse::of);
     }
 
-    public static BookResponse of(Book book, List<ReviewResponse> reviews) {
+    public static BookResponse of(Book book, Page<ReviewResponse> reviews) {
         return BookResponse.builder()
                 .id(book.getId())
                 .userId(book.getUser().getId())

@@ -30,7 +30,7 @@ public class ReviewResponse {
                 .build();
     }
 
-    public static List<ReviewResponse> ofList(Page<Review> reviews) {
-        return reviews.stream().map(ReviewResponse::of).toList();
+    public static Page<ReviewResponse> ofList(Page<Review> reviews) {
+        return reviews.map(ReviewResponse::of);
     }
 }

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Random;
 
 import static com.example.ililbooks.domain.book.dto.response.BookResponse.ofList;
+import static com.example.ililbooks.domain.book.entity.Book.createFrom;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
@@ -43,17 +44,8 @@ public class BookService {
             throw new BadRequestException(DUPLICATE_BOOK.getMessage());
         }
 
-        Book savedBook = Book.builder()
-                .user(findUser)
-                .title(bookCreateRequest.getTitle())
-                .author(bookCreateRequest.getAuthor())
-                .price(bookCreateRequest.getPrice())
-                .category(bookCreateRequest.getCategory())
-                .stock(bookCreateRequest.getStock())
-                .isbn(bookCreateRequest.getIsbn())
-                .build();
-
-        bookRepository.save(savedBook);
+        Book createBook = createFrom(findUser, bookCreateRequest);
+        Book savedBook = bookRepository.save(createBook);
 
         return BookResponse.of(savedBook);
     }
@@ -103,15 +95,15 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public BookResponse getBookResponse(Long bookId, int pageNum, int pageSize) {
-        Book findBook = getBookById(bookId);
+        Book findBook = findBookById(bookId);
 
-        List<ReviewResponse> reviews = reviewFindService.getReviews(findBook.getId(), pageNum, pageSize);
+        Page<ReviewResponse> reviews = reviewFindService.getReviews(findBook.getId(), pageNum, pageSize);
 
         return BookResponse.of(findBook, reviews);
     }
 
     @Transactional(readOnly = true)
-    public List<BookResponse> getBooks(int pageNum, int pageSize) {
+    public Page<BookResponse> getBooks(int pageNum, int pageSize) {
         Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
 
         Page<Book> findBooks = bookRepository.findAll(pageable);
@@ -121,19 +113,19 @@ public class BookService {
 
     @Transactional
     public void updateBook(Long bookId, BookUpdateRequest bookUpdateRequest) {
-        Book findBook = getBookById(bookId);
+        Book findBook = findBookById(bookId);
 
         findBook.updateBook(bookUpdateRequest);
     }
 
     @Transactional
     public void deleteBook(Long bookId) {
-        Book findBook = getBookById(bookId);
+        Book findBook = findBookById(bookId);
 
         bookRepository.delete(findBook);
     }
 
-    public Book getBookById(Long bookId) {
+    public Book findBookById(Long bookId) {
         return bookRepository.findById(bookId).orElseThrow(() -> new NotFoundException(NOT_FOUND_BOOK.getMessage()));
     }
 
