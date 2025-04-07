@@ -31,7 +31,7 @@ public class AuthService {
             throw new BadRequestException(PASSWORD_CONFIRMATION_MISMATCH.getMessage());
         }
 
-        Users users = userService.saveUser(request.getEmail(), request.getNickname(), request.getPassword(), request.getUserRole());
+        Users users = userService.saveUser(request);
 
         return getTokenResponse(users);
     }

@@ -1,6 +1,7 @@
 package com.example.ililbooks.domain.user.service;
 
 import com.example.ililbooks.config.util.JwtUtil;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.user.dto.request.UserDeleteRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
@@ -31,21 +32,15 @@ public class UserService {
 
     /* 회원 저장 */
     @Transactional
-    public Users saveUser(String email, String nickname, String password, String userRole) {
+    public Users saveUser(AuthSignupRequest authSignupRequest) {
 
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmail(authSignupRequest.getEmail())) {
             throw new BadRequestException(DUPLICATE_EMAIL.getMessage());
         }
 
-        String encodedPassword = passwordEncoder.encode(password);
+        String encodedPassword = passwordEncoder.encode(authSignupRequest.getPassword());
 
-        Users users = Users.builder()
-                .email(email)
-                .nickname(nickname)
-                .password(encodedPassword)
-                .userRole(UserRole.of(userRole))
-                .loginType(LoginType.EMAIL)
-                .build();
+        Users users = Users.of(authSignupRequest, encodedPassword);
 
         return userRepository.save(users);
     }
