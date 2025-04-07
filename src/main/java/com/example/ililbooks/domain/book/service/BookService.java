@@ -115,10 +115,13 @@ public class BookService {
 
         Page<Book> findBooks = bookRepository.findAll(pageable);
 
-        return findBooks.stream().map(book -> {
-            List<ReviewResponse> reviews = reviewFindService.getReviews(book.getId());
-            return BookResponse.of(book, reviews);
-        }).toList();
+        return findBooks.stream()
+                .map(book ->
+                {
+                    List<ReviewResponse> reviews = reviewFindService.getReviews(book.getId());
+                    return BookResponse.of(book, reviews);
+                })
+                .toList();
     }
 
     @Transactional

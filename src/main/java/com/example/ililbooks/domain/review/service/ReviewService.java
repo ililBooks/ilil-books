@@ -23,16 +23,14 @@ import static com.example.ililbooks.global.exception.ErrorMessage.*;
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
-    private final BookService bookService;
     private final ReviewRepository reviewRepository;
     private final UserService userService;
+    private final BookService bookService;
 
     @Transactional
     public ReviewResponse createReview(AuthUser authUser, ReviewCreateRequest reviewCreateRequest) {
 
-        //로그인한 유저
         User findUser = userService.getUserById(authUser.getUserId());
-
         Book findBook = bookService.getBookById(reviewCreateRequest.getBookId());
 
         //이미 리뷰를 등록한 경우
