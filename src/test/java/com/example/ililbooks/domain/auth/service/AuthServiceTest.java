@@ -3,7 +3,7 @@ package com.example.ililbooks.domain.auth.service;
 import com.example.ililbooks.domain.auth.dto.request.AuthSigninRequest;
 import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
-import com.example.ililbooks.domain.user.entity.User;
+import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -41,7 +41,7 @@ public class AuthServiceTest {
     private AuthSignupRequest successSignup;
     private AuthSignupRequest passwordCheckErrorSignup;
     private AuthSigninRequest successSignin;
-    private User user;
+    private Users users;
 
     @BeforeEach
     public void setUp() {
@@ -66,7 +66,7 @@ public class AuthServiceTest {
                 .password("password1234")
                 .build();
 
-        user = User.builder()
+        users = Users.builder()
                 .email(successSignup.getEmail())
                 .nickname(successSignup.getNickname())
                 .userRole(UserRole.ROLE_USER)
@@ -90,9 +90,9 @@ public class AuthServiceTest {
         String accessToken = "accessToken";
         String refreshToken = "refreshToken";
 
-        given(userService.saveUser(any(String.class), any(String.class), any(String.class), any(String.class))).willReturn(user);
-        given(tokenService.createAccessToken(any(User.class))).willReturn(accessToken);
-        given(tokenService.createRefreshToken(any(User.class))).willReturn(refreshToken);
+        given(userService.saveUser(any(String.class), any(String.class), any(String.class), any(String.class))).willReturn(users);
+        given(tokenService.createAccessToken(any(Users.class))).willReturn(accessToken);
+        given(tokenService.createRefreshToken(any(Users.class))).willReturn(refreshToken);
 
         // when
         AuthTokensResponse result = authService.signup(successSignup);
@@ -105,9 +105,9 @@ public class AuthServiceTest {
     @Test
     void 로그인_삭제된_유저의_이메일일_경우_실패() {
         // given
-        ReflectionTestUtils.setField(user, "deletedAt", LocalDateTime.now());
+        ReflectionTestUtils.setField(users, "deletedAt", LocalDateTime.now());
 
-        given(userService.getUserByEmail(any(String.class))).willReturn(user);
+        given(userService.getUserByEmail(any(String.class))).willReturn(users);
 
         // when & then
         UnauthorizedException unauthorizedException = assertThrows(UnauthorizedException.class,
@@ -118,10 +118,10 @@ public class AuthServiceTest {
     @Test
     void 로그인_비밀번호가_일치하지_않을_경우_실패() {
         // given
-        ReflectionTestUtils.setField(user, "deletedAt", null);
+        ReflectionTestUtils.setField(users, "deletedAt", null);
 
-        given(userService.getUserByEmail(any(String.class))).willReturn(user);
-        given(passwordEncoder.matches(successSignin.getPassword(), user.getPassword())).willReturn(false);
+        given(userService.getUserByEmail(any(String.class))).willReturn(users);
+        given(passwordEncoder.matches(successSignin.getPassword(), users.getPassword())).willReturn(false);
 
         // when & then
         UnauthorizedException unauthorizedException = assertThrows(UnauthorizedException.class,
@@ -132,15 +132,15 @@ public class AuthServiceTest {
     @Test
     void 로그인_성공() {
         // given
-        ReflectionTestUtils.setField(user, "deletedAt", null);
+        ReflectionTestUtils.setField(users, "deletedAt", null);
 
         String accessToken = "accessToken";
         String refreshToken = "refreshToken";
 
-        given(userService.getUserByEmail(any(String.class))).willReturn(user);
-        given(passwordEncoder.matches(successSignin.getPassword(), user.getPassword())).willReturn(true);
-        given(tokenService.createAccessToken(any(User.class))).willReturn(accessToken);
-        given(tokenService.createRefreshToken(any(User.class))).willReturn(refreshToken);
+        given(userService.getUserByEmail(any(String.class))).willReturn(users);
+        given(passwordEncoder.matches(successSignin.getPassword(), users.getPassword())).willReturn(true);
+        given(tokenService.createAccessToken(any(Users.class))).willReturn(accessToken);
+        given(tokenService.createRefreshToken(any(Users.class))).willReturn(refreshToken);
 
         // when
         AuthTokensResponse result = authService.signin(successSignin);

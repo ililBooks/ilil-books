@@ -1,6 +1,6 @@
 package com.example.ililbooks.domain.user.service;
 
-import com.example.ililbooks.domain.user.entity.User;
+import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.repository.UserRepository;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+public class UsersServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -34,11 +34,11 @@ public class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    private User user;
+    private Users users;
 
     @BeforeEach
     public void setUp() {
-        user = User.builder()
+        users = Users.builder()
                 .nickname("nickname")
                 .userRole(UserRole.ROLE_USER)
                 .build();
@@ -62,18 +62,18 @@ public class UserServiceTest {
     void findById조회_성공() {
         // given
         Long userId = 1L;
-        ReflectionTestUtils.setField(user, "id", userId);
+        ReflectionTestUtils.setField(users, "id", userId);
 
-        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(users));
 
         // when
-        User resultUser = userService.getUserById(userId);
+        Users resultUsers = userService.getUserById(userId);
 
         // then
-        assertNotNull(resultUser);
-        assertEquals(user.getId(), resultUser.getId());
-        assertEquals(user.getNickname(), resultUser.getNickname());
-        assertEquals(user.getUserRole(), resultUser.getUserRole());
+        assertNotNull(resultUsers);
+        assertEquals(users.getId(), resultUsers.getId());
+        assertEquals(users.getNickname(), resultUsers.getNickname());
+        assertEquals(users.getUserRole(), resultUsers.getUserRole());
     }
 
     /* findUserByEmailOrElseThrow */
@@ -94,18 +94,18 @@ public class UserServiceTest {
     void findByEmail조회_성공() {
         // given
         String email = "email@email.com";
-        ReflectionTestUtils.setField(user, "email", email);
+        ReflectionTestUtils.setField(users, "email", email);
 
-        given(userRepository.findByEmail(any(String.class))).willReturn(Optional.of(user));
+        given(userRepository.findByEmail(any(String.class))).willReturn(Optional.of(users));
 
         // when
-        User resultUser = userService.getUserByEmail(email);
+        Users resultUsers = userService.getUserByEmail(email);
 
         // then
-        assertNotNull(resultUser);
-        assertEquals(user.getEmail(), resultUser.getEmail());
-        assertEquals(user.getNickname(), resultUser.getNickname());
-        assertEquals(user.getUserRole(), resultUser.getUserRole());
+        assertNotNull(resultUsers);
+        assertEquals(users.getEmail(), resultUsers.getEmail());
+        assertEquals(users.getNickname(), resultUsers.getNickname());
+        assertEquals(users.getUserRole(), resultUsers.getUserRole());
     }
 
     /* saveUser */
@@ -132,25 +132,25 @@ public class UserServiceTest {
         String nickname = "nickname";
         String password = "password1234";
         String userRole = "ROLE_USER";
-        ReflectionTestUtils.setField(user, "email", "email@email.com");
-        ReflectionTestUtils.setField(user, "password", "password1234");
+        ReflectionTestUtils.setField(users, "email", "email@email.com");
+        ReflectionTestUtils.setField(users, "password", "password1234");
 
 
         String encodedPassword = "encoded-password1234";
 
         given(userRepository.existsByEmail(any(String.class))).willReturn(false);
         given(passwordEncoder.encode(any(String.class))).willReturn(encodedPassword);
-        given(userRepository.save(any(User.class))).willReturn(user);
+        given(userRepository.save(any(Users.class))).willReturn(users);
 
         // when
-        User resultUser = userService.saveUser(email, nickname, password, userRole);
+        Users resultUsers = userService.saveUser(email, nickname, password, userRole);
 
         // then
-        assertNotNull(resultUser);
-        assertEquals(email, resultUser.getEmail());
-        assertEquals(nickname, resultUser.getNickname());
-        assertEquals(password, resultUser.getPassword());
-        assertEquals(UserRole.of(userRole), resultUser.getUserRole());
+        assertNotNull(resultUsers);
+        assertEquals(email, resultUsers.getEmail());
+        assertEquals(nickname, resultUsers.getNickname());
+        assertEquals(password, resultUsers.getPassword());
+        assertEquals(UserRole.of(userRole), resultUsers.getUserRole());
 
     }
 }

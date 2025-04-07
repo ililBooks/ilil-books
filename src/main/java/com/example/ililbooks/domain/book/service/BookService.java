@@ -7,7 +7,7 @@ import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.repository.BookRepository;
-import com.example.ililbooks.domain.user.entity.User;
+import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -33,7 +33,7 @@ public class BookService {
 
     @Transactional
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {
-        User findUser = userService.getUserById(authUser.getUserId());
+        Users findUsers = userService.getUserById(authUser.getUserId());
 
         //이미 등록된 책인 경우 (책 고유 번호로 판별)
         if(bookRepository.existsByIsbn(bookCreateRequest.getIsbn())) {
@@ -41,7 +41,7 @@ public class BookService {
         }
 
         Book savedBook = Book.builder()
-                .user(findUser)
+                .user(findUsers)
                 .title(bookCreateRequest.getTitle())
                 .author(bookCreateRequest.getAuthor())
                 .price(bookCreateRequest.getPrice())
@@ -58,10 +58,10 @@ public class BookService {
     @Transactional
     public void createBookByOpenApi(AuthUser authUser, Integer pageNum, Integer pageSize) {
 
-        User findUser = userService.getUserById(authUser.getUserId());
+        Users findUsers = userService.getUserById(authUser.getUserId());
 
         //open api를 통해 책 리스트 가져오기
-        List<BookApiResponse> books = List.of(bookClient.getBooks(findUser.getNickname(), pageNum, pageSize));
+        List<BookApiResponse> books = List.of(bookClient.getBooks(findUsers.getNickname(), pageNum, pageSize));
 
         //랜덤 가격 및 재고 생성을 위한 Random객체 선언
         Random random = new Random();
@@ -85,7 +85,7 @@ public class BookService {
             }
 
             Book savedBook = Book.builder()
-                    .user(findUser)
+                    .user(findUsers)
                     .title(book.getTitle())
                     .author(book.getAuthor().replaceAll("<[^>]*>", ""))
                     .price(price)

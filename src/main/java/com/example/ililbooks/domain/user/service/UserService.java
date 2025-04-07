@@ -6,7 +6,7 @@ import com.example.ililbooks.domain.user.dto.request.UserDeleteRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.dto.response.UserResponse;
-import com.example.ililbooks.domain.user.entity.User;
+import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.repository.UserRepository;
@@ -15,7 +15,6 @@ import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.example.ililbooks.global.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +31,7 @@ public class UserService {
 
     /* 회원 저장 */
     @Transactional
-    public User saveUser(String email, String nickname, String password, String userRole) {
+    public Users saveUser(String email, String nickname, String password, String userRole) {
 
         if (userRepository.existsByEmail(email)) {
             throw new BadRequestException(DUPLICATE_EMAIL.getMessage());
@@ -40,7 +39,7 @@ public class UserService {
 
         String encodedPassword = passwordEncoder.encode(password);
 
-        User user = User.builder()
+        Users users = Users.builder()
                 .email(email)
                 .nickname(nickname)
                 .password(encodedPassword)
@@ -48,23 +47,23 @@ public class UserService {
                 .loginType(LoginType.EMAIL)
                 .build();
 
-        return userRepository.save(user);
+        return userRepository.save(users);
     }
 
     /* 회원 조회 */
     @Transactional(readOnly = true)
     public UserResponse getUser(AuthUser authUser) {
-        User findUser = getUserById(authUser.getUserId());
-        return UserResponse.of(findUser);
+        Users findUsers = getUserById(authUser.getUserId());
+        return UserResponse.of(findUsers);
     }
 
     /* 회원 수정 */
     @Transactional
     public AuthAccessTokenResponse updateUser(AuthUser authUser, UserUpdateRequest userUpdateRequest) {
-        User findUser = getUserById(authUser.getUserId());
-        findUser.updateUser(userUpdateRequest);
+        Users findUsers = getUserById(authUser.getUserId());
+        findUsers.updateUser(userUpdateRequest);
 
-        String accessToken = jwtUtil.createAccessToken(findUser.getId(), findUser.getEmail(), findUser.getNickname(), findUser.getUserRole());
+        String accessToken = jwtUtil.createAccessToken(findUsers.getId(), findUsers.getEmail(), findUsers.getNickname(), findUsers.getUserRole());
 
         return AuthAccessTokenResponse.of(accessToken);
     }
@@ -77,34 +76,34 @@ public class UserService {
             throw new BadRequestException(PASSWORD_CONFIRMATION_MISMATCH.getMessage());
         }
 
-        User findUser = getUserById(authUser.getUserId());
+        Users findUsers = getUserById(authUser.getUserId());
 
-        if (!passwordEncoder.matches(userUpdatePasswordRequest.getOldPassword(), findUser.getPassword())) {
+        if (!passwordEncoder.matches(userUpdatePasswordRequest.getOldPassword(), findUsers.getPassword())) {
             throw new BadRequestException(INVALID_PASSWORD.getMessage());
         }
 
-        findUser.updatePassword(passwordEncoder.encode(userUpdatePasswordRequest.getNewPassword()));
+        findUsers.updatePassword(passwordEncoder.encode(userUpdatePasswordRequest.getNewPassword()));
     }
 
     /* 회원 삭제 */
     @Transactional
     public void deleteUser(AuthUser authUser, UserDeleteRequest userDeleteRequest) {
-        User findUser = getUserById(authUser.getUserId());
+        Users findUsers = getUserById(authUser.getUserId());
 
-        if (!passwordEncoder.matches(userDeleteRequest.getPassword(), findUser.getPassword())) {
+        if (!passwordEncoder.matches(userDeleteRequest.getPassword(), findUsers.getPassword())) {
             throw new BadRequestException(INVALID_PASSWORD.getMessage());
         }
 
-        findUser.deleteUser();
+        findUsers.deleteUser();
     }
 
-    public User getUserByEmail(String email) {
+    public Users getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new UnauthorizedException(USER_EMAIL_NOT_FOUND.getMessage())
         );
     }
 
-    public User getUserById(Long userId) {
+    public Users getUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(USER_ID_NOT_FOUND.getMessage())
         );

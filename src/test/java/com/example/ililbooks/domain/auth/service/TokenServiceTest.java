@@ -3,7 +3,7 @@ package com.example.ililbooks.domain.auth.service;
 import com.example.ililbooks.config.util.JwtUtil;
 import com.example.ililbooks.domain.auth.entity.RefreshToken;
 import com.example.ililbooks.domain.auth.repository.RefreshTokenRepository;
-import com.example.ililbooks.domain.user.entity.User;
+import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,11 +31,11 @@ public class TokenServiceTest {
     @InjectMocks
     private TokenService tokenService;
 
-    private User user;
+    private Users users;
 
     @BeforeEach
     public void setUp() {
-        user = User.builder()
+        users = Users.builder()
                 .email("email@email.com")
                 .nickname("nickname")
                 .userRole(UserRole.ROLE_USER)
@@ -48,10 +48,10 @@ public class TokenServiceTest {
         // given
         String accessToken = "accessToken";
 
-        given(jwtUtil.createAccessToken(user.getId(), user.getEmail(), user.getNickname(), user.getUserRole())).willReturn(accessToken);
+        given(jwtUtil.createAccessToken(users.getId(), users.getEmail(), users.getNickname(), users.getUserRole())).willReturn(accessToken);
 
         // when
-        String result = tokenService.createAccessToken(user);
+        String result = tokenService.createAccessToken(users);
 
         // then
         assertEquals(accessToken, result);
@@ -61,12 +61,12 @@ public class TokenServiceTest {
     @Test
     void 토큰발급_RefreshToken_발급_성공() {
         // given
-        RefreshToken mockRefreshToken = new RefreshToken(user.getId());
+        RefreshToken mockRefreshToken = new RefreshToken(users.getId());
 
         given(refreshTokenRepository.save(any(RefreshToken.class))).willReturn(mockRefreshToken);
 
         // when
-        String createdRefreshToken = tokenService.createRefreshToken(user);
+        String createdRefreshToken = tokenService.createRefreshToken(users);
 
         // then
         verify(refreshTokenRepository, times(1)).save(any(RefreshToken.class));

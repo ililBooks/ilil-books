@@ -1,6 +1,6 @@
 package com.example.ililbooks.domain.user.dto.response;
 
-import com.example.ililbooks.domain.user.entity.User;
+import com.example.ililbooks.domain.user.entity.Users;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -28,16 +28,16 @@ public class UserResponse {
         this.loginType = loginType;
     }
 
-    public static UserResponse of(User user) {
+    public static UserResponse of(Users users) {
         return UserResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .nickname(user.getNickname())
-                .zipCode(user.getZipCode())
-                .roadAddress(user.getRoadAddress())
-                .detailedAddress(user.getDetailedAddress())
-                .contactNumber(user.getContactNumber())
-                .loginType(user.getLoginType().name())
+                .id(users.getId())
+                .email(users.getEmail())
+                .nickname(users.getNickname())
+                .zipCode(users.getZipCode())
+                .roadAddress(users.getRoadAddress())
+                .detailedAddress(users.getDetailedAddress())
+                .contactNumber(users.getContactNumber())
+                .loginType(users.getLoginType().name())
                 .build();
     }
 }

@@ -3,7 +3,7 @@ package com.example.ililbooks.domain.auth.service;
 import com.example.ililbooks.config.util.JwtUtil;
 import com.example.ililbooks.domain.auth.entity.RefreshToken;
 import com.example.ililbooks.domain.auth.repository.RefreshTokenRepository;
-import com.example.ililbooks.domain.user.entity.User;
+import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,13 +18,13 @@ public class TokenService {
     private final JwtUtil jwtUtil;
 
     /* Access Token 생성 */
-    public String createAccessToken(User user) {
-        return jwtUtil.createAccessToken(user.getId(), user.getEmail(), user.getNickname(), user.getUserRole());
+    public String createAccessToken(Users users) {
+        return jwtUtil.createAccessToken(users.getId(), users.getEmail(), users.getNickname(), users.getUserRole());
     }
 
     /* Refresh Token 생성 */
-    public String createRefreshToken(User user) {
-        RefreshToken refreshToken = refreshTokenRepository.save(new RefreshToken(user.getId()));
+    public String createRefreshToken(Users users) {
+        RefreshToken refreshToken = refreshTokenRepository.save(new RefreshToken(users.getId()));
         return refreshToken.getToken();
     }
 
