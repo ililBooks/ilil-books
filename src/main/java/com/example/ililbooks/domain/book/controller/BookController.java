@@ -3,6 +3,7 @@ package com.example.ililbooks.domain.book.controller;
 import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
+import com.example.ililbooks.domain.book.dto.response.BookWithImagesResponse;
 import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
@@ -51,10 +52,22 @@ public class BookController {
     }
 
     /**
+     * 책 이미지 업로드
+     */
+    @PostMapping("/{bookId}/image")
+    public Response<Void> uploadBookImage(
+            @PathVariable Long bookId,
+            @RequestParam String imageUrl
+    ) {
+        bookService.uploadBookImage(bookId, imageUrl);
+        return Response.empty();
+    }
+
+    /**
      * 책 단건 조회 API
      */
     @GetMapping("/{bookId}")
-    public Response<BookResponse> getBook(
+    public Response<BookWithImagesResponse> getBook(
             @PathVariable Long bookId,
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize

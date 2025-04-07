@@ -5,6 +5,7 @@ import com.example.ililbooks.client.dto.BookApiResponse;
 import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
+import com.example.ililbooks.domain.book.dto.response.BookWithImagesResponse;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.repository.BookRepository;
 import com.example.ililbooks.domain.user.entity.Users;
@@ -14,6 +15,8 @@ import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
+import com.example.ililbooks.global.image.entity.BookImage;
+import com.example.ililbooks.global.image.repository.ImageBookRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -23,13 +26,14 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Random;
 
-import static com.example.ililbooks.domain.book.dto.response.BookResponse.ofList;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
+import static com.example.ililbooks.global.image.dto.response.ImageResponse.ofList;
 
 @Service
 @RequiredArgsConstructor
 public class BookService {
     private final BookRepository bookRepository;
+    private final ImageBookRepository imageBookRepository;
     private final UserService userService;
     private final BookClient bookClient;
     private final ReviewFindService reviewFindService;
@@ -84,13 +88,27 @@ public class BookService {
         }
     }
 
+    @Transactional
+    public void uploadBookImage(Long bookId, String imageUrl) {
+        Book findBook = findBookByIdOrElseThrow(bookId);
+        BookImage bookImage = BookImage.of(findBook, imageUrl);
+
+        //이미 이미지가 등록되어 있는 경우
+        if (imageBookRepository.existsByBookId(bookImage.getBook().getId())) {
+            throw new BadRequestException(IMAGE_ALREADY_EXISTS.getMessage());
+        }
+
+        imageBookRepository.save(bookImage);
+    }
+
     @Transactional(readOnly = true)
-    public BookResponse getBookResponse(Long bookId, int pageNum, int pageSize) {
+    public BookWithImagesResponse getBookResponse(Long bookId, int pageNum, int pageSize) {
         Book findBook = findBookByIdOrElseThrow(bookId);
 
         Page<ReviewResponse> reviews = reviewFindService.getReviews(findBook.getId(), pageNum, pageSize);
+        List<BookImage> findBookImage = imageBookRepository.findAllByBookId(findBook.getId());
 
-        return BookResponse.of(findBook, reviews);
+        return BookWithImagesResponse.of(findBook, reviews, ofList(findBookImage));
     }
 
     @Transactional(readOnly = true)
@@ -99,7 +117,12 @@ public class BookService {
 
         Page<Book> findBooks = bookRepository.findAll(pageable);
 
-        return ofList(findBooks);
+        return findBooks
+                .map(book ->
+                {
+                    List<BookImage> findBookImage = imageBookRepository.findAllByBookId(book.getId());
+                    return BookResponse.of(book, findBookImage.get(0).getImageUrl());
+                });
     }
 
     @Transactional

@@ -36,8 +36,15 @@ public class BookImage {
 
     public static BookImage of(Book book, String imageUrl) {
 
-        String fileName = "";
+        // URL에서 파일 이름 추출
+        String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+
+        // 확장자 추출
         String extension = "";
+        int dotIndex = fileName.lastIndexOf(".");
+        if (dotIndex != -1 && dotIndex < fileName.length() - 1) {
+            extension = fileName.substring(dotIndex + 1).toLowerCase(); // 소문자로
+        }
 
         return BookImage.builder()
                 .book(book)
