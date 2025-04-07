@@ -33,7 +33,7 @@ public class ReviewService {
         Book findBook = bookService.findBookByIdOrElseThrow(reviewCreateRequest.getBookId());
 
         //이미 리뷰를 등록한 경우
-        if (reviewRepository.existsByBookIdAndUserId(findBook.getId(), findUsers.getId())) {
+        if (reviewRepository.existsByBookIdAndUsersId(findBook.getId(), findUsers.getId())) {
             throw new BadRequestException(DUPLICATE_REVIEW.getMessage());
         }
 

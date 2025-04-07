@@ -23,7 +23,7 @@ public class ReviewResponse {
     public static ReviewResponse of(Review review) {
         return ReviewResponse.builder()
                 .id(review.getId())
-                .userId(review.getUser().getId())
+                .userId(review.getUsers().getId())
                 .bookId(review.getBook().getId())
                 .rating(review.getRating())
                 .comment(review.getComments())

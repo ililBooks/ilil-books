@@ -9,7 +9,6 @@ import lombok.Getter;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 public class BookResponse {
@@ -77,7 +76,7 @@ public class BookResponse {
     public static BookResponse of(Book book, Page<ReviewResponse> reviews) {
         return BookResponse.builder()
                 .id(book.getId())
-                .userId(book.getUser().getId())
+                .userId(book.getUsers().getId())
                 .title(book.getTitle())
                 .author(book.getAuthor())
                 .price(book.getPrice())
