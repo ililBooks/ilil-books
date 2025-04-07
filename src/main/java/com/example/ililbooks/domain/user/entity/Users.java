@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.user.entity;
 
+import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
-public class User extends TimeStamped {
+public class Users extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +36,7 @@ public class User extends TimeStamped {
 
     private String contactNumber;
 
+    @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
     @Enumerated(EnumType.STRING)
@@ -44,7 +46,7 @@ public class User extends TimeStamped {
     private LocalDateTime deletedAt;
 
     @Builder
-    private User(Long id, String email, String nickname, String password, String zipCode, String roadAddress, String detailedAddress, String contactNumber, LoginType loginType, UserRole userRole, LocalDateTime deletedAt) {
+    private Users(Long id, String email, String nickname, String password, String zipCode, String roadAddress, String detailedAddress, String contactNumber, LoginType loginType, UserRole userRole, LocalDateTime deletedAt) {
         this.id = id;
         this.email = email;
         this.nickname = nickname;
@@ -58,8 +60,8 @@ public class User extends TimeStamped {
         this.deletedAt = deletedAt;
     }
 
-    public static User fromAuthUser(AuthUser authUser) {
-        return User.builder()
+    public static Users fromAuthUser(AuthUser authUser) {
+        return Users.builder()
                 .id(authUser.getUserId())
                 .email(authUser.getEmail())
                 .nickname(authUser.getNickname())
@@ -67,7 +69,19 @@ public class User extends TimeStamped {
                 .build();
     }
 
+    public void updateUser(UserUpdateRequest userUpdateRequest) {
+        this.nickname = userUpdateRequest.getNickname();
+        this.zipCode = userUpdateRequest.getZipCode();
+        this.roadAddress = userUpdateRequest.getRoadAddress();
+        this.detailedAddress = userUpdateRequest.getDetailedAddress();
+        this.contactNumber = userUpdateRequest.getContactNumber();
+    }
+
     public void deleteUser() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
     }
 }

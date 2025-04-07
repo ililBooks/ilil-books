@@ -3,7 +3,8 @@ package com.example.ililbooks.domain.auth.service;
 import com.example.ililbooks.domain.auth.dto.request.AuthSigninRequest;
 import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
-import com.example.ililbooks.domain.user.entity.User;
+import com.example.ililbooks.domain.auth.entity.RefreshToken;
+import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.UnauthorizedException;
@@ -30,41 +31,45 @@ public class AuthService {
             throw new BadRequestException(PASSWORD_CONFIRMATION_MISMATCH.getMessage());
         }
 
-        User user = userService.saveUser(request.getEmail(), request.getNickname(), request.getPassword(), request.getUserRole());
+        Users users = userService.saveUser(request.getEmail(), request.getNickname(), request.getPassword(), request.getUserRole());
 
-        return getTokenResponse(user);
+        return getTokenResponse(users);
     }
 
     /* 로그인 */
     @Transactional
     public AuthTokensResponse signin(AuthSigninRequest request) {
-        User user = userService.getUserByEmail(request.getEmail());
+        Users users = userService.findByEmailOrElseThrow(request.getEmail());
 
-        if (user.getDeletedAt() != null) {
+        if (users.getDeletedAt() != null) {
             throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());
         }
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), users.getPassword())) {
             throw new UnauthorizedException(INVALID_PASSWORD.getMessage());
         }
 
-        return getTokenResponse(user);
+        return getTokenResponse(users);
     }
 
     /* Access Token, Refresh Token 재발급 */
     @Transactional
-    public AuthTokensResponse reissueAccessToken(String refreshToken) {
-        User user = tokenService.reissueToken(refreshToken);
+    public AuthTokensResponse reissueToken(String refreshToken) {
+        RefreshToken findRefreshToken = tokenService.getRefreshToken(refreshToken);
+        Users findUsers = userService.findByIdOrElseThrow(findRefreshToken.getUserId());
 
-        return getTokenResponse(user);
+        String reissuedAccessToken = tokenService.createAccessToken(findUsers);
+        String reissuedRefreshToken = findRefreshToken.updateToken();
+
+        return AuthTokensResponse.of(reissuedAccessToken, reissuedRefreshToken);
     }
 
     /* Access Token, Refresh Token 생성 및 저장 */
-    private AuthTokensResponse getTokenResponse(User user) {
+    private AuthTokensResponse getTokenResponse(Users users) {
 
-        String accessToken = tokenService.createAccessToken(user);
-        String refreshToken = tokenService.createRefreshToken(user);
+        String accessToken = tokenService.createAccessToken(users);
+        String refreshToken = tokenService.createRefreshToken(users);
 
-        return AuthTokensResponse.ofDto(accessToken, refreshToken);
+        return AuthTokensResponse.of(accessToken, refreshToken);
     }
 }
