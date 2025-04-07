@@ -1,12 +1,10 @@
 package com.example.ililbooks.domain.review.entity;
 
 import com.example.ililbooks.domain.book.entity.Book;
+import com.example.ililbooks.domain.review.dto.request.ReviewCreateRequest;
 import com.example.ililbooks.domain.review.dto.request.ReviewUpdateRequest;
-import com.example.ililbooks.domain.user.entity.User;
+import com.example.ililbooks.domain.user.entity.Users;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +21,7 @@ public class Review {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    private Users users;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")
@@ -34,12 +32,21 @@ public class Review {
     private String comments;
 
     @Builder
-    private Review(Long id, User user, Book book, int rating, String comments) {
+    private Review(Long id, Users users, Book book, int rating, String comments) {
         this.id = id;
-        this.user = user;
+        this.users = users;
         this.book = book;
         this.rating = rating;
         this.comments = comments;
+    }
+
+    public static Review of(Users users, Book book, ReviewCreateRequest reviewCreateRequest) {
+        return Review.builder()
+                .users(users)
+                .book(book)
+                .rating(reviewCreateRequest.getRating())
+                .comments(reviewCreateRequest.getComments())
+                .build();
     }
 
     public void updateReview(ReviewUpdateRequest reviewUpdateRequest) {

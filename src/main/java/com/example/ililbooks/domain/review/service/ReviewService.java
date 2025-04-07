@@ -7,7 +7,7 @@ import com.example.ililbooks.domain.review.dto.request.ReviewUpdateRequest;
 import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
 import com.example.ililbooks.domain.review.entity.Review;
 import com.example.ililbooks.domain.review.repository.ReviewRepository;
-import com.example.ililbooks.domain.user.entity.User;
+import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -29,21 +29,15 @@ public class ReviewService {
     @Transactional
     public ReviewResponse createReview(AuthUser authUser, ReviewCreateRequest reviewCreateRequest) {
 
-        User findUser = userService.getUserById(authUser.getUserId());
-        Book findBook = bookService.findBookById(reviewCreateRequest.getBookId());
+        Users findUsers = userService.findByIdOrElseThrow(authUser.getUserId());
+        Book findBook = bookService.findBookByIdOrElseThrow(reviewCreateRequest.getBookId());
 
         //이미 리뷰를 등록한 경우
-        if (reviewRepository.existsByBookIdAndUserId(findBook.getId(), findUser.getId())) {
+        if (reviewRepository.existsByBookIdAndUserId(findBook.getId(), findUsers.getId())) {
             throw new BadRequestException(DUPLICATE_REVIEW.getMessage());
         }
 
-        Review review = Review.builder()
-                .user(findUser)
-                .book(findBook)
-                .rating(reviewCreateRequest.getRating())
-                .comments(reviewCreateRequest.getComments())
-                .build();
-
+        Review review = Review.of(findUsers, findBook, reviewCreateRequest);
         Review savedReview = reviewRepository.save(review);
 
         return ReviewResponse.of(savedReview);
@@ -52,10 +46,10 @@ public class ReviewService {
     @Transactional
     public void updateReview(Long reviewId, AuthUser authUser, ReviewUpdateRequest reviewUpdateRequest) {
 
-        Review findReview = getReview(reviewId);
+        Review findReview = findReviewOrElseThrow(reviewId);
 
         //다른 사람의 리뷰를 수정하려고 하는 경우
-        if (!findReview.getUser().getId().equals(authUser.getUserId())) {
+        if (!findReview.getUsers().getId().equals(authUser.getUserId())) {
             throw new BadRequestException(CANNOT_UPDATE_OTHERS_REVIEW.getMessage());
         }
 
@@ -64,19 +58,19 @@ public class ReviewService {
 
     @Transactional
     public void deleteReview(Long reviewId, AuthUser authUser) {
-        Review findReview = getReview(reviewId);
+        Review findReview = findReviewOrElseThrow(reviewId);
 
         //다른 사람의 리뷰를 삭제하려고 하는 경우 (ADMIN은 해당되지 않음)
         String userRole = authUser.getAuthorities().iterator().next().getAuthority();
 
-        if (!findReview.getUser().getId().equals(authUser.getUserId()) && USER.equals(userRole)) {
+        if (!findReview.getUsers().getId().equals(authUser.getUserId()) && USER.equals(userRole)) {
             throw new BadRequestException(CANNOT_DELETE_OTHERS_REVIEW.getMessage());
         }
 
         reviewRepository.delete(findReview);
     }
 
-    public Review getReview(Long reviewId) {
+    public Review findReviewOrElseThrow(Long reviewId) {
         return reviewRepository.findById(reviewId).orElseThrow(()-> new NotFoundException(NOT_FOUND_REVIEW.getMessage()));
     }
 }

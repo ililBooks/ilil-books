@@ -1,10 +1,10 @@
 package com.example.ililbooks.domain.book.entity;
 
+import com.example.ililbooks.client.dto.BookApiResponse;
+import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.enums.SaleStatus;
-import com.example.ililbooks.domain.user.entity.User;
-import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.global.entity.TimeStamped;
 import jakarta.persistence.*;
@@ -63,7 +63,7 @@ public class Book extends TimeStamped {
         this.limitedType = REGULAR;
     }
 
-    public static Book createFrom(Users users, BookCreateRequest bookCreateRequest) {
+    public static Book of(Users users, BookCreateRequest bookCreateRequest) {
         return Book.builder()
                 .users(users)
                 .title(bookCreateRequest.getTitle())
@@ -72,6 +72,18 @@ public class Book extends TimeStamped {
                 .category(bookCreateRequest.getCategory())
                 .stock(bookCreateRequest.getStock())
                 .isbn(bookCreateRequest.getIsbn())
+                .build();
+    }
+
+    public static Book of(Users users, BookApiResponse book, Long price, int stock) {
+        return Book.builder()
+                .users(users)
+                .title(book.getTitle())
+                .author(book.getAuthor().replaceAll("<[^>]*>", ""))
+                .price(price)
+                .category(book.getCategory())
+                .stock(stock)
+                .isbn(book.getIsbn())
                 .build();
     }
 
