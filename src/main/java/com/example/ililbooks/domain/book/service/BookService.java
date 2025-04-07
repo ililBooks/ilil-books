@@ -25,7 +25,6 @@ import java.util.Random;
 
 import static com.example.ililbooks.domain.book.dto.response.BookResponse.ofList;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
-import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -103,10 +102,10 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public BookResponse getBookResponse(Long bookId) {
+    public BookResponse getBookResponse(Long bookId, int pageNum, int pageSize) {
         Book findBook = getBookById(bookId);
 
-        List<ReviewResponse> reviews = reviewFindService.getReviews(findBook.getId());
+        List<ReviewResponse> reviews = reviewFindService.getReviews(findBook.getId(), pageNum, pageSize);
 
         return BookResponse.of(findBook, reviews);
     }

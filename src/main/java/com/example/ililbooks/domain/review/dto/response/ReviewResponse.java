@@ -3,6 +3,7 @@ package com.example.ililbooks.domain.review.dto.response;
 import com.example.ililbooks.domain.review.entity.Review;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class ReviewResponse {
                 .build();
     }
 
-    public static List<ReviewResponse> ofList(List<Review> reviews) {
+    public static List<ReviewResponse> ofList(Page<Review> reviews) {
         return reviews.stream().map(ReviewResponse::of).toList();
     }
 }

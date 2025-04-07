@@ -13,9 +13,10 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;

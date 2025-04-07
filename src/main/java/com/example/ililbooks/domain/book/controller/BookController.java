@@ -52,18 +52,18 @@ public class BookController {
     /**
      * 책 단건 조회 API
      */
-    @Secured({USER,ADMIN,PUBLISHER})
     @GetMapping("/{bookId}")
     public Response<BookResponse> getBook(
-            @PathVariable Long bookId
+            @PathVariable Long bookId,
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize
     ) {
-        return Response.of(bookService.getBookResponse(bookId));
+        return Response.of(bookService.getBookResponse(bookId, pageNum, pageSize));
     }
 
     /**
      * 책 다건 조회 API
      */
-    @Secured({USER,ADMIN,PUBLISHER})
     @GetMapping
     public Response<List<BookResponse>> getBooks(
             @RequestParam(defaultValue = "1") int pageNum,
