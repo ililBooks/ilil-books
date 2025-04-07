@@ -70,6 +70,12 @@ public class BookResponse {
                 .build();
     }
 
+    public static List<BookResponse> ofList(Page<Book> books) {
+        return books.stream()
+                .map(BookResponse::of)
+                .toList();
+    }
+
     public static BookResponse of(Book book, List<ReviewResponse> reviews) {
         return BookResponse.builder()
                 .id(book.getId())

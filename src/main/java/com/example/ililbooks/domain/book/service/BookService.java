@@ -23,7 +23,9 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Random;
 
+import static com.example.ililbooks.domain.book.dto.response.BookResponse.ofList;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -115,13 +117,7 @@ public class BookService {
 
         Page<Book> findBooks = bookRepository.findAll(pageable);
 
-        return findBooks.stream()
-                .map(book ->
-                {
-                    List<ReviewResponse> reviews = reviewFindService.getReviews(book.getId());
-                    return BookResponse.of(book, reviews);
-                })
-                .toList();
+        return ofList(findBooks);
     }
 
     @Transactional
