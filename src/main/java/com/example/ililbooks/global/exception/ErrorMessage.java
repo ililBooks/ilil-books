@@ -36,6 +36,11 @@ public enum ErrorMessage {
     CANNOT_UPDATE_OTHERS_REVIEW("다른 사람의 리뷰를 수정할 수 없습니다."),
     CANNOT_DELETE_OTHERS_REVIEW("다른 사람의 리뷰를 삭제할 수 없습니다."),
 
+    CANNOT_DELETE_OTHERS_IMAGE("다른 사람의 이미지를 삭제할 수 없습니다."),
+    NOT_FOUND_IMAGE("이미지가 존재하지 않습니다."),
+    FAILED_UPLOAD_IMAGE("이미지 업로드에 실패하였습니다."),
+    UNSUPPORTED_IMAGE_PROCESSING_TYPE("지원하지 않는 이미지 처리 타입입니다: "),
+
     ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다.");
 
     private final String message;
