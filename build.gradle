@@ -55,7 +55,7 @@ dependencies {
     implementation 'io.github.cdimascio:java-dotenv:5.2.2'
 
     // redis & redisson
-//    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 //    implementation 'org.redisson:redisson:3.23.5'
 
     // Elasticsearch
