@@ -52,6 +52,7 @@ public class UserService {
     }
 
     /* 회원 조회 */
+    @Transactional(readOnly = true)
     public UserResponse getUser(AuthUser authUser) {
         User findUser = getUserById(authUser.getUserId());
         return UserResponse.of(findUser);
