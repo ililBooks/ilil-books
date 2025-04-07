@@ -53,14 +53,14 @@ public class UserService {
     /* 회원 조회 */
     @Transactional(readOnly = true)
     public UserResponse getUser(AuthUser authUser) {
-        Users findUsers = getUserById(authUser.getUserId());
+        Users findUsers = findByIdOrElseThrow(authUser.getUserId());
         return UserResponse.of(findUsers);
     }
 
     /* 회원 수정 */
     @Transactional
     public AuthAccessTokenResponse updateUser(AuthUser authUser, UserUpdateRequest userUpdateRequest) {
-        Users findUsers = getUserById(authUser.getUserId());
+        Users findUsers = findByIdOrElseThrow(authUser.getUserId());
         findUsers.updateUser(userUpdateRequest);
 
         String accessToken = jwtUtil.createAccessToken(findUsers.getId(), findUsers.getEmail(), findUsers.getNickname(), findUsers.getUserRole());
@@ -76,7 +76,7 @@ public class UserService {
             throw new BadRequestException(PASSWORD_CONFIRMATION_MISMATCH.getMessage());
         }
 
-        Users findUsers = getUserById(authUser.getUserId());
+        Users findUsers = findByIdOrElseThrow(authUser.getUserId());
 
         if (!passwordEncoder.matches(userUpdatePasswordRequest.getOldPassword(), findUsers.getPassword())) {
             throw new BadRequestException(INVALID_PASSWORD.getMessage());
@@ -88,7 +88,7 @@ public class UserService {
     /* 회원 삭제 */
     @Transactional
     public void deleteUser(AuthUser authUser, UserDeleteRequest userDeleteRequest) {
-        Users findUsers = getUserById(authUser.getUserId());
+        Users findUsers = findByIdOrElseThrow(authUser.getUserId());
 
         if (!passwordEncoder.matches(userDeleteRequest.getPassword(), findUsers.getPassword())) {
             throw new BadRequestException(INVALID_PASSWORD.getMessage());
@@ -97,13 +97,13 @@ public class UserService {
         findUsers.deleteUser();
     }
 
-    public Users getUserByEmail(String email) {
+    public Users findByEmailOrElseThrow(String email) {
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new UnauthorizedException(USER_EMAIL_NOT_FOUND.getMessage())
         );
     }
 
-    public Users getUserById(Long userId) {
+    public Users findByIdOrElseThrow(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(USER_ID_NOT_FOUND.getMessage())
         );

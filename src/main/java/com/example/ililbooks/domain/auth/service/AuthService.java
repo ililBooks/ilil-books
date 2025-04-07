@@ -39,7 +39,7 @@ public class AuthService {
     /* 로그인 */
     @Transactional
     public AuthTokensResponse signin(AuthSigninRequest request) {
-        Users users = userService.getUserByEmail(request.getEmail());
+        Users users = userService.findByEmailOrElseThrow(request.getEmail());
 
         if (users.getDeletedAt() != null) {
             throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());
@@ -56,7 +56,7 @@ public class AuthService {
     @Transactional
     public AuthTokensResponse reissueToken(String refreshToken) {
         RefreshToken findRefreshToken = tokenService.getRefreshToken(refreshToken);
-        Users findUsers = userService.getUserById(findRefreshToken.getUserId());
+        Users findUsers = userService.findByIdOrElseThrow(findRefreshToken.getUserId());
 
         String reissuedAccessToken = tokenService.createAccessToken(findUsers);
         String reissuedRefreshToken = findRefreshToken.updateToken();

@@ -54,7 +54,7 @@ public class UsersServiceTest {
 
         // when & then
         NotFoundException notFoundException = assertThrows(NotFoundException.class,
-                () -> userService.getUserById(userId));
+                () -> userService.findByIdOrElseThrow(userId));
         assertEquals(notFoundException.getMessage(), USER_ID_NOT_FOUND.getMessage());
     }
 
@@ -67,7 +67,7 @@ public class UsersServiceTest {
         given(userRepository.findById(anyLong())).willReturn(Optional.of(users));
 
         // when
-        Users resultUsers = userService.getUserById(userId);
+        Users resultUsers = userService.findByIdOrElseThrow(userId);
 
         // then
         assertNotNull(resultUsers);
@@ -86,7 +86,7 @@ public class UsersServiceTest {
 
         // when & then
         UnauthorizedException unauthorizedException = assertThrows(UnauthorizedException.class,
-                () -> userService.getUserByEmail(email));
+                () -> userService.findByEmailOrElseThrow(email));
         assertEquals(unauthorizedException.getMessage(), USER_EMAIL_NOT_FOUND.getMessage());
     }
 
@@ -99,7 +99,7 @@ public class UsersServiceTest {
         given(userRepository.findByEmail(any(String.class))).willReturn(Optional.of(users));
 
         // when
-        Users resultUsers = userService.getUserByEmail(email);
+        Users resultUsers = userService.findByEmailOrElseThrow(email);
 
         // then
         assertNotNull(resultUsers);

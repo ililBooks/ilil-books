@@ -33,7 +33,7 @@ public class BookService {
 
     @Transactional
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {
-        Users findUsers = userService.getUserById(authUser.getUserId());
+        Users findUsers = userService.findByIdOrElseThrow(authUser.getUserId());
 
         //이미 등록된 책인 경우 (책 고유 번호로 판별)
         if(bookRepository.existsByIsbn(bookCreateRequest.getIsbn())) {
@@ -41,7 +41,7 @@ public class BookService {
         }
 
         Book savedBook = Book.builder()
-                .user(findUsers)
+                .users(findUsers)
                 .title(bookCreateRequest.getTitle())
                 .author(bookCreateRequest.getAuthor())
                 .price(bookCreateRequest.getPrice())
@@ -58,7 +58,7 @@ public class BookService {
     @Transactional
     public void createBookByOpenApi(AuthUser authUser, Integer pageNum, Integer pageSize) {
 
-        Users findUsers = userService.getUserById(authUser.getUserId());
+        Users findUsers = userService.findByIdOrElseThrow(authUser.getUserId());
 
         //open api를 통해 책 리스트 가져오기
         List<BookApiResponse> books = List.of(bookClient.getBooks(findUsers.getNickname(), pageNum, pageSize));
@@ -85,7 +85,7 @@ public class BookService {
             }
 
             Book savedBook = Book.builder()
-                    .user(findUsers)
+                    .users(findUsers)
                     .title(book.getTitle())
                     .author(book.getAuthor().replaceAll("<[^>]*>", ""))
                     .price(price)

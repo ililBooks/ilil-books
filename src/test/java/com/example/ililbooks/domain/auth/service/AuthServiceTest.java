@@ -107,7 +107,7 @@ public class AuthServiceTest {
         // given
         ReflectionTestUtils.setField(users, "deletedAt", LocalDateTime.now());
 
-        given(userService.getUserByEmail(any(String.class))).willReturn(users);
+        given(userService.findByEmailOrElseThrow(any(String.class))).willReturn(users);
 
         // when & then
         UnauthorizedException unauthorizedException = assertThrows(UnauthorizedException.class,
@@ -120,7 +120,7 @@ public class AuthServiceTest {
         // given
         ReflectionTestUtils.setField(users, "deletedAt", null);
 
-        given(userService.getUserByEmail(any(String.class))).willReturn(users);
+        given(userService.findByEmailOrElseThrow(any(String.class))).willReturn(users);
         given(passwordEncoder.matches(successSignin.getPassword(), users.getPassword())).willReturn(false);
 
         // when & then
@@ -137,7 +137,7 @@ public class AuthServiceTest {
         String accessToken = "accessToken";
         String refreshToken = "refreshToken";
 
-        given(userService.getUserByEmail(any(String.class))).willReturn(users);
+        given(userService.findByEmailOrElseThrow(any(String.class))).willReturn(users);
         given(passwordEncoder.matches(successSignin.getPassword(), users.getPassword())).willReturn(true);
         given(tokenService.createAccessToken(any(Users.class))).willReturn(accessToken);
         given(tokenService.createRefreshToken(any(Users.class))).willReturn(refreshToken);
