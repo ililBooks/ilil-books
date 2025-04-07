@@ -4,11 +4,13 @@ import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.user.dto.request.UserDeleteRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
+import com.example.ililbooks.domain.user.dto.response.UserResponse;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +20,14 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+
+    /* 회원 조회 (본인) */
+    @GetMapping
+    public Response<UserResponse> getUser(
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        return Response.of(userService.getUser(authUser));
+    }
 
     /* 회원 수정 */
     @PatchMapping

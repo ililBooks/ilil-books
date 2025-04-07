@@ -5,6 +5,7 @@ import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.user.dto.request.UserDeleteRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
+import com.example.ililbooks.domain.user.dto.response.UserResponse;
 import com.example.ililbooks.domain.user.entity.User;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.enums.UserRole;
@@ -14,6 +15,7 @@ import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.example.ililbooks.global.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +49,12 @@ public class UserService {
                 .build();
 
         return userRepository.save(user);
+    }
+
+    /* 회원 조회 */
+    public UserResponse getUser(AuthUser authUser) {
+        User findUser = getUserById(authUser.getUserId());
+        return UserResponse.of(findUser);
     }
 
     /* 회원 수정 */
