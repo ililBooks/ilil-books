@@ -57,6 +57,7 @@ public class CartService {
                 cart.getItems().put(item.getBookId(), CartItem.of(item));
             }
 
+            // todo 둘중하나 사용
             if (item.getQuantity() == 0) {
                 cart.getItems().remove(item.getBookId());
             }
@@ -78,7 +79,7 @@ public class CartService {
     }
 
     /* 장바구니 조회 및 생성 */
-    private Cart findByUserIdOrElseNewCart(Long userId) {
+    public Cart findByUserIdOrElseNewCart(Long userId) {
         return Optional.ofNullable(cartRepository.get(userId))
                 .orElse(new Cart(userId));
     }
