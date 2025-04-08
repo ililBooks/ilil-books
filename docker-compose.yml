@@ -7,16 +7,24 @@ services:
       dockerfile: Dockerfile
     container_name: ililBooks
     ports:
-      - "8090:8080"
+      - "8081:8081"
     depends_on:
-      - db  # db 컨테이너가 먼저 시작되도록 설정
-      - elasticsearch
+#      - db
+#      - elasticsearch
+#      - redis
+      elasticsearch:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     environment:
-      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_URL=${DB_URL_DOCKER}
       - SPRING_DATASOURCE_USERNAME=${DB_USER}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - BOOK_API_KEY=${BOOK_API_KEY}
+      - SPRING_PROFILES_ACTIVE=docker
     networks:
       - esnet
 
@@ -33,14 +41,27 @@ services:
       - mysql-data:/var/lib/mysql
     networks:
       - esnet
+    healthcheck:
+      test: [ 'CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-prhm1031hr!' ]
+      timeout: 20s
+      retries: 10
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"  # 로컬 포트 매핑
+    networks:
+      - esnet
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.20
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.5
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
       - bootstrap.memory_lock=true
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false   # 보안 비활성화
     ulimits:
       memlock:
         soft: -1
@@ -51,9 +72,14 @@ services:
       - "9200:9200"
     networks:
       - esnet
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsSL http://localhost:9200/_cluster/health || exit 1" ]
+      interval: 10s
+      timeout: 30s
+      retries: 10
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.17.20
+    image: docker.elastic.co/kibana/kibana:8.15.5
     container_name: kibana
     ports:
       - "5601:5601"
@@ -68,3 +94,4 @@ volumes:
 
 networks:
   esnet:
+    driver: bridge

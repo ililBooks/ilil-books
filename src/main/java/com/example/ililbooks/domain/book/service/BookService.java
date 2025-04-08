@@ -7,6 +7,7 @@ import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.repository.BookRepository;
+import com.example.ililbooks.domain.search.service.BookSearchService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -30,6 +31,7 @@ public class BookService {
     private final BookRepository bookRepository;
     private final UserService userService;
     private final BookClient bookClient;
+    private final BookSearchService bookSearchService;
 
     @Transactional
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {
@@ -40,7 +42,7 @@ public class BookService {
             throw new BadRequestException(DUPLICATE_BOOK.getMessage());
         }
 
-        Book savedBook = Book.builder()
+        Book book = Book.builder()
                 .users(findUsers)
                 .title(bookCreateRequest.getTitle())
                 .author(bookCreateRequest.getAuthor())
@@ -50,7 +52,9 @@ public class BookService {
                 .isbn(bookCreateRequest.getIsbn())
                 .build();
 
-        bookRepository.save(savedBook);
+        Book savedBook = bookRepository.save(book);
+
+        bookSearchService.saveBookDocumentFromBook(savedBook);
 
         return BookResponse.of(savedBook);
     }
