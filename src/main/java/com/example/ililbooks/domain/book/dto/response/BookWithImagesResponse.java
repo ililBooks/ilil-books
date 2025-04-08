@@ -4,6 +4,7 @@ import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.enums.SaleStatus;
 import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
+import com.example.ililbooks.domain.review.dto.response.ReviewWithImagesResponse;
 import com.example.ililbooks.global.image.dto.response.ImageResponse;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class BookWithImagesResponse {
 
     private final int stock;
 
-    private final Page<ReviewResponse> reviews;
+    private final Page<ReviewWithImagesResponse> reviews;
 
     private final List<ImageResponse> imageUrl;
 
@@ -41,7 +42,7 @@ public class BookWithImagesResponse {
     private final LocalDateTime modifiedAt;
 
     @Builder
-    private BookWithImagesResponse(Long id, Long userId, String title, String author, Long price, String category, int stock, Page<ReviewResponse> reviews, List<ImageResponse> imageUrl, SaleStatus saleStatus, LimitedType limitedType, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private BookWithImagesResponse(Long id, Long userId, String title, String author, Long price, String category, int stock, Page<ReviewWithImagesResponse> reviews, List<ImageResponse> imageUrl, SaleStatus saleStatus, LimitedType limitedType, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.userId = userId;
         this.title = title;
@@ -57,7 +58,7 @@ public class BookWithImagesResponse {
         this.modifiedAt = modifiedAt;
     }
 
-    public static BookWithImagesResponse of(Book book, Page<ReviewResponse> reviews, List<ImageResponse> bookImages) {
+    public static BookWithImagesResponse of(Book book, Page<ReviewWithImagesResponse> reviews, List<ImageResponse> bookImages) {
         return BookWithImagesResponse.builder()
                 .id(book.getId())
                 .userId(book.getUsers().getId())

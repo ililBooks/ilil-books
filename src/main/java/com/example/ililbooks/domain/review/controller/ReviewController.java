@@ -34,6 +34,19 @@ public class ReviewController {
     }
 
     /**
+     * 리뷰 이미지 업로드 API
+     */
+    @Secured(USER)
+    @PostMapping("/{reviewId}/image")
+    public Response<Void> uploadReviewImage(
+            @PathVariable Long reviewId,
+            @RequestParam String imageUrl
+    ) {
+        reviewService.uploadReviewImage(reviewId, imageUrl);
+        return Response.empty();
+    }
+
+    /**
      * 리뷰 수정 API
      */
     @Secured(USER)

@@ -8,6 +8,7 @@ import com.example.ililbooks.domain.book.dto.response.BookResponse;
 import com.example.ililbooks.domain.book.dto.response.BookWithImagesResponse;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.repository.BookRepository;
+import com.example.ililbooks.domain.review.dto.response.ReviewWithImagesResponse;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
 import com.example.ililbooks.domain.review.service.ReviewFindService;
@@ -17,6 +18,7 @@ import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.example.ililbooks.global.image.entity.BookImage;
 import com.example.ililbooks.global.image.repository.ImageBookRepository;
+import com.example.ililbooks.global.image.repository.ImageReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,7 @@ import java.util.List;
 import java.util.Random;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
-import static com.example.ililbooks.global.image.dto.response.ImageResponse.ofList;
+import static com.example.ililbooks.global.image.dto.response.ImageResponse.ofBookImageList;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +39,7 @@ public class BookService {
     private final UserService userService;
     private final BookClient bookClient;
     private final ReviewFindService reviewFindService;
+    private final ImageReviewRepository imageReviewRepository;
 
     @Transactional
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {
@@ -93,11 +96,6 @@ public class BookService {
         Book findBook = findBookByIdOrElseThrow(bookId);
         BookImage bookImage = BookImage.of(findBook, imageUrl);
 
-        //이미 이미지가 등록되어 있는 경우
-        if (imageBookRepository.existsByBookId(bookImage.getBook().getId())) {
-            throw new BadRequestException(IMAGE_ALREADY_EXISTS.getMessage());
-        }
-
         imageBookRepository.save(bookImage);
     }
 
@@ -105,10 +103,10 @@ public class BookService {
     public BookWithImagesResponse getBookResponse(Long bookId, int pageNum, int pageSize) {
         Book findBook = findBookByIdOrElseThrow(bookId);
 
-        Page<ReviewResponse> reviews = reviewFindService.getReviews(findBook.getId(), pageNum, pageSize);
+        Page<ReviewWithImagesResponse> reviews = reviewFindService.getReviews(findBook.getId(), pageNum, pageSize);
         List<BookImage> findBookImage = imageBookRepository.findAllByBookId(findBook.getId());
 
-        return BookWithImagesResponse.of(findBook, reviews, ofList(findBookImage));
+        return BookWithImagesResponse.of(findBook, reviews, ofBookImageList(findBookImage));
     }
 
     @Transactional(readOnly = true)
