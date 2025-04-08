@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 public class BookApiWrapper {
     //응답된 result List Mapping
     @JsonProperty("result")
-    private BookApiResponse[] result;
+    private BookApiResponse [] result;
 }

@@ -9,6 +9,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -31,25 +32,27 @@ public class BookClient {
         this.objectMapper = objectMapper;
     }
 
-    public BookApiResponse[] getBooks(String nickname, Integer pageNum, Integer pageSize) {
-        URI uri = buildBookApiUri(nickname, pageNum, pageSize);
+    public BookApiResponse[] getBooks(String kwd, Integer pageNum, Integer pageSize) {
+        URI uri = buildBookApiUri(kwd, pageNum, pageSize);
 
-        // 응답을 문자열로 받기
+        // String 타입으로 응답을 받아서 메세지 컨버터가 처리할 수 있도록 하였다.
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(uri, String.class);
 
         if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
             throw new RuntimeException(BOOK_API_RESPONSE_FAILED.getMessage());
         }
 
+        // 응답 내부 데이터 가져오기
         String responseBody = responseEntity.getBody();
 
         try {
 
-            BookApiWrapper wrapper = objectMapper.readValue(responseBody, BookApiWrapper.class);
+            //json 형태의 데이터 파싱
+            BookApiWrapper responseBook = objectMapper.readValue(responseBody, BookApiWrapper.class);
+            BookApiResponse[] books = responseBook.getResult();
 
-            BookApiResponse[] books = wrapper.getResult();
-
-            if (books == null || books.length == 0) {
+            //검색된 책이 없는 경우
+            if (ObjectUtils.isEmpty(books)) {
                 throw new NotFoundException(NOT_FOUND_BOOK.getMessage());
             }
 
@@ -61,19 +64,19 @@ public class BookClient {
     }
 
     /**
-     * kwd: 검색어 (닉네임(출판사)으로 검색)
-     * srchTarget: 검색 조건은 발행자(출판사)로 설정
-     * category: 도서에 관련된 것들만 검색
+     * kwd: 검색어
+     * srchTarget: 검색 조건 (title, author, publisher, cheonggu)
+     * category: '도서'에 관련된 것들만 검색
      * pageNum: 현재 페이지
      * pageSize: 페이지 크기 (default 10건)
      */
-    private URI buildBookApiUri(String nickname, Integer pageNum, Integer pageSize) {
+    private URI buildBookApiUri(String kwd, Integer pageNum, Integer pageSize) {
         return UriComponentsBuilder
                 .fromUriString("https://www.nl.go.kr/NL/search/openApi/search.do")
                 .queryParam("key", apiKey)
                 .queryParam("apiType", "json")
-                .queryParam("kwd", nickname)
-                .queryParam("srchTarget", "publisher")
+                .queryParam("kwd", kwd)
+                .queryParam("srchTarget", "total")
                 .queryParam("category", "도서")
                 .queryParam("pageNum", pageNum)
                 .queryParam("pageSize", pageSize)

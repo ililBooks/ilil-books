@@ -12,6 +12,7 @@ public enum ErrorCode {
     NOT_FOUND(HttpStatus.NOT_FOUND, DEFAULT_NOT_FOUND),
     FORBIDDEN(HttpStatus.FORBIDDEN, DEFAULT_FORBIDDEN);
 
+
     private final HttpStatus httpStatus;
     private final ErrorMessage errorMessage;
 
