@@ -1,6 +1,6 @@
-package com.example.ililbooks.global.image.entity;
+package com.example.ililbooks.domain.book.entity;
 
-import com.example.ililbooks.domain.book.entity.Book;
+import com.example.ililbooks.global.image.entity.Image;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "book_images")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BookImage {
+public class BookImage extends Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,14 +37,10 @@ public class BookImage {
     public static BookImage of(Book book, String imageUrl) {
 
         // URL에서 파일 이름 추출
-        String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+        String fileName = extractFileName(imageUrl);
 
         // 확장자 추출
-        String extension = "";
-        int dotIndex = fileName.lastIndexOf(".");
-        if (dotIndex != -1 && dotIndex < fileName.length() - 1) {
-            extension = fileName.substring(dotIndex + 1).toLowerCase(); // 소문자로
-        }
+        String extension = extractExtension(fileName);
 
         return BookImage.builder()
                 .book(book)

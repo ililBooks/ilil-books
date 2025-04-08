@@ -39,6 +39,7 @@ public class S3ImageService implements ImageService {
         String imageName = UUID.randomUUID() + "_" + image.getOriginalFilename();
 
         try {
+            //S3 업로드
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucket)
                     .key(imageName)
@@ -46,7 +47,6 @@ public class S3ImageService implements ImageService {
                     .contentLength(image.getSize())
                     .build();
 
-            //S3 업로드
             PutObjectResponse response = s3Client.putObject(
                     putObjectRequest,
                     RequestBody.fromBytes(image.getBytes())

@@ -11,17 +11,17 @@ import java.util.List;
 @Builder
 public class ReviewWithImagesResponse {
 
-    private Long id;
+    private final Long id;
 
-    private Long userId;
+    private final Long userId;
 
-    private Long bookId;
+    private final Long bookId;
 
-    private int rating;
+    private final int rating;
 
-    private String comment;
+    private final String comment;
 
-    private List<ImageResponse> images;
+    private final List<ImageResponse> images;
 
     public static ReviewWithImagesResponse of(Review review, List<ImageResponse> images) {
         return ReviewWithImagesResponse.builder()

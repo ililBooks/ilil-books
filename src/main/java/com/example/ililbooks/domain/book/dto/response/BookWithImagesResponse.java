@@ -3,13 +3,13 @@ package com.example.ililbooks.domain.book.dto.response;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.enums.SaleStatus;
-import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
 import com.example.ililbooks.domain.review.dto.response.ReviewWithImagesResponse;
 import com.example.ililbooks.global.image.dto.response.ImageResponse;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class BookWithImagesResponse {
 
     private final String author;
 
-    private final Long price;
+    private final BigDecimal price;
 
     private final String category;
 
@@ -42,7 +42,7 @@ public class BookWithImagesResponse {
     private final LocalDateTime modifiedAt;
 
     @Builder
-    private BookWithImagesResponse(Long id, Long userId, String title, String author, Long price, String category, int stock, Page<ReviewWithImagesResponse> reviews, List<ImageResponse> imageUrl, SaleStatus saleStatus, LimitedType limitedType, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private BookWithImagesResponse(Long id, Long userId, String title, String author, BigDecimal price, String category, int stock, Page<ReviewWithImagesResponse> reviews, List<ImageResponse> imageUrl, SaleStatus saleStatus, LimitedType limitedType, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.userId = userId;
         this.title = title;

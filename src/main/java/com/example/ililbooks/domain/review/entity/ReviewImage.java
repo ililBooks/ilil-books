@@ -1,6 +1,5 @@
-package com.example.ililbooks.global.image.entity;
+package com.example.ililbooks.domain.review.entity;
 
-import com.example.ililbooks.domain.review.entity.Review;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

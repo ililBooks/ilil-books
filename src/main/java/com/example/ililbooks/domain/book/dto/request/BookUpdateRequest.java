@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.math.BigDecimal;
+
 import static com.example.ililbooks.global.dto.ValidationMessage.*;
 import static com.example.ililbooks.global.dto.ValidationMessage.INVALID_STOCK;
 
@@ -19,9 +21,9 @@ public class BookUpdateRequest {
     private String author;
 
     @NotNull(message = NOT_NULL_PRICE)
-    private Long price;
+    private BigDecimal price;
 
-    @NotNull(message = NOT_NULL_PRICE)
+    @NotNull(message = NOT_NULL_CATEGORY)
     private String category;
 
     @NotNull

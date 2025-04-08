@@ -1,12 +1,11 @@
 package com.example.ililbooks.domain.review.service;
 
-import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
 import com.example.ililbooks.domain.review.dto.response.ReviewWithImagesResponse;
 import com.example.ililbooks.domain.review.entity.Review;
 import com.example.ililbooks.domain.review.repository.ReviewRepository;
 import com.example.ililbooks.global.image.dto.response.ImageResponse;
-import com.example.ililbooks.global.image.entity.ReviewImage;
-import com.example.ililbooks.global.image.repository.ImageReviewRepository;
+import com.example.ililbooks.domain.review.entity.ReviewImage;
+import com.example.ililbooks.domain.review.repository.ImageReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,8 +29,11 @@ public class ReviewFindService {
          return findReviews
                 .map(review ->
                 {
-                    List<ReviewImage> findReviewImage = imageReviewRepository.findAllByReviewId(review.getId());//List<ReviewImage> 반환
-                    List<ImageResponse> imageResponses = ofReviewImageList(findReviewImage);// dto로 감싸기
+                    //리뷰에 저장되어 있는 이미지 리스트 출력
+                    List<ReviewImage> findReviewImage = imageReviewRepository.findAllByReviewId(review.getId());
+
+                    //ImageResponse로 감싸서 반환
+                    List<ImageResponse> imageResponses = ofReviewImageList(findReviewImage);
                     return ReviewWithImagesResponse.of(review, imageResponses);
                 });
     }

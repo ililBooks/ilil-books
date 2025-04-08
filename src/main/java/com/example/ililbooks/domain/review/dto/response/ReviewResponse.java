@@ -8,15 +8,15 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ReviewResponse {
-    private Long id;
+    private final Long id;
 
-    private Long userId;
+    private final Long userId;
 
-    private Long bookId;
+    private final Long bookId;
 
-    private int rating;
+    private final int rating;
 
-    private String comment;
+    private final String comment;
 
     public static ReviewResponse of(Review review) {
         return ReviewResponse.builder()

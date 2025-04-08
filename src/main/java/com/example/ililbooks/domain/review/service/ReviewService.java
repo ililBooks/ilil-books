@@ -12,8 +12,8 @@ import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
-import com.example.ililbooks.global.image.entity.ReviewImage;
-import com.example.ililbooks.global.image.repository.ImageReviewRepository;
+import com.example.ililbooks.domain.review.entity.ReviewImage;
+import com.example.ililbooks.domain.review.repository.ImageReviewRepository;
 import com.example.ililbooks.global.image.service.S3ImageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -47,22 +47,31 @@ public class ReviewService {
 
         return ReviewResponse.of(savedReview);
     }
-
+    
+    @Transactional
     public void uploadReviewImage(Long reviewId, String imageUrl) {
         Review findReview = findReviewByIdOrElseThrow(reviewId);
         ReviewImage reviewImage = ReviewImage.of(findReview, imageUrl);
 
+        //등록 개수 초과 
+        if ( imageReviewRepository.countByReviewId(reviewImage.getReview().getId()) >= 5) {
+            throw new BadRequestException(IMAGE_UPLOAD_LIMIT_OVER.getMessage());
+        }
+
         imageReviewRepository.save(reviewImage);
     }
 
+    @Transactional
     public void deleteReviewImage(AuthUser authUser, Long imageId) {
 
         //리뷰에 이미지가 없는 경우
         ReviewImage reviewImage  = imageReviewRepository.findReviewImageById(imageId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_REVIEW.getMessage()));
-
+        
+        String userRole = authUser.getAuthorities().iterator().next().getAuthority();
+        
         //사용자가 다른 사람의 이미지를 삭제하려는 경우
-        if (!authUser.getUserId().equals(reviewImage.getReview().getUsers().getId()) && USER.equals(authUser.getAuthorities().iterator().next().getAuthority())) {
+        if (!authUser.getUserId().equals(reviewImage.getReview().getUsers().getId()) && USER.equals(userRole)) {
             throw new BadRequestException(CANNOT_DELETE_OTHERS_REVIEW.getMessage());
         }
 

@@ -13,6 +13,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 import static com.example.ililbooks.domain.book.enums.LimitedType.REGULAR;
 import static com.example.ililbooks.domain.book.enums.SaleStatus.ON_SALE;
 
@@ -34,7 +36,7 @@ public class Book extends TimeStamped {
 
     private String author;
 
-    private Long price;
+    private BigDecimal price;
 
     private String category;
 
@@ -51,7 +53,7 @@ public class Book extends TimeStamped {
     private LimitedType limitedType;
 
     @Builder
-    private Book(Users users, String title, String author, Long price, String category, int stock, String isbn) {
+    private Book(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn) {
         this.users = users;
         this.title = title;
         this.author = author;
@@ -75,10 +77,10 @@ public class Book extends TimeStamped {
                 .build();
     }
 
-    public static Book of(Users users, BookApiResponse book, Long price, int stock) {
+    public static Book of(Users users, BookApiResponse book, BigDecimal price, int stock) {
         return Book.builder()
                 .users(users)
-                .title(book.getTitle())
+                .title(book.getTitle().replaceAll("<[^>]*>", ""))
                 .author(book.getAuthor().replaceAll("<[^>]*>", ""))
                 .price(price)
                 .category(book.getCategory())
