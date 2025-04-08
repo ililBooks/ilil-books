@@ -31,7 +31,12 @@ public enum ErrorMessage {
     BOOK_API_RESPONSE_FAILED("도서 API 응답 실패"),
     BOOK_ISBN_MISSING("도서의 ISBN이 존재하지 않거나 비어 있습니다."),
 
-    ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다.");
+    ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다."),
+    ALREADY_RESERVED_EVENT("이미 예약된 행사입니다."),
+    NOT_FOUND_USER("유저 확인 불가"),
+    NOT_FOUND_EVENT("행사 확인 불가"),
+    NOT_OWN_RESERVATION("본인 예약 외 조회 불가"),
+    NOT_FOUND_RESERVATION("예약 확인 불가");
 
     private final String message;
 
