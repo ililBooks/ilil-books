@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.user.entity;
 
+import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.enums.UserRole;
@@ -66,6 +67,15 @@ public class Users extends TimeStamped {
                 .email(authUser.getEmail())
                 .nickname(authUser.getNickname())
                 .userRole(UserRole.of(authUser.getAuthorities().iterator().next().getAuthority()))
+                .build();
+    }
+
+    public static Users of(AuthSignupRequest authSignupRequest, String encodedPassword) {
+        return Users.builder()
+                .email(authSignupRequest.getEmail())
+                .nickname(authSignupRequest.getNickname())
+                .password(encodedPassword)
+                .userRole(UserRole.of(authSignupRequest.getUserRole()))
                 .build();
     }
 

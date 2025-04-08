@@ -31,6 +31,11 @@ public enum ErrorMessage {
     BOOK_API_RESPONSE_FAILED("도서 API 응답 실패"),
     BOOK_ISBN_MISSING("도서의 ISBN이 존재하지 않거나 비어 있습니다."),
 
+    DUPLICATE_REVIEW("하나의 책에 하나의 리뷰만 등록할 수 있습니다."),
+    NOT_FOUND_REVIEW("리뷰를 찾을 수 없습니다."),
+    CANNOT_UPDATE_OTHERS_REVIEW("다른 사람의 리뷰를 수정할 수 없습니다."),
+    CANNOT_DELETE_OTHERS_REVIEW("다른 사람의 리뷰를 삭제할 수 없습니다."),
+
     NOT_EXIST_SHOPPING_CART("장바구니가 존재하지 않습니다."),
     CANNOT_ADD_BOOK_TO_CART("장바구니에 담을 수 없는 책입니다."),
     CART_QUANTITY_INVALID("장바구니 수량은 0 이상이어야 합니다."),
