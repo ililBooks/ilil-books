@@ -47,6 +47,19 @@ public class ReviewController {
     }
 
     /**
+     * 리뷰 이미지 삭제 API
+     */
+    @Secured({USER, ADMIN})
+    @DeleteMapping("/{imageId}/image")
+    public Response<Void> deleteReviewImage(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long imageId
+    ) {
+        reviewService.deleteReviewImage(authUser, imageId);
+        return Response.empty();
+    }
+
+    /**
      * 리뷰 수정 API
      */
     @Secured(USER)

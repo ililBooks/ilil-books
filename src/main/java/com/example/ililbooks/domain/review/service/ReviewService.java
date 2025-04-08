@@ -14,6 +14,7 @@ import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.example.ililbooks.global.image.entity.ReviewImage;
 import com.example.ililbooks.global.image.repository.ImageReviewRepository;
+import com.example.ililbooks.global.image.service.S3ImageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class ReviewService {
     private final ImageReviewRepository imageReviewRepository;
     private final UserService userService;
     private final BookService bookService;
+    private final S3ImageService s3ImageService;
 
     @Transactional
     public ReviewResponse createReview(AuthUser authUser, ReviewCreateRequest reviewCreateRequest) {
@@ -51,6 +53,21 @@ public class ReviewService {
         ReviewImage reviewImage = ReviewImage.of(findReview, imageUrl);
 
         imageReviewRepository.save(reviewImage);
+    }
+
+    public void deleteReviewImage(AuthUser authUser, Long imageId) {
+
+        //리뷰에 이미지가 없는 경우
+        ReviewImage reviewImage  = imageReviewRepository.findReviewImageById(imageId)
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_REVIEW.getMessage()));
+
+        //사용자가 다른 사람의 이미지를 삭제하려는 경우
+        if (!authUser.getUserId().equals(reviewImage.getReview().getUsers().getId()) && USER.equals(authUser.getAuthorities().iterator().next().getAuthority())) {
+            throw new BadRequestException(CANNOT_DELETE_OTHERS_REVIEW.getMessage());
+        }
+
+        s3ImageService.deleteImage(reviewImage.getFileName());
+        imageReviewRepository.delete(reviewImage);
     }
 
     @Transactional

@@ -67,7 +67,7 @@ public class BookController {
      * 책 이미지 삭제 API
      */
     @Secured({PUBLISHER, ADMIN})
-    @DeleteMapping("/{imageId}/images")
+    @DeleteMapping("/{imageId}/image")
     public Response<Void> deleteBookImage(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long imageId

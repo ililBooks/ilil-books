@@ -1,6 +1,5 @@
 package com.example.ililbooks.global.image.service;
 
-import com.example.ililbooks.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,9 +15,6 @@ import java.io.IOException;
 import java.util.UUID;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
-import static com.example.ililbooks.global.image.enums.ImageAction.REMOVE;
-import static com.example.ililbooks.global.image.enums.ImageAction.ADD;
-
 
 @Service
 @RequiredArgsConstructor
