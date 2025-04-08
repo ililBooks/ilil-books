@@ -7,8 +7,8 @@ import lombok.Getter;
 @Getter
 public class CartItemResponse {
 
-    private Long bookId;
-    private int quantity;
+    private final Long bookId;
+    private final int quantity;
 
     @Builder
     private CartItemResponse(Long bookId, int quantity) {

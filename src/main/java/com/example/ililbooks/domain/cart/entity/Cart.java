@@ -19,4 +19,10 @@ public class Cart {
     public Cart(Long userId) {
         this.userId = userId;
     }
+
+    @Builder
+    private Cart(Long userId, Map<Long, CartItem> items) {
+        this.userId = userId;
+        this.items = items;
+    }
 }

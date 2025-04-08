@@ -31,6 +31,9 @@ public enum ErrorMessage {
     BOOK_API_RESPONSE_FAILED("도서 API 응답 실패"),
     BOOK_ISBN_MISSING("도서의 ISBN이 존재하지 않거나 비어 있습니다."),
 
+    REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
+    REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패"),
+
     ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다.");
 
     private final String message;

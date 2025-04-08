@@ -1,7 +1,6 @@
 package com.example.ililbooks.domain.cart.controller;
 
-import com.example.ililbooks.domain.cart.dto.request.CartItemAddRequest;
-import com.example.ililbooks.domain.cart.dto.request.CartItemRequest;
+import com.example.ililbooks.domain.cart.dto.request.CartItemUpdateRequest;
 import com.example.ililbooks.domain.cart.dto.response.CartResponse;
 import com.example.ililbooks.domain.cart.service.CartService;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -21,15 +20,18 @@ public class CartController {
 
     private final CartService cartService;
 
+    /* 장바구니 추가 및 삭제 */
     @Secured(USER)
     @PostMapping
-    public Response<CartResponse> addCart(
+    public Response<CartResponse> updateCart(
             @AuthenticationPrincipal AuthUser authUser,
-            @Valid @RequestBody CartItemAddRequest cartItemAddRequest
+            @Valid @RequestBody CartItemUpdateRequest cartItemUpdateRequest
     ) {
-        return Response.of(cartService.addCart(authUser, cartItemAddRequest));
+        return Response.of(cartService.updateCart(authUser, cartItemUpdateRequest));
     }
 
+    /* 장바구니 조회 */
+    @Secured(USER)
     @GetMapping
     public Response<CartResponse> getCart(
             @AuthenticationPrincipal AuthUser authUser

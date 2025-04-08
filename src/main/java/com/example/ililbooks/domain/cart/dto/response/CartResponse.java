@@ -7,8 +7,8 @@ import java.util.List;
 
 @Getter
 public class CartResponse {
-    private Long userId;
-    private List<CartItemResponse> items;
+    private final Long userId;
+    private final List<CartItemResponse> items;
 
     @Builder
     private CartResponse(Long userId, List<CartItemResponse> items) {

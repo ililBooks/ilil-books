@@ -15,7 +15,7 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    public void increaseQuantity(int quantity) {
+    public void updateQuantity(int quantity) {
         this.quantity += quantity;
     }
 }

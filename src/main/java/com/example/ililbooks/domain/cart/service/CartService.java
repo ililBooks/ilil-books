@@ -1,14 +1,14 @@
 package com.example.ililbooks.domain.cart.service;
 
-import com.example.ililbooks.domain.cart.dto.request.CartItemAddRequest;
+import com.example.ililbooks.domain.cart.dto.request.CartItemUpdateRequest;
 import com.example.ililbooks.domain.cart.dto.request.CartItemRequest;
 import com.example.ililbooks.domain.cart.dto.response.CartItemResponse;
 import com.example.ililbooks.domain.cart.dto.response.CartResponse;
 import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
+import com.example.ililbooks.domain.cart.repository.CartRepository;
 import com.example.ililbooks.global.dto.AuthUser;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,42 +16,41 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class CartService {
 
-    private final RedisClient redisClient;
+    private final CartRepository cartRepository;
 
-    public CartResponse addCart(AuthUser authUser, CartItemAddRequest cartItemAddRequest) {
+    /* 장바구니 추가 및 삭제 */
+    public CartResponse updateCart(AuthUser authUser, CartItemUpdateRequest cartItemUpdateRequest) {
 
-        Cart cart = redisClient.get(authUser.getUserId(), Cart.class);
+        Cart cart = cartRepository.get(authUser.getUserId());
 
         if (cart == null) {
             cart = new Cart(authUser.getUserId());
         }
 
-        for (CartItemRequest item : cartItemAddRequest.getCartItemList()) {
+        for (CartItemRequest item : cartItemUpdateRequest.getCartItemList()) {
             Optional<CartItem> cartItem = Optional.ofNullable(cart.getItems().get(item.getBookId()));
 
             if (cartItem.isPresent()) {
-                cartItem.get().increaseQuantity(item.getQuantity());
+                cartItem.get().updateQuantity(item.getQuantity());
             } else {
                 cart.getItems().put(item.getBookId(), new CartItem(item.getBookId(), item.getQuantity()));
             }
         }
-
-        redisClient.put(authUser.getUserId(), cart);
-
-        List<CartItemResponse> itemResponses = cart.getItems().values().stream()
-                .map(CartItemResponse::of)
-                .collect(Collectors.toList());
-
-        return CartResponse.of(authUser.getUserId(), itemResponses);
+        cartRepository.put(authUser.getUserId(), cart);
+        return getCartResponse(authUser, cart);
     }
 
+    /* 장바구니 조회 */
     public CartResponse getCart(AuthUser authUser) {
-        Cart cart = redisClient.get(authUser.getUserId(), Cart.class);
+        Cart cart = cartRepository.get(authUser.getUserId());
+        return getCartResponse(authUser, cart);
+    }
 
+    /* dto 변환 */
+    private CartResponse getCartResponse(AuthUser authUser, Cart cart) {
         List<CartItemResponse> itemResponses = cart.getItems().values().stream()
                 .map(CartItemResponse::of)
                 .collect(Collectors.toList());
