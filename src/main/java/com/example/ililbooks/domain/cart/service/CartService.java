@@ -1,0 +1,94 @@
+package com.example.ililbooks.domain.cart.service;
+
+import com.example.ililbooks.domain.book.service.BookService;
+import com.example.ililbooks.domain.cart.dto.request.CartItemUpdateRequest;
+import com.example.ililbooks.domain.cart.dto.request.CartItemRequest;
+import com.example.ililbooks.domain.cart.dto.response.CartItemResponse;
+import com.example.ililbooks.domain.cart.dto.response.CartResponse;
+import com.example.ililbooks.domain.cart.entity.Cart;
+import com.example.ililbooks.domain.cart.entity.CartItem;
+import com.example.ililbooks.domain.cart.repository.CartRepository;
+import com.example.ililbooks.global.dto.AuthUser;
+import com.example.ililbooks.global.exception.BadRequestException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.example.ililbooks.global.exception.ErrorMessage.CANNOT_ADD_BOOK_TO_CART;
+import static com.example.ililbooks.global.exception.ErrorMessage.CART_QUANTITY_INVALID;
+
+@Service
+@RequiredArgsConstructor
+public class CartService {
+
+    private final CartRepository cartRepository;
+    private final BookService bookService;
+
+    /* 장바구니 추가 및 삭제 */
+    public CartResponse updateCart(AuthUser authUser, CartItemUpdateRequest cartItemUpdateRequest) {
+
+        Cart cart = findByUserIdOrElseNewCart(authUser.getUserId());
+
+        for (CartItemRequest item : cartItemUpdateRequest.getCartItemList()) {
+
+            if (!bookService.existsOnSaleRegularBookById(item.getBookId())) {
+                throw new BadRequestException(CANNOT_ADD_BOOK_TO_CART.getMessage());
+            }
+
+            CartItem existingItem = cart.getItems().get(item.getBookId());
+
+            if (existingItem != null) {
+                int updatedQuantity = existingItem.getQuantity() + item.getQuantity();
+
+                if (updatedQuantity < 0) {
+                    throw new BadRequestException(CART_QUANTITY_INVALID.getMessage());
+                }
+                if (updatedQuantity == 0) {
+                    cart.getItems().remove(item.getBookId());
+                }
+                existingItem.updateQuantity(item.getQuantity());
+            } else {
+                if (item.getQuantity() <= 0) {
+                    throw new BadRequestException(CART_QUANTITY_INVALID.getMessage());
+                }
+                cart.getItems().put(item.getBookId(), CartItem.of(item));
+            }
+
+            if (item.getQuantity() == 0) {
+                cart.getItems().remove(item.getBookId());
+            }
+        }
+
+        cartRepository.put(authUser.getUserId(), cart);
+        return getCartResponse(authUser, cart);
+    }
+
+    /* 장바구니 조회 */
+    public CartResponse getCart(AuthUser authUser) {
+        Cart cart = findByUserIdOrElseNewCart(authUser.getUserId());
+        return getCartResponse(authUser, cart);
+    }
+
+    /* 장바구니 비우기 */
+    public void clearCart(AuthUser authUser) {
+        cartRepository.clear(authUser.getUserId());
+    }
+
+    /* 장바구니 조회 및 생성 */
+    private Cart findByUserIdOrElseNewCart(Long userId) {
+        return Optional.ofNullable(cartRepository.get(userId))
+                .orElse(new Cart(userId));
+    }
+
+    /* dto 변환 */
+    private CartResponse getCartResponse(AuthUser authUser, Cart cart) {
+        List<CartItemResponse> itemResponses = cart.getItems().values().stream()
+                .map(CartItemResponse::of)
+                .collect(Collectors.toList());
+
+        return CartResponse.of(authUser.getUserId(), itemResponses);
+    }
+}
