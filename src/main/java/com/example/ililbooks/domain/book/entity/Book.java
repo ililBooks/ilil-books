@@ -98,4 +98,9 @@ public class Book extends TimeStamped {
         this.saleStatus = SaleStatus.valueOf(bookUpdateRequest.getSaleStatus());
         this.limitedType = LimitedType.valueOf(bookUpdateRequest.getLimitedType());
     }
+
+    public int decreaseStock(int quantity) {
+        this.stock -= quantity;
+        return stock;
+    }
 }
