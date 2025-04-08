@@ -36,6 +36,13 @@ public enum ErrorMessage {
     CANNOT_UPDATE_OTHERS_REVIEW("다른 사람의 리뷰를 수정할 수 없습니다."),
     CANNOT_DELETE_OTHERS_REVIEW("다른 사람의 리뷰를 삭제할 수 없습니다."),
 
+    ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다."),
+    ALREADY_RESERVED_EVENT("이미 예약된 행사입니다."),
+    NOT_FOUND_USER("유저 확인 불가"),
+    NOT_FOUND_EVENT("행사 확인 불가"),
+    NOT_OWN_RESERVATION("본인 예약 외 조회 불가"),
+    NOT_FOUND_RESERVATION("예약 확인 불가"),
+
     NOT_EXIST_SHOPPING_CART("장바구니가 존재하지 않습니다."),
     CANNOT_ADD_BOOK_TO_CART("장바구니에 담을 수 없는 책입니다."),
     CART_QUANTITY_INVALID("장바구니 수량은 0 이상이어야 합니다."),

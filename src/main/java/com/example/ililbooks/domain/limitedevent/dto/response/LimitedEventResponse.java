@@ -22,7 +22,7 @@ public class LimitedEventResponse {
 
     public static LimitedEventResponse from(LimitedEvent limitedEvent) {
         return LimitedEventResponse.builder()
-                .limitedEventId(limitedEvent.getLimitedEventId())
+                .limitedEventId(limitedEvent.getId())
                 .bookId(limitedEvent.getBook().getId())
                 .title(limitedEvent.getTitle())
                 .status(limitedEvent.getStatus())
