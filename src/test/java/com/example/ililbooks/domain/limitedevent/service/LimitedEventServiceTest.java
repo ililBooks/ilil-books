@@ -73,7 +73,7 @@ class LimitedEventServiceTest {
         // Given
         LimitedEvent limitedEvent = createEvent();
 
-        given(limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findByIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When
         LimitedEventResponse response = limitedEventService.getLimitedEvent(TEST_LIMITED_EVENT_ID);
@@ -85,7 +85,7 @@ class LimitedEventServiceTest {
     @Test
     void 존재하지_않는_행사_조회() {
         // Given
-        given(limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.empty());
+        given(limitedEventRepository.findByIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.empty());
 
         // When & Then
         assertThrows(NotFoundException.class, () -> limitedEventService.getLimitedEvent(TEST_LIMITED_EVENT_ID));
@@ -112,7 +112,7 @@ class LimitedEventServiceTest {
         LimitedEvent limitedEvent = createEvent();
         LimitedEventUpdateRequest request = new LimitedEventUpdateRequest("수정된제목", nowPlus(3), nowPlus(14), "수정된내용", 150);
 
-        given(limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findByIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When
         LimitedEventResponse response = limitedEventService.updateLimitedEvent(TEST_AUTH_USER, TEST_LIMITED_EVENT_ID, request);
@@ -130,7 +130,7 @@ class LimitedEventServiceTest {
         // 제한된 필드만 수정
         LimitedEventUpdateRequest request = new LimitedEventUpdateRequest(null, null, nowPlus(30), null, 300);
 
-        given(limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findByIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When
         LimitedEventResponse response = limitedEventService.updateLimitedEvent(TEST_AUTH_USER, TEST_LIMITED_EVENT_ID, request);
@@ -145,7 +145,7 @@ class LimitedEventServiceTest {
         // Given
         LimitedEvent limitedEvent = createEvent();
 
-        given(limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findByIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When
         limitedEventService.deleteLimitedEvent(TEST_AUTH_USER, TEST_LIMITED_EVENT_ID);
@@ -160,7 +160,7 @@ class LimitedEventServiceTest {
         LimitedEvent limitedEvent = createEvent();
         limitedEvent.activate();
 
-        given(limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
+        given(limitedEventRepository.findByIdAndDeletedAtIsNull(TEST_LIMITED_EVENT_ID)).willReturn(Optional.of(limitedEvent));
 
         // When & Then
         assertThrows(BadRequestException.class, () -> limitedEventService.deleteLimitedEvent(TEST_AUTH_USER, TEST_LIMITED_EVENT_ID));
