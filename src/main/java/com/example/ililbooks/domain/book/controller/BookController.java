@@ -64,6 +64,19 @@ public class BookController {
     }
 
     /**
+     * 책 이미지 삭제 API
+     */
+    @Secured({PUBLISHER, ADMIN})
+    @DeleteMapping("/{imageId}/images")
+    public Response<Void> deleteBookImage(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long imageId
+    ) {
+        bookService.deleteBookImage(authUser, imageId);
+        return Response.empty();
+    }
+
+    /**
      * 책 단건 조회 API
      */
     @GetMapping("/{bookId}")

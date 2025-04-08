@@ -41,6 +41,7 @@ public enum ErrorMessage {
     FAILED_UPLOAD_IMAGE("이미지 업로드에 실패하였습니다."),
     UNSUPPORTED_IMAGE_PROCESSING_TYPE("지원하지 않는 이미지 처리 타입입니다: "),
     IMAGE_ALREADY_EXISTS("해당 책에는 이미 업로드된 이미지가 있습니다."),
+    FAILED_DELETE_IMAGE("이미지 삭제에 실패하였습니다."),
 
     ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다.");
 

@@ -18,7 +18,7 @@ import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.example.ililbooks.global.image.entity.BookImage;
 import com.example.ililbooks.global.image.repository.ImageBookRepository;
-import com.example.ililbooks.global.image.repository.ImageReviewRepository;
+import com.example.ililbooks.global.image.service.S3ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -39,7 +39,7 @@ public class BookService {
     private final UserService userService;
     private final BookClient bookClient;
     private final ReviewFindService reviewFindService;
-    private final ImageReviewRepository imageReviewRepository;
+    private final S3ImageService s3ImageService;
 
     @Transactional
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {
@@ -99,6 +99,21 @@ public class BookService {
         imageBookRepository.save(bookImage);
     }
 
+    @Transactional
+    public void deleteBookImage(AuthUser authUser, Long imageId) {
+        //이미지가 존재하지 않는 경우
+        BookImage findBookImage = imageBookRepository.findImageById(imageId)
+                .orElseThrow(()-> new NotFoundException(NOT_FOUND_IMAGE.getMessage()));
+
+        //자신이 등록한 책이 아닌 경우
+        if (!authUser.getUserId().equals(findBookImage.getBook().getUsers().getId())) {
+            throw new BadRequestException(CANNOT_DELETE_OTHERS_IMAGE.getMessage());
+        }
+
+        s3ImageService.deleteImage(findBookImage.getFileName());
+        imageBookRepository.delete(findBookImage);
+    }
+
     @Transactional(readOnly = true)
     public BookWithImagesResponse getBookResponse(Long bookId, int pageNum, int pageSize) {
         Book findBook = findBookByIdOrElseThrow(bookId);
@@ -140,5 +155,4 @@ public class BookService {
     public Book findBookByIdOrElseThrow(Long bookId) {
         return bookRepository.findById(bookId).orElseThrow(() -> new NotFoundException(NOT_FOUND_BOOK.getMessage()));
     }
-
 }
