@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface LimitedEventRepository extends JpaRepository<LimitedEvent, Long> {
 
-    Optional<LimitedEvent> findByLimitedEventIdAndDeletedAtIsNull(Long limitedEventId);
+    Optional<LimitedEvent> findByIdAndDeletedAtIsNull(Long limitedEventId);
 
     Page<LimitedEvent> findAllByDeletedAtIsNull(Pageable pageable);
 }

@@ -20,7 +20,7 @@ public class LimitedEvent extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long limitedEventId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
@@ -94,5 +94,9 @@ public class LimitedEvent extends TimeStamped {
      */
     public void softDelete() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public boolean canAcceptReservation(Long reservedCount) {
+        return reservedCount < this.bookQuantity;
     }
 }
