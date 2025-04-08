@@ -8,6 +8,8 @@ import com.example.ililbooks.domain.book.dto.response.BookResponse;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.repository.BookRepository;
 import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
+import com.example.ililbooks.domain.review.service.ReviewFindService;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -30,6 +32,7 @@ public class BookService {
     private final BookRepository bookRepository;
     private final UserService userService;
     private final BookClient bookClient;
+    private final ReviewFindService reviewFindService;
 
     @Transactional
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {
@@ -40,17 +43,8 @@ public class BookService {
             throw new BadRequestException(DUPLICATE_BOOK.getMessage());
         }
 
-        Book savedBook = Book.builder()
-                .users(findUsers)
-                .title(bookCreateRequest.getTitle())
-                .author(bookCreateRequest.getAuthor())
-                .price(bookCreateRequest.getPrice())
-                .category(bookCreateRequest.getCategory())
-                .stock(bookCreateRequest.getStock())
-                .isbn(bookCreateRequest.getIsbn())
-                .build();
-
-        bookRepository.save(savedBook);
+        Book createBook = Book.of(findUsers, bookCreateRequest);
+        Book savedBook = bookRepository.save(createBook);
 
         return BookResponse.of(savedBook);
     }
@@ -84,49 +78,46 @@ public class BookService {
                 continue;
             }
 
-            Book savedBook = Book.builder()
-                    .users(findUsers)
-                    .title(book.getTitle())
-                    .author(book.getAuthor().replaceAll("<[^>]*>", ""))
-                    .price(price)
-                    .category(book.getCategory())
-                    .stock(randomStock)
-                    .isbn(book.getIsbn())
-                    .build();
+            Book savedBook = Book.of(findUsers, book, price, randomStock);
 
             bookRepository.save(savedBook);
         }
     }
 
     @Transactional(readOnly = true)
-    public BookResponse getBookResponse(Long bookId) {
-        Book findBook = getBookById(bookId);
+    public BookResponse getBookResponse(Long bookId, int pageNum, int pageSize) {
+        Book findBook = findBookByIdOrElseThrow(bookId);
 
-        return BookResponse.of(findBook);
+        Page<ReviewResponse> reviews = reviewFindService.getReviews(findBook.getId(), pageNum, pageSize);
+
+        return BookResponse.of(findBook, reviews);
     }
 
     @Transactional(readOnly = true)
-    public List<BookResponse> getBooks(int pageNum, int pageSize) {
+    public Page<BookResponse> getBooks(int pageNum, int pageSize) {
         Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
 
-        return ofList(bookRepository.findAll(pageable));
+        Page<Book> findBooks = bookRepository.findAll(pageable);
+
+        return ofList(findBooks);
     }
 
     @Transactional
     public void updateBook(Long bookId, BookUpdateRequest bookUpdateRequest) {
-        Book findBook = getBookById(bookId);
+        Book findBook = findBookByIdOrElseThrow(bookId);
 
         findBook.updateBook(bookUpdateRequest);
     }
 
     @Transactional
     public void deleteBook(Long bookId) {
-        Book findBook = getBookById(bookId);
+        Book findBook = findBookByIdOrElseThrow(bookId);
 
         bookRepository.delete(findBook);
     }
 
-    public Book getBookById(Long bookId) {
+    public Book findBookByIdOrElseThrow(Long bookId) {
         return bookRepository.findById(bookId).orElseThrow(() -> new NotFoundException(NOT_FOUND_BOOK.getMessage()));
     }
+
 }
