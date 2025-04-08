@@ -48,4 +48,14 @@ public class CartService {
 
         return CartResponse.of(authUser.getUserId(), itemResponses);
     }
+
+    public CartResponse getCart(AuthUser authUser) {
+        Cart cart = redisClient.get(authUser.getUserId(), Cart.class);
+
+        List<CartItemResponse> itemResponses = cart.getItems().values().stream()
+                .map(CartItemResponse::of)
+                .collect(Collectors.toList());
+
+        return CartResponse.of(authUser.getUserId(), itemResponses);
+    }
 }
