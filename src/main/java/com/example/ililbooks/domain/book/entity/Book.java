@@ -1,5 +1,7 @@
 package com.example.ililbooks.domain.book.entity;
 
+import com.example.ililbooks.client.dto.BookApiResponse;
+import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.enums.SaleStatus;
@@ -25,7 +27,7 @@ public class Book extends TimeStamped {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "users_id")
     private Users users;
 
     private String title;
@@ -59,6 +61,30 @@ public class Book extends TimeStamped {
         this.isbn = isbn;
         this.saleStatus = ON_SALE;
         this.limitedType = REGULAR;
+    }
+
+    public static Book of(Users users, BookCreateRequest bookCreateRequest) {
+        return Book.builder()
+                .users(users)
+                .title(bookCreateRequest.getTitle())
+                .author(bookCreateRequest.getAuthor())
+                .price(bookCreateRequest.getPrice())
+                .category(bookCreateRequest.getCategory())
+                .stock(bookCreateRequest.getStock())
+                .isbn(bookCreateRequest.getIsbn())
+                .build();
+    }
+
+    public static Book of(Users users, BookApiResponse book, Long price, int stock) {
+        return Book.builder()
+                .users(users)
+                .title(book.getTitle())
+                .author(book.getAuthor().replaceAll("<[^>]*>", ""))
+                .price(price)
+                .category(book.getCategory())
+                .stock(stock)
+                .isbn(book.getIsbn())
+                .build();
     }
 
     public void updateBook(BookUpdateRequest bookUpdateRequest) {
