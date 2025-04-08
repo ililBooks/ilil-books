@@ -8,7 +8,6 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
 public class LimitedReservationResponse {
 
     private final Long reservationId;
@@ -17,7 +16,16 @@ public class LimitedReservationResponse {
     private final LimitedReservationStatus status;
     private final LocalDateTime expiredAt;
 
-    public static LimitedReservationResponse from(LimitedReservation reservation) {
+    @Builder
+    public LimitedReservationResponse(Long reservationId, Long limitedEventId, Long userId, LimitedReservationStatus status, LocalDateTime expiredAt) {
+        this.reservationId = reservationId;
+        this.limitedEventId = limitedEventId;
+        this.userId = userId;
+        this.status = status;
+        this.expiredAt = expiredAt;
+    }
+
+    public static LimitedReservationResponse of(LimitedReservation reservation) {
         return LimitedReservationResponse.builder()
                 .reservationId(reservation.getId())
                 .limitedEventId(reservation.getLimitedEvent().getId())

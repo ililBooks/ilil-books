@@ -1,6 +1,7 @@
 package com.example.ililbooks.domain.limitedreservation.controller;
 
 import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationCreateRequest;
+import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationStatusFilterRequest;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -9,8 +10,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,14 +50,13 @@ public class LimitedReservationController {
         return Response.of(reservationService.getReservationsByEvent(eventId, pageable));
     }
 
-    // V2 - 관리자 조회용
+     // V2 - 관리자 조회용
 //    @Secured({PUBLISHER, ADMIN})
-//    @GetMapping("/events/{eventId}/status")
+//    @GetMapping("/events/status")
 //    public Response<List<LimitedReservationResponse>> getReservationsByEventAndStatus(
-//            @PathVariable Long eventId,
-//            @RequestParam(name = "status") List<LimitedReservationStatus> statuses
+//            @RequestBody LimitedReservationStatusFilterRequest request
 //    ) {
-//        return Response.of(reservationService.getReservationsByEventAndStatus(eventId, statuses));
+//        return Response.of(reservationService.getReservationsByEventAndStatus(request.getEventId(), request.getStatuses()));
 //    }
 
     /*/ 예약 취소 */

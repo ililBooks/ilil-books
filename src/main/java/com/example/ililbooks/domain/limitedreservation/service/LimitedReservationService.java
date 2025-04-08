@@ -56,7 +56,7 @@ public class LimitedReservationService {
         LimitedReservation reservation = LimitedReservation.createFrom(user, event, status, expiredAt);
         limitedReservationRepository.save(reservation);
 
-        return LimitedReservationResponse.from(reservation);
+        return LimitedReservationResponse.of(reservation);
     }
 
     /*
@@ -69,17 +69,17 @@ public class LimitedReservationService {
         if (!reservation.getUsers().getId().equals(authUser.getUserId())) {
             throw new BadRequestException(NOT_OWN_RESERVATION.getMessage());
         }
-        return LimitedReservationResponse.from(reservation);
+        return LimitedReservationResponse.of(reservation);
     }
 
     /*
      * 예약 전체 조회 (출판사용)
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<LimitedReservationResponse> getReservationsByEvent(Long eventId, Pageable pageable) {
         LimitedEvent limitedEvent = findEvent(eventId);
         return limitedReservationRepository.findAllByLimitedEvent(limitedEvent, pageable)
-                .map(LimitedReservationResponse::from);
+                .map(LimitedReservationResponse::of);
     }
 
     /*
@@ -91,7 +91,7 @@ public class LimitedReservationService {
         List<LimitedReservation> reservations = limitedReservationRepository.findAllByLimitedEventAndStatusIn(limitedEvent, statuses);
 
         return reservations.stream()
-                .map(LimitedReservationResponse::from)
+                .map(LimitedReservationResponse::of)
                 .toList();
     }
 

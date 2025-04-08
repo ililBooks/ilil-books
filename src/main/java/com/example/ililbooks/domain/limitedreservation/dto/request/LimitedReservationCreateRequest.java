@@ -4,10 +4,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static com.example.ililbooks.global.dto.ValidationMessage.NOT_NULL_EVENT_ID;
+
 @Getter
 @NoArgsConstructor
 public class LimitedReservationCreateRequest {
 
-    @NotNull(message = "예약할 한정판 행사 ID는 필수입니다.")
+    @NotNull(message = NOT_NULL_EVENT_ID)
     private Long limitedEventId;
 }
