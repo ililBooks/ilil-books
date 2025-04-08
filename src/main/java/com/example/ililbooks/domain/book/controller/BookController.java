@@ -3,16 +3,16 @@ package com.example.ililbooks.domain.book.controller;
 import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
+import com.example.ililbooks.domain.book.dto.response.BookWithImagesResponse;
 import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.ADMIN;
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.PUBLISHER;
@@ -39,14 +39,27 @@ public class BookController {
     /**
      * 외부 Open API를 통해 책 정보를 가져와 저장하는 API
      */
-    @Secured({ADMIN,PUBLISHER})
+    @Secured({ADMIN})
     @PostMapping("/open-api")
     public Response<Void> createBooksByOpenApi(
             @AuthenticationPrincipal AuthUser authUser,
             @RequestParam int pageNum,
-            @RequestParam int pageSize
+            @RequestParam int pageSize,
+            @RequestParam String kwd
     ) {
-        bookService.createBookByOpenApi(authUser, pageNum, pageSize);
+        bookService.createBookByOpenApi(authUser, pageNum, pageSize, kwd);
+        return Response.empty();
+    }
+
+    /**
+     * 책 이미지 업로드 API
+     */
+    @PostMapping("/{bookId}/image")
+    public Response<Void> uploadBookImage(
+            @PathVariable Long bookId,
+            @RequestParam String imageUrl
+    ) {
+        bookService.uploadBookImage(bookId, imageUrl);
         return Response.empty();
     }
 
@@ -54,17 +67,19 @@ public class BookController {
      * 책 단건 조회 API
      */
     @GetMapping("/{bookId}")
-    public Response<BookResponse> getBook(
-            @PathVariable Long bookId
+    public Response<BookWithImagesResponse> getBook(
+            @PathVariable Long bookId,
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize
     ) {
-        return Response.of(bookService.getBookResponse(bookId));
+        return Response.of(bookService.getBookResponse(bookId, pageNum, pageSize));
     }
 
     /**
      * 책 다건 조회 API
      */
     @GetMapping
-    public Response<List<BookResponse>> getBooks(
+    public Response<Page<BookResponse>> getBooks(
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize
     ) {

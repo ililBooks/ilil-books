@@ -1,5 +1,7 @@
 package com.example.ililbooks.domain.book.entity;
 
+import com.example.ililbooks.client.dto.BookApiResponse;
+import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.enums.SaleStatus;
@@ -10,6 +12,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 import static com.example.ililbooks.domain.book.enums.LimitedType.REGULAR;
 import static com.example.ililbooks.domain.book.enums.SaleStatus.ON_SALE;
@@ -25,14 +29,14 @@ public class Book extends TimeStamped {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "users_id")
     private Users users;
 
     private String title;
 
     private String author;
 
-    private Long price;
+    private BigDecimal price;
 
     private String category;
 
@@ -49,7 +53,7 @@ public class Book extends TimeStamped {
     private LimitedType limitedType;
 
     @Builder
-    private Book(Users users, String title, String author, Long price, String category, int stock, String isbn) {
+    private Book(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn) {
         this.users = users;
         this.title = title;
         this.author = author;
@@ -59,6 +63,30 @@ public class Book extends TimeStamped {
         this.isbn = isbn;
         this.saleStatus = ON_SALE;
         this.limitedType = REGULAR;
+    }
+
+    public static Book of(Users users, BookCreateRequest bookCreateRequest) {
+        return Book.builder()
+                .users(users)
+                .title(bookCreateRequest.getTitle())
+                .author(bookCreateRequest.getAuthor())
+                .price(bookCreateRequest.getPrice())
+                .category(bookCreateRequest.getCategory())
+                .stock(bookCreateRequest.getStock())
+                .isbn(bookCreateRequest.getIsbn())
+                .build();
+    }
+
+    public static Book of(Users users, BookApiResponse book, BigDecimal price, int stock) {
+        return Book.builder()
+                .users(users)
+                .title(book.getTitle().replaceAll("<[^>]*>", ""))
+                .author(book.getAuthor().replaceAll("<[^>]*>", ""))
+                .price(price)
+                .category(book.getCategory())
+                .stock(stock)
+                .isbn(book.getIsbn())
+                .build();
     }
 
     public void updateBook(BookUpdateRequest bookUpdateRequest) {

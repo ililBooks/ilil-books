@@ -31,7 +31,31 @@ public enum ErrorMessage {
     BOOK_API_RESPONSE_FAILED("도서 API 응답 실패"),
     BOOK_ISBN_MISSING("도서의 ISBN이 존재하지 않거나 비어 있습니다."),
 
-    ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다.");
+    DUPLICATE_REVIEW("하나의 책에 하나의 리뷰만 등록할 수 있습니다."),
+    NOT_FOUND_REVIEW("리뷰를 찾을 수 없습니다."),
+    CANNOT_UPDATE_OTHERS_REVIEW("다른 사람의 리뷰를 수정할 수 없습니다."),
+    CANNOT_DELETE_OTHERS_REVIEW("다른 사람의 리뷰를 삭제할 수 없습니다."),
+
+    ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다."),
+    ALREADY_RESERVED_EVENT("이미 예약된 행사입니다."),
+    NOT_FOUND_USER("유저 확인 불가"),
+    NOT_FOUND_EVENT("행사 확인 불가"),
+    NOT_OWN_RESERVATION("본인 예약 외 조회 불가"),
+    NOT_FOUND_RESERVATION("예약 확인 불가"),
+    CANNOT_DELETE_OTHERS_IMAGE("다른 사람의 이미지를 삭제할 수 없습니다."),
+    NOT_FOUND_IMAGE("이미지가 존재하지 않습니다."),
+    FAILED_UPLOAD_IMAGE("이미지 업로드에 실패하였습니다."),
+    UNSUPPORTED_IMAGE_PROCESSING_TYPE("지원하지 않는 이미지 처리 타입입니다: "),
+    IMAGE_ALREADY_EXISTS("해당 책에는 이미 업로드된 이미지가 있습니다."),
+    FAILED_DELETE_IMAGE("이미지 삭제에 실패하였습니다."),
+    IMAGE_UPLOAD_LIMIT_OVER("등록 가능한 이미지 개수를 초과하였습니다."),
+
+    NOT_EXIST_SHOPPING_CART("장바구니가 존재하지 않습니다."),
+    CANNOT_ADD_BOOK_TO_CART("장바구니에 담을 수 없는 책입니다."),
+    CART_QUANTITY_INVALID("장바구니 수량은 0 이상이어야 합니다."),
+
+    REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
+    REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패");
 
     private final String message;
 

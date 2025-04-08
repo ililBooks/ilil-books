@@ -105,7 +105,7 @@ public class LimitedEventService {
      * 내부용 find 메서드
      */
     private LimitedEvent findByIdOrElseThrow(Long limitedEventId) {
-        return limitedEventRepository.findByLimitedEventIdAndDeletedAtIsNull(limitedEventId).orElseThrow(
+        return limitedEventRepository.findByIdAndDeletedAtIsNull(limitedEventId).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_TOKEN.getMessage())
         );
     }
