@@ -72,6 +72,11 @@ public class CartService {
         return getCartResponse(authUser, cart);
     }
 
+    /* 장바구니 비우기 */
+    public void clearCart(AuthUser authUser) {
+        cartRepository.clear(authUser.getUserId());
+    }
+
     /* 장바구니 조회 및 생성 */
     private Cart findByUserIdOrElseNewCart(Long userId) {
         return Optional.ofNullable(cartRepository.get(userId))

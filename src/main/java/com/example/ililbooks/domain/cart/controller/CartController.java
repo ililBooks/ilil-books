@@ -38,4 +38,13 @@ public class CartController {
     ) {
         return Response.of(cartService.getCart(authUser));
     }
+
+    /* 장바구니 비우기 */
+    @DeleteMapping
+    public Response<Void> clearCart(
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        cartService.clearCart(authUser);
+        return Response.empty();
+    }
 }

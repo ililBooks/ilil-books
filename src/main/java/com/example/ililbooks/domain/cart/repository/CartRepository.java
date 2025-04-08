@@ -17,14 +17,20 @@ public class CartRepository {
     private static final String CART_KEY_PREFIX = "cart:";
 
     /* 장바구니 조회 */
-    public Cart get(Long key) {
-        String redisKey = CART_KEY_PREFIX + key;
+    public Cart get(Long userId) {
+        String redisKey = CART_KEY_PREFIX + userId;
         return redisClient.get(redisKey, Cart.class);
     }
 
     /* 장바구니 저장 및 수정 */
-    public void put(Long key, Cart cart) {
-        String redisKey = CART_KEY_PREFIX + key;
+    public void put(Long userId, Cart cart) {
+        String redisKey = CART_KEY_PREFIX + userId;
         redisClient.put(redisKey, cart, CART_TTL);
+    }
+
+    /* 장바구니 비우기 */
+    public void clear(Long userId) {
+        String redisKey = CART_KEY_PREFIX + userId;
+        redisClient.delete(redisKey);
     }
 }

@@ -40,5 +40,9 @@ public class RedisClient {
             throw new BadRequestException(REDIS_SERIALIZE_FAILED.getMessage());
         }
     }
+
+    public void delete(String redisKey) {
+        redisTemplate.delete(redisKey);
+    }
 }
 
