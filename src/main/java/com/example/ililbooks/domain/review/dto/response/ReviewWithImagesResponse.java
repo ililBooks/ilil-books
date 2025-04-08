@@ -8,7 +8,6 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-@Builder
 public class ReviewWithImagesResponse {
 
     private final Long id;
@@ -22,6 +21,16 @@ public class ReviewWithImagesResponse {
     private final String comment;
 
     private final List<ImageResponse> images;
+
+    @Builder
+    public ReviewWithImagesResponse(Long id, Long userId, Long bookId, int rating, String comment, List<ImageResponse> images) {
+        this.id = id;
+        this.userId = userId;
+        this.bookId = bookId;
+        this.rating = rating;
+        this.comment = comment;
+        this.images = images;
+    }
 
     public static ReviewWithImagesResponse of(Review review, List<ImageResponse> images) {
         return ReviewWithImagesResponse.builder()

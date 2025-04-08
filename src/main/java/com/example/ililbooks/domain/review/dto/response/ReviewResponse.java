@@ -18,6 +18,15 @@ public class ReviewResponse {
 
     private final String comment;
 
+    @Builder
+    public ReviewResponse(Long id, Long userId, Long bookId, int rating, String comment) {
+        this.id = id;
+        this.userId = userId;
+        this.bookId = bookId;
+        this.rating = rating;
+        this.comment = comment;
+    }
+
     public static ReviewResponse of(Review review) {
         return ReviewResponse.builder()
                 .id(review.getId())
