@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import static com.example.ililbooks.config.util.JwtUtil.REFRESH_TOKEN_TIME;
@@ -14,7 +15,7 @@ import static com.example.ililbooks.config.util.JwtUtil.REFRESH_TOKEN_TIME;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @RedisHash(value = "refreshToken", timeToLive = REFRESH_TOKEN_TIME)
-public class RefreshToken {
+public class RefreshToken{
 
     @Id
     private String token;

@@ -165,4 +165,8 @@ public class BookService {
     public Book findBookByIdOrElseThrow(Long bookId) {
         return bookRepository.findById(bookId).orElseThrow(() -> new NotFoundException(NOT_FOUND_BOOK.getMessage()));
     }
+
+    public boolean existsOnSaleRegularBookById(Long bookId) {
+        return bookRepository.existsOnSaleRegularBookById(bookId);
+    }
 }
