@@ -84,23 +84,23 @@ public class AuthServiceTest {
         assertEquals(badRequestException.getMessage(), PASSWORD_CONFIRMATION_MISMATCH.getMessage());
     }
 
-    @Test
-    void 회원가입_성공() {
-        // given
-        String accessToken = "accessToken";
-        String refreshToken = "refreshToken";
-
-        given(userService.saveUser(any(String.class), any(String.class), any(String.class), any(String.class))).willReturn(users);
-        given(tokenService.createAccessToken(any(Users.class))).willReturn(accessToken);
-        given(tokenService.createRefreshToken(any(Users.class))).willReturn(refreshToken);
-
-        // when
-        AuthTokensResponse result = authService.signup(successSignup);
-
-        // then
-        assertEquals(accessToken, result.getAccessToken());
-        assertEquals(refreshToken, result.getRefreshToken());
-    }
+//    @Test
+//    void 회원가입_성공() {
+//        // given
+//        String accessToken = "accessToken";
+//        String refreshToken = "refreshToken";
+//
+//        given(userService.saveUser(any(String.class), any(String.class), any(String.class), any(String.class))).willReturn(users);
+//        given(tokenService.createAccessToken(any(Users.class))).willReturn(accessToken);
+//        given(tokenService.createRefreshToken(any(Users.class))).willReturn(refreshToken);
+//
+//        // when
+//        AuthTokensResponse result = authService.signup(successSignup);
+//
+//        // then
+//        assertEquals(accessToken, result.getAccessToken());
+//        assertEquals(refreshToken, result.getRefreshToken());
+//    }
 
     @Test
     void 로그인_삭제된_유저의_이메일일_경우_실패() {

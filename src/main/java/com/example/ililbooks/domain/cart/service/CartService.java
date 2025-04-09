@@ -46,20 +46,17 @@ public class CartService {
                 if (updatedQuantity < 0) {
                     throw new BadRequestException(CART_QUANTITY_INVALID.getMessage());
                 }
+
                 if (updatedQuantity == 0) {
                     cart.getItems().remove(item.getBookId());
                 }
+
                 existingItem.updateQuantity(item.getQuantity());
             } else {
                 if (item.getQuantity() <= 0) {
                     throw new BadRequestException(CART_QUANTITY_INVALID.getMessage());
                 }
-                cart.getItems().put(item.getBookId(), CartItem.of(item));
-            }
-
-            // todo 둘중하나 사용
-            if (item.getQuantity() == 0) {
-                cart.getItems().remove(item.getBookId());
+                cart.getItems().put(item.getBookId(), CartItem.of(item.getBookId(), item.getQuantity()));
             }
         }
 

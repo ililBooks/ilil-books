@@ -6,6 +6,7 @@ import com.example.ililbooks.domain.book.service.BookStokeService;
 import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
 import com.example.ililbooks.domain.cart.service.CartService;
+import com.example.ililbooks.domain.order.dto.response.OrderHistoryResponse;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
@@ -16,10 +17,12 @@ import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.ForbiddenException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -34,39 +37,31 @@ public class OrderService {
     private final OrderHistoryService orderHistoryService;
     private final BookService bookService;
     private final BookStokeService bookStokeService;
-    private final OrderGetService orderGetService;
 
     /* 주문 생성 */
     @Transactional
     public OrderResponse createOrder(AuthUser authUser, int pageNum, int pageSize) {
 
-        // 1. 장바구니 추출
         Cart cart = cartService.findByUserIdOrElseNewCart(authUser.getUserId());
 
         if (cart.getItems().isEmpty()) {
             throw new BadRequestException(NOT_EXIST_SHOPPING_CART.getMessage());
         }
 
-        // 2. 책 정보 가져오기 + 장바구니 책 검증
         Map<Long, Book> bookMap = getBookMap(cart);
 
-        // 3. 재고 차감
         decreaseStocks(bookMap, cart);
 
-        // 4. order 저장
         BigDecimal totalPrice = calculateTotalPrice(bookMap, cart);
 
         Order order = Order.of(Users.fromAuthUser(authUser), totalPrice);
         orderRepository.save(order);
 
-        // 5. orderHistory 저장
         orderHistoryService.saveOrderHistory(bookMap, cart, order);
 
-        // 6. 장바구니 비우기
         cartService.clearCart(authUser);
 
-        // 7. order 바인딩
-        return orderGetService.getOrderResponse(order, pageNum, pageSize);
+        return getOrderResponse(order, pageNum, pageSize);
     }
 
     /* 주문 상태 변경(취소) */
@@ -83,7 +78,9 @@ public class OrderService {
         }
 
         order.updateOrder(OrderStatus.CANCELLED);
-        return orderGetService.getOrderResponse(order, pageNum, pageSize);
+
+        rollbackStocks(order);
+        return getOrderResponse(order, pageNum, pageSize);
     }
 
     /* 주문 상태 변경(승인) */
@@ -100,7 +97,7 @@ public class OrderService {
         }
 
         order.updateOrder(OrderStatus.ORDERED);
-        return orderGetService.getOrderResponse(order, pageNum, pageSize);
+        return getOrderResponse(order, pageNum, pageSize);
     }
 
     /* 주문 총 가격 계산 */
@@ -123,6 +120,16 @@ public class OrderService {
         }
     }
 
+    /* 취소 시 재고 감소 롤백 */
+    private void rollbackStocks(Order order) {
+        List<CartItem> cartItemList = orderHistoryService.getCartItemListByOrderId(order.getId());
+
+        for (CartItem cartItem : cartItemList) {
+            Book book = bookService.findBookByIdOrElseThrow(cartItem.getBookId());
+            bookStokeService.rollbackStock(book, cartItem.getQuantity());
+        }
+    }
+
     /* 책 검증 및 추출 */
     private Map<Long, Book> getBookMap(Cart cart) {
         return cart.getItems().keySet().stream()
@@ -130,6 +137,12 @@ public class OrderService {
                         id -> id,
                         bookService::findBookByIdOrElseThrow
                 ));
+    }
+
+    public OrderResponse getOrderResponse(Order order, int pageNum, int pageSize) {
+        Page<OrderHistoryResponse> orderHistories = orderHistoryService.getOrderHistories(order.getId(), pageNum, pageSize);
+
+        return OrderResponse.of(order, orderHistories);
     }
 
     private boolean isCanCancelOrder(Order order) {

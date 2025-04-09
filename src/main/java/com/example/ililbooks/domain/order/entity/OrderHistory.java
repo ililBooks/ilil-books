@@ -36,6 +36,7 @@ public class OrderHistory extends TimeStamped {
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "limited_type", columnDefinition = "VARCHAR(50)")
     private LimitedType limitedType;
 
     private int quantity;

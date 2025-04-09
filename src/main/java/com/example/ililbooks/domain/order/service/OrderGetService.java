@@ -22,7 +22,6 @@ public class OrderGetService {
 
     private final OrderService orderService;
     private final OrderRepository orderRepository;
-    private final OrderHistoryService orderHistoryService;
 
     /* 주문 단건 조회 */
     @Transactional(readOnly = true)
@@ -32,7 +31,7 @@ public class OrderGetService {
         if (!authUser.getUserId().equals(order.getUsers().getId())) {
             throw new ForbiddenException(NOT_OWN_ORDER.getMessage());
         }
-        return getOrderResponse(order, pageNum, pageSize);
+        return orderService.getOrderResponse(order, pageNum, pageSize);
     }
 
     /* 주문 다건 조회 */
@@ -42,11 +41,5 @@ public class OrderGetService {
         Page<Order> findOrders = orderRepository.findAllByUsersId(authUser.getUserId(), pageable);
 
         return findOrders.map(OrdersGetResponse::of);
-    }
-
-    public OrderResponse getOrderResponse(Order order, int pageNum, int pageSize) {
-        Page<OrderHistoryResponse> orderHistories = orderHistoryService.getOrderHistories(order.getId(), pageNum, pageSize);
-
-        return OrderResponse.of(order, orderHistories);
     }
 }

@@ -103,4 +103,8 @@ public class Book extends TimeStamped {
         this.stock -= quantity;
         return stock;
     }
+
+    public void rollbackStock(int quantity) {
+        this.stock += quantity;
+    }
 }

@@ -33,12 +33,15 @@ public class Order extends TimeStamped {
     private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "order_status", columnDefinition = "VARCHAR(50)")
     private OrderStatus orderStatus;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_status", columnDefinition = "VARCHAR(50)")
     private DeliveryStatus deliveryStatus;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status", columnDefinition = "VARCHAR(50)")
     private PaymentStatus paymentStatus;
 
     @Builder

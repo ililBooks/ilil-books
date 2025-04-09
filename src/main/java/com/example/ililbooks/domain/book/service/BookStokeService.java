@@ -18,4 +18,8 @@ public class BookStokeService {
             throw new BadRequestException(OUT_OF_STOCK.getMessage());
         }
     }
+
+    public void rollbackStock(Book book, int quantity) {
+        book.rollbackStock(quantity);
+    }
 }

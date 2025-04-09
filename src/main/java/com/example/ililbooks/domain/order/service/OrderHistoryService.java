@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -34,5 +35,13 @@ public class OrderHistoryService {
         Page<OrderHistory> findOrderHistories = orderHistoryRepository.findAllByOrderId(orderId, pageable);
 
         return findOrderHistories.map(OrderHistoryResponse::of);
+    }
+
+    public List<CartItem> getCartItemListByOrderId(Long orderId) {
+        List<OrderHistory> orderHistoryList = orderHistoryRepository.findAllByOrderId(orderId);
+
+        return orderHistoryList.stream()
+                .map(orderHistory -> CartItem.of(orderHistory.getBook().getId(), orderHistory.getQuantity()))
+                .toList();
     }
 }

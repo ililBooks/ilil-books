@@ -17,7 +17,6 @@ import static com.example.ililbooks.global.exception.ErrorMessage.CANNOT_DELIVER
 public class OrderDeliveryService {
 
     private final OrderService orderService;
-    private final OrderGetService orderGetService;
 
     /* 배송 상태 변경 (대기 -> 배송중 -> 배송완료) */
     @Transactional
@@ -34,6 +33,6 @@ public class OrderDeliveryService {
         if (deliveryStatus == DELIVERED) {
             order.updateOrder(OrderStatus.COMPLETE);
         }
-        return orderGetService.getOrderResponse(order, pageNum, pageSize);
+        return orderService.getOrderResponse(order, pageNum, pageSize);
     }
 }
