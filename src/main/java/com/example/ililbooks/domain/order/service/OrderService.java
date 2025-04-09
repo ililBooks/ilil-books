@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.NOT_EXIST_SHOPPING_CART;
 
@@ -28,47 +30,69 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final CartService cartService;
+    private final OrderHistoryService orderHistoryService;
     private final BookService bookService;
     private final BookStokeService bookStokeService;
-    private final OrderHistoryRepository orderHistoryRepository;
 
+    /* 주문 생성 */
     @Transactional
     public OrderResponse createOrder(AuthUser authUser) {
 
-        // 1. 재고 차감
+        // 1. 장바구니 추출
         Cart cart = cartService.findByUserIdOrElseNewCart(authUser.getUserId());
 
         if (cart.getItems().isEmpty()) {
             throw new BadRequestException(NOT_EXIST_SHOPPING_CART.getMessage());
         }
 
-        for (CartItem cartItem : cart.getItems().values()) {
-            bookStokeService.decreaseStock(cartItem.getBookId(), cartItem.getQuantity());
-        }
+        // 2. 책 정보 가져오기 + 장바구니 책 검증
+        Map<Long, Book> bookMap = getBookMap(cart);
 
-        // 2. order 저장
-        BigDecimal totalPrice = BigDecimal.ZERO;
+        // 3. 재고 차감
+        decreaseStocks(bookMap, cart);
 
-        for (CartItem cartItem : cart.getItems().values()) {
-            Book book = bookService.findBookByIdOrElseThrow(cartItem.getBookId());
-            BigDecimal itemPrice = book.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
-            totalPrice = totalPrice.add(itemPrice);
-        }
+        // 4. order 저장
+        BigDecimal totalPrice = calculateTotalPrice(bookMap, cart);
 
         Order order = Order.of(Users.fromAuthUser(authUser), totalPrice);
         orderRepository.save(order);
 
-        // 3. orderHistory 저장
-        for (CartItem cartItem : cart.getItems().values()) {
-            Book book = bookService.findBookByIdOrElseThrow(cartItem.getBookId());
-            OrderHistory orderHistory = OrderHistory.of(order, book, cartItem.getQuantity());
-            orderHistoryRepository.save(orderHistory);
-        }
+        // 5. orderHistory 저장
+        orderHistoryService.saveOrderHistory(bookMap, cart, order);
 
-        // 4. 장바구니 비우기
+        // 6. 장바구니 비우기
         cartService.clearCart(authUser);
 
-        // 5. order 바인딩
+        // 7. order 바인딩
         return OrderResponse.of(order);
+    }
+
+    /* 주문 총 가격 계산 */
+    private static BigDecimal calculateTotalPrice(Map<Long, Book> bookMap, Cart cart) {
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+        for (Book book : bookMap.values()) {
+            CartItem cartItem = cart.getItems().get(book.getId());
+            BigDecimal itemPrice = book.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+            totalPrice = totalPrice.add(itemPrice);
+        }
+        return totalPrice;
+    }
+
+    /* 재고 감소 */
+    private void decreaseStocks(Map<Long, Book> bookMap, Cart cart) {
+        for (Book book : bookMap.values()) {
+            CartItem cartItem = cart.getItems().get(book.getId());
+            bookStokeService.decreaseStock(book, cartItem.getQuantity());
+        }
+    }
+
+    /* 책 검증 및 추출 */
+    private Map<Long, Book> getBookMap(Cart cart) {
+        return cart.getItems().keySet().stream()
+                .collect(Collectors.toMap(
+                        id -> id,
+                        bookService::findBookByIdOrElseThrow
+                ));
     }
 }
