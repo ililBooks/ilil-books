@@ -1,6 +1,6 @@
 package com.example.ililbooks.domain.user.entity;
 
-import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignUpRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.enums.UserRole;
@@ -70,7 +70,7 @@ public class Users extends TimeStamped {
                 .build();
     }
 
-    public static Users of(AuthSignupRequest authSignupRequest, String encodedPassword) {
+    public static Users of(AuthSignUpRequest authSignupRequest, String encodedPassword) {
         return Users.builder()
                 .email(authSignupRequest.getEmail())
                 .nickname(authSignupRequest.getNickname())
@@ -79,6 +79,7 @@ public class Users extends TimeStamped {
                 .build();
     }
 
+    //TODO 파라미터 바꾸기
     public void updateUser(UserUpdateRequest userUpdateRequest) {
         this.nickname = userUpdateRequest.getNickname();
         this.zipCode = userUpdateRequest.getZipCode();

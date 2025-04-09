@@ -19,7 +19,7 @@ import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Component
 public class BookClient {
-
+    //TODO webclient -> restTemplate deprecate된다 안된다 얘기 나옴
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 

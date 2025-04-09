@@ -40,6 +40,7 @@ public class Review {
         this.comments = comments;
     }
 
+    //TODO dto빼고 인자로 넣기
     public static Review of(Users users, Book book, ReviewCreateRequest reviewCreateRequest) {
         return Review.builder()
                 .users(users)

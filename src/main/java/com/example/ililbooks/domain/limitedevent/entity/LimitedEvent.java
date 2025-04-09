@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "limited_events")
+//TODO @SQL 로 delete 때릴때마다 delete관련 컬럼 update되게 설정
 public class LimitedEvent extends TimeStamped {
 
     @Id
@@ -29,6 +30,7 @@ public class LimitedEvent extends TimeStamped {
     private String title;
 
     @Enumerated(EnumType.STRING)
+    //TODO Column어노테이션 안에 있음 컬럼데피니션 찾아보고 varchar(50)으로 설정
     private LimitedEventStatus status;
 
     private LocalDateTime startTime;
@@ -39,7 +41,10 @@ public class LimitedEvent extends TimeStamped {
 
     private int bookQuantity;
 
+    //TODO nullable 표시 명확히 할 것
+    //null 은 안티패턴이니, Boolean으로 관리 isDeleted = true||false
     private LocalDateTime deletedAt;
+    //TODO LocalDateTime -> Instant 차이점 많음
 
     /*
      * LimitedEvent 생성자

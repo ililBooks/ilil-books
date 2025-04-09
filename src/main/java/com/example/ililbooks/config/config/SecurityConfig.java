@@ -17,7 +17,7 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 
 @Configuration
 @RequiredArgsConstructor
-@EnableWebSecurity
+@EnableWebSecurity //얘가 Configuration 포함하고있는 경우가 있음 17버전에서 들어가서 확인할 것
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
@@ -36,10 +36,10 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .addFilterBefore(jwtAuthenticationFilter, SecurityContextHolderAwareRequestFilter.class)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .anonymous(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable) //
+                .anonymous(AbstractHttpConfigurer::disable) //그럼 비인증 요청 생길 여지가 있지않은지?
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .logout(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)    //
                 .rememberMe(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers(HttpMethod.GET).permitAll()

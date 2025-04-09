@@ -60,6 +60,7 @@ public class LimitedReservationController {
 //    }
 
     /*/ 예약 취소 */
+    //TODO path 순서 변경
     @PatchMapping("/{reservationId}/cancel")
     public Response<Void> cancelReservation(
             @AuthenticationPrincipal AuthUser authUser,

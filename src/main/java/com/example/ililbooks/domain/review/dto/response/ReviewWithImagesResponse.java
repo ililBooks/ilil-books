@@ -7,6 +7,8 @@ import lombok.Getter;
 
 import java.util.List;
 
+
+
 @Getter
 public class ReviewWithImagesResponse {
 
@@ -43,3 +45,24 @@ public class ReviewWithImagesResponse {
                 .build();
     }
 }
+
+//
+//@Getter
+//public record ReviewWithImagesResponse(Long id, Long userId, Long bookId, int rating, String comment,
+//                                       List<ImageResponse> images) {
+//
+//    @Builder
+//    public ReviewWithImagesResponse {
+//    }
+//
+//    public static ReviewWithImagesResponse of(Review review, List<ImageResponse> images) {
+//        return ReviewWithImagesResponse.builder()
+//                .id(review.getId())
+//                .userId(review.getUsers().getId())
+//                .bookId(review.getBook().getId())
+//                .rating(review.getRating())
+//                .comment(review.getComments())
+//                .images(images)
+//                .build();
+//    }
+//}

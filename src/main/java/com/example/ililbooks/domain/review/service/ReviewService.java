@@ -47,7 +47,9 @@ public class ReviewService {
 
         return ReviewResponse.of(savedReview);
     }
-    
+
+
+    //TODO S3 업로드만 하는 API, 해당 api에서 return받은 값을 넣어주는 API로 분리
     @Transactional
     public void uploadReviewImage(Long reviewId, String imageUrl) {
         Review findReview = findReviewByIdOrElseThrow(reviewId);

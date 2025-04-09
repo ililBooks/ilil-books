@@ -72,6 +72,7 @@ public class LimitedEventService {
     /*
      * 한정판 행사 수정
      */
+    //TODO delete, update authUser로 변경 권한 체크
     @Transactional
     public LimitedEventResponse updateLimitedEvent(AuthUser authUser, Long limitedEventId, LimitedEventUpdateRequest request) {
         LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
