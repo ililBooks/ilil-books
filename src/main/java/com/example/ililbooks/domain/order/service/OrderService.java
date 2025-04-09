@@ -6,11 +6,8 @@ import com.example.ililbooks.domain.book.service.BookStokeService;
 import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
 import com.example.ililbooks.domain.cart.service.CartService;
-import com.example.ililbooks.domain.order.dto.response.OrderHistoryResponse;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
-import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
 import com.example.ililbooks.domain.order.entity.Order;
-import com.example.ililbooks.domain.order.enums.DeliveryStatus;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.repository.OrderRepository;
 import com.example.ililbooks.domain.user.entity.Users;
@@ -19,9 +16,6 @@ import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.ForbiddenException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +23,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.example.ililbooks.domain.order.enums.DeliveryStatus.DELIVERED;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
@@ -41,6 +34,7 @@ public class OrderService {
     private final OrderHistoryService orderHistoryService;
     private final BookService bookService;
     private final BookStokeService bookStokeService;
+    private final OrderGetService orderGetService;
 
     /* 주문 생성 */
     @Transactional
@@ -72,27 +66,7 @@ public class OrderService {
         cartService.clearCart(authUser);
 
         // 7. order 바인딩
-        return getOrderResponse(order, pageNum, pageSize);
-    }
-
-    /* 주문 단건 조회 */
-    @Transactional(readOnly = true)
-    public OrderResponse getOrder(AuthUser authUser, Long orderId, int pageNum, int pageSize) {
-        Order order = findByIdOrElseThrow(orderId);
-
-        if (!authUser.getUserId().equals(order.getUsers().getId())) {
-            throw new ForbiddenException(NOT_OWN_ORDER.getMessage());
-        }
-        return getOrderResponse(order, pageNum, pageSize);
-    }
-
-    /* 주문 다건 조회 */
-    @Transactional(readOnly = true)
-    public Page<OrdersGetResponse> getOrders(AuthUser authUser, int pageNum, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
-        Page<Order> findOrders = orderRepository.findAllByUsersId(authUser.getUserId(), pageable);
-
-        return findOrders.map(OrdersGetResponse::of);
+        return orderGetService.getOrderResponse(order, pageNum, pageSize);
     }
 
     /* 주문 상태 변경(취소) */
@@ -109,7 +83,7 @@ public class OrderService {
         }
 
         order.updateOrder(OrderStatus.CANCELLED);
-        return getOrderResponse(order, pageNum, pageSize);
+        return orderGetService.getOrderResponse(order, pageNum, pageSize);
     }
 
     /* 주문 상태 변경(승인) */
@@ -126,21 +100,7 @@ public class OrderService {
         }
 
         order.updateOrder(OrderStatus.ORDERED);
-        return getOrderResponse(order, pageNum, pageSize);
-    }
-
-    /* 배송 상태 변경 (대기 -> 배송중 -> 배송완료) */
-    @Transactional
-    public OrderResponse updateDeliveryStatus(Long orderId, int pageNum, int pageSize) {
-        Order order = findByIdOrElseThrow(orderId);
-
-        DeliveryStatus deliveryStatus = order.getDeliveryStatus().nextDeliveryStatus(order);
-        order.updateDelivery(deliveryStatus);
-
-        if (deliveryStatus == DELIVERED) {
-            order.updateOrder(OrderStatus.COMPLETE);
-        }
-        return getOrderResponse(order, pageNum, pageSize);
+        return orderGetService.getOrderResponse(order, pageNum, pageSize);
     }
 
     /* 주문 총 가격 계산 */
@@ -176,15 +136,8 @@ public class OrderService {
         return order.getOrderStatus().isCanCancel() && order.getDeliveryStatus().isCanCancel();
     }
 
-    private OrderResponse getOrderResponse(Order order, int pageNum, int pageSize) {
-        Page<OrderHistoryResponse> orderHistories = orderHistoryService.getOrderHistories(order.getId(), pageNum, pageSize);
-
-        return OrderResponse.of(order, orderHistories);
-    }
-
-    private Order findByIdOrElseThrow(Long orderId) {
+    public Order findByIdOrElseThrow(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow( () -> new NotFoundException(NOT_FOUND_ORDER.getMessage()));
     }
 }
-

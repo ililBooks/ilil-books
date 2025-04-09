@@ -61,6 +61,7 @@ public enum ErrorMessage {
     CANNOT_CHANGE_ORDER("주문 대기 상태만 주문 승인 할 수 있습니다."),
     CANNOT_START_DELIVERY("주문 승인 상태만 배송할 수 있습니다."),
     COMPLETE_DELIVERY("배송 완료 상태입니다."),
+    CANNOT_DELIVER_CANCELLED_ORDER("취소된 주문은 배송이 불가합니다."),
 
     REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
     REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패");
