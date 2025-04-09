@@ -106,7 +106,24 @@ public class OrderService {
             throw new BadRequestException(CANNOT_CANCEL_ORDER.getMessage());
         }
 
-        order.cancelOrder();
+        order.updateOrder(OrderStatus.CANCELLED);
+        return getOrderResponse(order, pageNum, pageSize);
+    }
+
+    /* 주문 상태 변경(승인) */
+    @Transactional
+    public OrderResponse updateOrderStatus(AuthUser authUser, Long orderId, int pageNum, int pageSize) {
+        Order order = findByIdOrElseThrow(orderId);
+
+        if (!authUser.getUserId().equals(order.getUsers().getId())) {
+            throw new ForbiddenException(NOT_OWN_ORDER.getMessage());
+        }
+
+        if (!order.getOrderStatus().equals(OrderStatus.PENDING)) {
+            throw new BadRequestException(CANNOT_CHANGE_ORDER.getMessage());
+        }
+
+        order.updateOrder(OrderStatus.ORDERED);
         return getOrderResponse(order, pageNum, pageSize);
     }
 

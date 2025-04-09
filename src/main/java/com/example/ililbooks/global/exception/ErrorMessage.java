@@ -58,6 +58,7 @@ public enum ErrorMessage {
     NOT_FOUND_ORDER("주문 확인 불가"),
     NOT_OWN_ORDER("본인 외 주문 확인 불가"),
     CANNOT_CANCEL_ORDER("해당 주문은 취소할 수 없습니다."),
+    CANNOT_CHANGE_ORDER("주문 대기 상태만 주문 승인 할 수 있습니다."),
 
     REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
     REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패");

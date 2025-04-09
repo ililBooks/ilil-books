@@ -65,4 +65,16 @@ public class OrderController {
     ) {
         return Response.of(orderService.cancelOrder(authUser, orderId, pageNum, pageSize));
     }
+
+    /* 주문 상태 변경 (주문 대기 -> 주문 완료)
+    * todo: 추후 기술 고도화 결제에서 변경 예정 */
+    @PatchMapping("/{orderId}/order")
+    public Response<OrderResponse> updateOrderStatus(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return Response.of(orderService.updateOrderStatus(authUser, orderId, pageNum, pageSize));
+    }
 }
