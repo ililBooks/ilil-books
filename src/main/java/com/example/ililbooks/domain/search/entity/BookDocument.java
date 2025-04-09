@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Document(indexName = "books")
 @NoArgsConstructor
@@ -27,8 +29,11 @@ public class BookDocument {
     @Field(type = FieldType.Text, analyzer = "korean_analyzer")
     private String author;
 
+    @Field(type = FieldType.Text, analyzer = "korean_analyzer")
+    private String publisher;
+
     @Field(type = FieldType.Long)
-    private Long price;
+    private BigDecimal price;
 
     @Field(type = FieldType.Text, analyzer = "korean_analyzer")
     private String category;
@@ -47,11 +52,12 @@ public class BookDocument {
 
 
     @Builder
-    public BookDocument(String id, String userId, String title, String author, Long price, String category, int stock, String isbn, String saleStatus, String limitedType) {
+    public BookDocument(String id, String userId, String title, String author, String publisher, BigDecimal price, String category, int stock, String isbn, String saleStatus, String limitedType) {
         this.id = id;
         this.userId = userId;
         this.title = title;
         this.author = author;
+        this.publisher = publisher;
         this.price = price;
         this.category = category;
         this.stock = stock;
@@ -66,6 +72,7 @@ public class BookDocument {
                 .userId(String.valueOf(book.getUsers().getId()))
                 .title(book.getTitle())
                 .author(book.getAuthor())
+                .publisher(book.getUsers().getNickname())
                 .price(book.getPrice())
                 .category(book.getCategory())
                 .stock(book.getStock())

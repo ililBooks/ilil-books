@@ -58,14 +58,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 //    implementation 'org.redisson:redisson:3.23.5'
 
-    // Elasticsearch
-    implementation "org.springframework.boot:spring-boot-starter-data-elasticsearch"
-
 
     //s3
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.3.0'
     implementation platform('software.amazon.awssdk:bom:2.27.21')
     implementation 'software.amazon.awssdk:s3'
+
+    // Elasticsearch
+    implementation "org.springframework.boot:spring-boot-starter-data-elasticsearch"
+    implementation 'co.elastic.clients:elasticsearch-java:8.11.0'
+
 }
 
 tasks.named('test') {

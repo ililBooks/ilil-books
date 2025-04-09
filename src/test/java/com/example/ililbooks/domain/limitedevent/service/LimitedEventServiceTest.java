@@ -53,7 +53,7 @@ class LimitedEventServiceTest {
         Book mockBook = Book.builder()
                 .title("책 제목")
                 .author("작가")
-                .price(15000L)
+//                .price(15000L)
                 .category("카테고리")
                 .stock(50)
                 .build();
@@ -171,7 +171,7 @@ class LimitedEventServiceTest {
         Book mockBook = Book.builder()
                 .title("책 제목")
                 .author("작가")
-                .price(10000L)
+//                .price(10000L)
                 .category("카테고리")
                 .stock(50)
                 .build();

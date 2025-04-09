@@ -18,13 +18,13 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
 @RequestMapping("/api/v1/orders")
 public class OrderController {
 
-    private final OrderService orderService;
-
-    @Secured({USER})
-    @PostMapping
-    public Response<OrderResponse> createOrder(
-            @AuthenticationPrincipal AuthUser authUser
-    ) {
-        return Response.of(orderService.createOrder(authUser));
-    }
+//    private final OrderService orderService;
+//
+//    @Secured({USER})
+//    @PostMapping
+//    public Response<OrderResponse> createOrder(
+//            @AuthenticationPrincipal AuthUser authUser
+//    ) {
+//        return Response.of(orderService.createOrder(authUser));
+//    }
 }

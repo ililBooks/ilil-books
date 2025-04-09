@@ -56,6 +56,8 @@ public class BookService {
         Book createBook = Book.of(findUsers, bookCreateRequest);
         Book savedBook = bookRepository.save(createBook);
 
+        // Elasticsearch Document 저장
+        bookSearchService.saveBookDocumentFromBook(savedBook);
         return BookResponse.of(savedBook);
     }
 
@@ -68,7 +70,9 @@ public class BookService {
         //랜덤 가격 및 재고 생성을 위한 Random객체 선언
         Random random = new Random();
 
-        for (BookApiResponse book : books) {
+        Users users = userService.findByIdOrElseThrow(authUser.getUserId());
+
+        for (BookApiResponse bookApiResponse : books) {
             //랜덤 가격 (Min: 5000, Max: 45000)
             long randomPrice = 5000 + random.nextLong(40000);
             BigDecimal price = BigDecimal.valueOf(Math.round(randomPrice / 1000.0) * 1000);
@@ -77,19 +81,20 @@ public class BookService {
             int randomStock = 1 +  random.nextInt(100);
 
             //책 고유번호가 없는 경우
-            if (!StringUtils.hasText(book.getIsbn())) {
+            if (!StringUtils.hasText(bookApiResponse.getIsbn())) {
                 continue;
             }
 
             //이미 등록된 책인 경우 저장하지 않음
-            if (bookRepository.existsByIsbn(book.getIsbn())) {
+            if (bookRepository.existsByIsbn(bookApiResponse.getIsbn())) {
                 continue;
             }
 
-            Users findUsers = userService.findByIdOrElseThrow(authUser.getUserId());
-            Book savedBook = Book.of(findUsers, book, price, randomStock);
+            Book book = Book.of(users, bookApiResponse, price, randomStock);
 
-            bookRepository.save(savedBook);
+            Book savedBook = bookRepository.save(book);
+            // Elasticsearch Document 저장
+            bookSearchService.saveBookDocumentFromBook(savedBook);
         }
     }
 
