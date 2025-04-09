@@ -21,7 +21,7 @@ public class OrderGetController {
     private final OrderGetService orderGetService;
 
     /* 주문 단건 조회 */
-    @Secured({USER})
+    @Secured(USER)
     @GetMapping("/{orderId}")
     public Response<OrderResponse> findOrder(
             @PathVariable Long orderId,
@@ -33,8 +33,8 @@ public class OrderGetController {
     }
 
     /* 주문 다건 조회 */
-    @Secured({USER})
-    @GetMapping
+    @Secured(USER)
+    @GetMapping("/all")
     public Response<Page<OrdersGetResponse>> getOrders(
             @AuthenticationPrincipal AuthUser authUser,
             @RequestParam(defaultValue = "1") int pageNum,

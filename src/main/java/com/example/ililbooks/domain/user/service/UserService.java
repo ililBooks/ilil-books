@@ -47,17 +47,21 @@ public class UserService {
     /* 회원 조회 */
     @Transactional(readOnly = true)
     public UserResponse findUser(AuthUser authUser) {
-        Users findUsers = findByIdOrElseThrow(authUser.getUserId());
-        return UserResponse.of(findUsers);
+        Users users = findByIdOrElseThrow(authUser.getUserId());
+        return UserResponse.of(users);
     }
 
     /* 회원 수정 */
     @Transactional
     public AuthAccessTokenResponse updateUser(AuthUser authUser, UserUpdateRequest userUpdateRequest) {
-        Users findUsers = findByIdOrElseThrow(authUser.getUserId());
-        findUsers.updateUser(userUpdateRequest);
+        Users users = findByIdOrElseThrow(authUser.getUserId());
+        users.updateUser(userUpdateRequest.getNickname(),
+                userUpdateRequest.getZipCode(),
+                userUpdateRequest.getRoadAddress(),
+                userUpdateRequest.getDetailedAddress(),
+                userUpdateRequest.getContactNumber());
 
-        String accessToken = jwtUtil.createAccessToken(findUsers.getId(), findUsers.getEmail(), findUsers.getNickname(), findUsers.getUserRole());
+        String accessToken = jwtUtil.createAccessToken(users.getId(), users.getEmail(), users.getNickname(), users.getUserRole());
 
         return AuthAccessTokenResponse.of(accessToken);
     }
@@ -70,25 +74,25 @@ public class UserService {
             throw new BadRequestException(PASSWORD_CONFIRMATION_MISMATCH.getMessage());
         }
 
-        Users findUsers = findByIdOrElseThrow(authUser.getUserId());
+        Users users = findByIdOrElseThrow(authUser.getUserId());
 
-        if (!passwordEncoder.matches(userUpdatePasswordRequest.getOldPassword(), findUsers.getPassword())) {
+        if (!passwordEncoder.matches(userUpdatePasswordRequest.getOldPassword(), users.getPassword())) {
             throw new BadRequestException(INVALID_PASSWORD.getMessage());
         }
 
-        findUsers.updatePassword(passwordEncoder.encode(userUpdatePasswordRequest.getNewPassword()));
+        users.updatePassword(passwordEncoder.encode(userUpdatePasswordRequest.getNewPassword()));
     }
 
     /* 회원 삭제 */
     @Transactional
     public void deleteUser(AuthUser authUser, UserDeleteRequest userDeleteRequest) {
-        Users findUsers = findByIdOrElseThrow(authUser.getUserId());
+        Users users = findByIdOrElseThrow(authUser.getUserId());
 
-        if (!passwordEncoder.matches(userDeleteRequest.getPassword(), findUsers.getPassword())) {
+        if (!passwordEncoder.matches(userDeleteRequest.getPassword(), users.getPassword())) {
             throw new BadRequestException(INVALID_PASSWORD.getMessage());
         }
 
-        findUsers.deleteUser();
+        users.deleteUser();
     }
 
     public Users findByEmailOrElseThrow(String email) {

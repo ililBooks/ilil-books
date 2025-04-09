@@ -19,7 +19,7 @@ public class OrderController {
     private final OrderService orderService;
 
     /* 주문 생성 */
-    @Secured({USER})
+    @Secured(USER)
     @PostMapping
     public Response<OrderResponse> createOrder(
             @AuthenticationPrincipal AuthUser authUser,
@@ -30,8 +30,8 @@ public class OrderController {
     }
 
     /* 주문 취소 */
-    @Secured({USER})
-    @PatchMapping("/{orderId}/cancel")
+    @Secured(USER)
+    @PatchMapping("/cancel/{orderId}")
     public Response<OrderResponse> cancelOrder(
             @PathVariable Long orderId,
             @AuthenticationPrincipal AuthUser authUser,
@@ -43,7 +43,7 @@ public class OrderController {
 
     /* 주문 상태 변경 (주문 대기 -> 주문 완료)
     * todo: 추후 기술 고도화 결제에서 변경 예정 */
-    @PatchMapping("/{orderId}/order")
+    @PatchMapping("/order/{orderId}")
     public Response<OrderResponse> updateOrderStatus(
             @PathVariable Long orderId,
             @AuthenticationPrincipal AuthUser authUser,

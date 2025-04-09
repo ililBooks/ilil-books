@@ -82,12 +82,12 @@ public class Users extends TimeStamped {
                 .build();
     }
 
-    public void updateUser(UserUpdateRequest userUpdateRequest) {
-        this.nickname = userUpdateRequest.getNickname();
-        this.zipCode = userUpdateRequest.getZipCode();
-        this.roadAddress = userUpdateRequest.getRoadAddress();
-        this.detailedAddress = userUpdateRequest.getDetailedAddress();
-        this.contactNumber = userUpdateRequest.getContactNumber();
+    public void updateUser(String nickname, String zipCode, String roadAddress, String detailedAddress, String contactNumber) {
+        this.nickname = nickname;
+        this.zipCode = zipCode;
+        this.roadAddress = roadAddress;
+        this.detailedAddress = detailedAddress;
+        this.contactNumber = contactNumber;
     }
 
     public void deleteUser() {

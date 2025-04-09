@@ -56,9 +56,9 @@ public class AuthService {
     @Transactional
     public AuthTokensResponse reissueToken(String refreshToken) {
         RefreshToken findRefreshToken = tokenService.findRefreshToken(refreshToken);
-        Users findUsers = userService.findByIdOrElseThrow(findRefreshToken.getUserId());
+        Users users = userService.findByIdOrElseThrow(findRefreshToken.getUserId());
 
-        String reissuedAccessToken = tokenService.createAccessToken(findUsers);
+        String reissuedAccessToken = tokenService.createAccessToken(users);
         String reissuedRefreshToken = findRefreshToken.updateToken();
 
         return AuthTokensResponse.of(reissuedAccessToken, reissuedRefreshToken);

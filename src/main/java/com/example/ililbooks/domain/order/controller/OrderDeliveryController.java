@@ -17,8 +17,8 @@ public class OrderDeliveryController {
     private final OrderDeliveryService orderDeliveryService;
 
     /* 배송 상태 변경 (배송 대기 -> 배송 중 -> 배송완료+주문완료) */
-    @Secured({ADMIN})
-    @PatchMapping("/{orderId}/delivery")
+    @Secured(ADMIN)
+    @PatchMapping("/delivery/{orderId}")
     public Response<OrderResponse> updateDeliveryStatus(
             @PathVariable Long orderId,
             @RequestParam(defaultValue = "1") int pageNum,
