@@ -62,4 +62,8 @@ public class Order extends TimeStamped {
                 .paymentStatus(PaymentStatus.PENDING)
                 .build();
     }
+
+    public void cancelOrder() {
+        this.orderStatus = OrderStatus.CANCELLED;
+    }
 }

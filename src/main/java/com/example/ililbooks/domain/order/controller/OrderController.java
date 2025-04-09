@@ -53,4 +53,16 @@ public class OrderController {
     ) {
         return Response.of(orderService.getOrders(authUser, pageNum, pageSize));
     }
+
+    /* 주문 취소 */
+    @Secured({USER})
+    @PatchMapping("/{orderId}/cancel")
+    public Response<OrderResponse> cancelOrder(
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return Response.of(orderService.cancelOrder(authUser, orderId, pageNum, pageSize));
+    }
 }

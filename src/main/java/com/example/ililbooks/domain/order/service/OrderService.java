@@ -10,6 +10,7 @@ import com.example.ililbooks.domain.order.dto.response.OrderHistoryResponse;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
 import com.example.ililbooks.domain.order.entity.Order;
+import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.repository.OrderRepository;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -73,6 +74,7 @@ public class OrderService {
     }
 
     /* 주문 단건 조회 */
+    @Transactional(readOnly = true)
     public OrderResponse getOrder(AuthUser authUser, Long orderId, int pageNum, int pageSize) {
         Order order = findByIdOrElseThrow(orderId);
 
@@ -83,6 +85,7 @@ public class OrderService {
     }
 
     /* 주문 다건 조회 */
+    @Transactional(readOnly = true)
     public Page<OrdersGetResponse> getOrders(AuthUser authUser, int pageNum, int pageSize) {
         Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
         Page<Order> findOrders = orderRepository.findAllByUsersId(authUser.getUserId(), pageable);
@@ -90,8 +93,25 @@ public class OrderService {
         return findOrders.map(OrdersGetResponse::of);
     }
 
+    /* 주문 상태 변경(취소) */
+    @Transactional
+    public OrderResponse cancelOrder(AuthUser authUser, Long orderId, int pageNum, int pageSize) {
+        Order order = findByIdOrElseThrow(orderId);
+
+        if (!authUser.getUserId().equals(order.getUsers().getId())) {
+            throw new ForbiddenException(NOT_OWN_ORDER.getMessage());
+        }
+
+        if (!isCanCancelOrder(order)) {
+            throw new BadRequestException(CANNOT_CANCEL_ORDER.getMessage());
+        }
+
+        order.cancelOrder();
+        return getOrderResponse(order, pageNum, pageSize);
+    }
+
     /* 주문 총 가격 계산 */
-    private static BigDecimal calculateTotalPrice(Map<Long, Book> bookMap, Cart cart) {
+    private BigDecimal calculateTotalPrice(Map<Long, Book> bookMap, Cart cart) {
         BigDecimal totalPrice = BigDecimal.ZERO;
 
         for (Book book : bookMap.values()) {
@@ -119,6 +139,10 @@ public class OrderService {
                 ));
     }
 
+    private boolean isCanCancelOrder(Order order) {
+        return order.getOrderStatus().isCanCancel() && order.getDeliveryStatus().isCanCancel();
+    }
+
     private OrderResponse getOrderResponse(Order order, int pageNum, int pageSize) {
         Page<OrderHistoryResponse> orderHistories = orderHistoryService.getOrderHistories(order.getId(), pageNum, pageSize);
 
@@ -130,3 +154,4 @@ public class OrderService {
                 .orElseThrow( () -> new NotFoundException(NOT_FOUND_ORDER.getMessage()));
     }
 }
+
