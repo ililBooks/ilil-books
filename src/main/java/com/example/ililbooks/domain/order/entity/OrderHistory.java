@@ -51,4 +51,16 @@ public class OrderHistory extends TimeStamped {
         this.limitedType = limitedType;
         this.quantity = quantity;
     }
+
+    public static OrderHistory of(Order order, Book book, int quantity) {
+        return OrderHistory.builder()
+                .order(order)
+                .book(book)
+                .title(book.getTitle())
+                .author(book.getAuthor())
+                .price(book.getPrice())
+                .limitedType(book.getLimitedType())
+                .quantity(quantity)
+                .build();
+    }
 }

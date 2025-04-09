@@ -8,6 +8,8 @@ import com.example.ililbooks.domain.cart.entity.CartItem;
 import com.example.ililbooks.domain.cart.service.CartService;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.entity.Order;
+import com.example.ililbooks.domain.order.entity.OrderHistory;
+import com.example.ililbooks.domain.order.repository.OrderHistoryRepository;
 import com.example.ililbooks.domain.order.repository.OrderRepository;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -28,11 +30,10 @@ public class OrderService {
     private final CartService cartService;
     private final BookService bookService;
     private final BookStokeService bookStokeService;
+    private final OrderHistoryRepository orderHistoryRepository;
 
     @Transactional
     public OrderResponse createOrder(AuthUser authUser) {
-
-        // todo 작성 마무리하기
 
         // 1. 재고 차감
         Cart cart = cartService.findByUserIdOrElseNewCart(authUser.getUserId());
@@ -58,8 +59,14 @@ public class OrderService {
         orderRepository.save(order);
 
         // 3. orderHistory 저장
+        for (CartItem cartItem : cart.getItems().values()) {
+            Book book = bookService.findBookByIdOrElseThrow(cartItem.getBookId());
+            OrderHistory orderHistory = OrderHistory.of(order, book, cartItem.getQuantity());
+            orderHistoryRepository.save(orderHistory);
+        }
 
         // 4. 장바구니 비우기
+        cartService.clearCart(authUser);
 
         // 5. order 바인딩
         return OrderResponse.of(order);
