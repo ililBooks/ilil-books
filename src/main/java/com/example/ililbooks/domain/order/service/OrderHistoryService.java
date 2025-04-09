@@ -3,10 +3,14 @@ package com.example.ililbooks.domain.order.service;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
+import com.example.ililbooks.domain.order.dto.response.OrderHistoryResponse;
 import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.entity.OrderHistory;
 import com.example.ililbooks.domain.order.repository.OrderHistoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -23,5 +27,12 @@ public class OrderHistoryService {
             OrderHistory orderHistory = OrderHistory.of(order, book, cartItem.getQuantity());
             orderHistoryRepository.save(orderHistory);
         }
+    }
+
+    public Page<OrderHistoryResponse> getOrderHistories(Long orderId, int pageNum, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
+        Page<OrderHistory> findOrderHistories = orderHistoryRepository.findAllByOrderId(orderId, pageable);
+
+        return findOrderHistories.map(OrderHistoryResponse::of);
     }
 }

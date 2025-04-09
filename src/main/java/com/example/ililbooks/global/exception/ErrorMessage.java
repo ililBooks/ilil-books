@@ -55,6 +55,9 @@ public enum ErrorMessage {
     CART_QUANTITY_INVALID("장바구니 수량은 0 이상이어야 합니다."),
     OUT_OF_STOCK("요청하신 수량보다 재고가 부족합니다."),
 
+    NOT_FOUND_ORDER("주문 확인 불가"),
+    NOT_OWN_ORDER("본인 외 주문 확인 불가"),
+
     REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
     REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패");
 

@@ -3,18 +3,18 @@ package com.example.ililbooks.domain.order.dto.response;
 import com.example.ililbooks.domain.order.entity.Order;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 public class OrderResponse {
 
-    private final Long id;
-
-    private final Long userId;
-
     private final String number;
+
+    private final Page<OrderHistoryResponse> orderHistoryResponsePage;
 
     private final BigDecimal totalPrice;
 
@@ -29,10 +29,9 @@ public class OrderResponse {
     private final LocalDateTime modifiedAt;
 
     @Builder
-    public OrderResponse(Long id, Long userId, String number, BigDecimal totalPrice, String orderStatus, String deliveryStatus, String paymentStatus, LocalDateTime createdAt, LocalDateTime modifiedAt) {
-        this.id = id;
-        this.userId = userId;
+    public OrderResponse(String number, Page<OrderHistoryResponse> orderHistoryResponsePage, BigDecimal totalPrice, String orderStatus, String deliveryStatus, String paymentStatus, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.number = number;
+        this.orderHistoryResponsePage = orderHistoryResponsePage;
         this.totalPrice = totalPrice;
         this.orderStatus = orderStatus;
         this.deliveryStatus = deliveryStatus;
@@ -41,11 +40,10 @@ public class OrderResponse {
         this.modifiedAt = modifiedAt;
     }
 
-    public static OrderResponse of(Order order) {
+    public static OrderResponse of(Order order, Page<OrderHistoryResponse> orderHistoryResponsePage) {
         return OrderResponse.builder()
-                .id(order.getId())
-                .userId(order.getUsers().getId())
                 .number(order.getNumber())
+                .orderHistoryResponsePage(orderHistoryResponsePage)
                 .totalPrice(order.getTotalPrice())
                 .orderStatus(order.getOrderStatus().name())
                 .deliveryStatus(order.getDeliveryStatus().name())

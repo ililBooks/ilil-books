@@ -6,6 +6,7 @@ import com.example.ililbooks.domain.book.service.BookStokeService;
 import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
 import com.example.ililbooks.domain.cart.service.CartService;
+import com.example.ililbooks.domain.order.dto.response.OrderHistoryResponse;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.entity.OrderHistory;
@@ -14,7 +15,10 @@ import com.example.ililbooks.domain.order.repository.OrderRepository;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
+import com.example.ililbooks.global.exception.ForbiddenException;
+import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +26,8 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.example.ililbooks.global.exception.ErrorMessage.NOT_EXIST_SHOPPING_CART;
+import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
+import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +41,7 @@ public class OrderService {
 
     /* 주문 생성 */
     @Transactional
-    public OrderResponse createOrder(AuthUser authUser) {
+    public OrderResponse createOrder(AuthUser authUser, int pageNum, int pageSize) {
 
         // 1. 장바구니 추출
         Cart cart = cartService.findByUserIdOrElseNewCart(authUser.getUserId());
@@ -64,7 +69,17 @@ public class OrderService {
         cartService.clearCart(authUser);
 
         // 7. order 바인딩
-        return OrderResponse.of(order);
+        return getOrderResponse(order, pageNum, pageSize);
+    }
+
+    /* 주문 단건 조회 */
+    public OrderResponse getOrder(AuthUser authUser, Long orderId, int pageNum, int pageSize) {
+        Order order = findByIdOrElseThrow(orderId);
+
+        if (!authUser.getUserId().equals(order.getUsers().getId())) {
+            throw new ForbiddenException(NOT_OWN_ORDER.getMessage());
+        }
+        return getOrderResponse(order, pageNum, pageSize);
     }
 
     /* 주문 총 가격 계산 */
@@ -95,4 +110,16 @@ public class OrderService {
                         bookService::findBookByIdOrElseThrow
                 ));
     }
+
+    private OrderResponse getOrderResponse(Order order, int pageNum, int pageSize) {
+        Page<OrderHistoryResponse> orderHistories = orderHistoryService.getOrderHistories(order.getId(), pageNum, pageSize);
+
+        return OrderResponse.of(order, orderHistories);
+    }
+
+    private Order findByIdOrElseThrow(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow( () -> new NotFoundException(NOT_FOUND_ORDER.getMessage()));
+    }
+
 }
