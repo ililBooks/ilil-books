@@ -41,7 +41,7 @@ public class AuthService {
     public AuthTokensResponse signIn(AuthSignInRequest request) {
         Users users = userService.findByEmailOrElseThrow(request.getEmail());
 
-        if (users.getDeletedAt() != null) {
+        if (users.isDeleted()) {
             throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());
         }
 

@@ -8,6 +8,7 @@ import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.dto.response.UserResponse;
 import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.repository.UserRepository;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -30,15 +31,15 @@ public class UserService {
 
     /* 회원 저장 */
     @Transactional
-    public Users saveUser(AuthSignUpRequest authSignupRequest) {
+    public Users saveUser(AuthSignUpRequest request) {
 
-        if (userRepository.existsByEmail(authSignupRequest.getEmail())) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException(DUPLICATE_EMAIL.getMessage());
         }
 
-        String encodedPassword = passwordEncoder.encode(authSignupRequest.getPassword());
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-        Users users = Users.of(authSignupRequest, encodedPassword);
+        Users users = Users.of(request.getEmail(), request.getNickname(), encodedPassword, request.getUserRole(), LoginType.EMAIL);
 
         return userRepository.save(users);
     }

@@ -1,6 +1,5 @@
 package com.example.ililbooks.domain.cart.entity;
 
-import com.example.ililbooks.domain.cart.dto.request.CartItemRequest;
 import lombok.Builder;
 import lombok.Getter;
 
