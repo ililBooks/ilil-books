@@ -43,11 +43,11 @@ public class BookController {
     @PostMapping("/open-api")
     public Response<Void> createBooksByOpenApi(
             @AuthenticationPrincipal AuthUser authUser,
-            @RequestParam int pageNum,
-            @RequestParam int pageSize,
-            @RequestParam String kwd
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "100") int pageSize,
+            @RequestParam String keyword
     ) {
-        bookService.createBookByOpenApi(authUser, pageNum, pageSize, kwd);
+        bookService.createBookByOpenApi(authUser, pageNum, pageSize, keyword);
         return Response.empty();
     }
 

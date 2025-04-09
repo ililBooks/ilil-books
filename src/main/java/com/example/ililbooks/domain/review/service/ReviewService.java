@@ -51,7 +51,10 @@ public class ReviewService {
     @Transactional
     public void uploadReviewImage(Long reviewId, String imageUrl) {
         Review findReview = findReviewByIdOrElseThrow(reviewId);
-        ReviewImage reviewImage = ReviewImage.of(findReview, imageUrl);
+        String fileName = s3ImageService.extractFileName(imageUrl);
+        String extension = s3ImageService.extractExtension(fileName);
+
+        ReviewImage reviewImage = ReviewImage.of(findReview, imageUrl, fileName,extension);
 
         //등록 개수 초과 
         if ( imageReviewRepository.countByReviewId(reviewImage.getReview().getId()) >= 5) {
@@ -108,5 +111,10 @@ public class ReviewService {
 
     public Review findReviewByIdOrElseThrow(Long reviewId) {
         return reviewRepository.findById(reviewId).orElseThrow(()-> new NotFoundException(NOT_FOUND_REVIEW.getMessage()));
+    }
+
+    public void deleteAllReviewByBookId(Long bookId) {
+        reviewRepository.deleteAllByBookId(bookId);
+        imageReviewRepository.deleteAll();
     }
 }
