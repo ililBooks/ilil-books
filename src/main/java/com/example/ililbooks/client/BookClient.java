@@ -5,14 +5,11 @@ import com.example.ililbooks.client.dto.BookApiWrapper;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.web.client.RestClientBuilderConfigurer;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -34,7 +31,7 @@ public class BookClient {
         this.objectMapper = objectMapper;
     }
 
-    public BookApiResponse[] getBooks(String keyword, Integer pageNum, Integer pageSize) {
+    public BookApiResponse[] findBooks(String keyword, Integer pageNum, Integer pageSize) {
         URI uri = buildBookApiUri(keyword, pageNum, pageSize);
 
         ResponseEntity<String> responseEntity = restClient.get()
@@ -53,7 +50,7 @@ public class BookClient {
 
             //json 형태의 데이터 파싱
             BookApiWrapper responseBook = objectMapper.readValue(responseBody, BookApiWrapper.class);
-            BookApiResponse[] books = responseBook.getResult();
+            BookApiResponse[] books = responseBook.result();
 
             //검색된 책이 없는 경우
             if (ObjectUtils.isEmpty(books)) {

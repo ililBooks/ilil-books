@@ -6,6 +6,8 @@ import com.example.ililbooks.domain.review.dto.request.ReviewCreateRequest;
 import com.example.ililbooks.domain.review.dto.request.ReviewUpdateRequest;
 import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
 import com.example.ililbooks.domain.review.entity.Review;
+import com.example.ililbooks.domain.review.entity.ReviewImage;
+import com.example.ililbooks.domain.review.repository.ImageReviewRepository;
 import com.example.ililbooks.domain.review.repository.ReviewRepository;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
@@ -13,14 +15,12 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.ForbiddenException;
 import com.example.ililbooks.global.exception.NotFoundException;
-import com.example.ililbooks.domain.review.entity.ReviewImage;
-import com.example.ililbooks.domain.review.repository.ImageReviewRepository;
+import com.example.ililbooks.global.image.dto.request.ImageRequest;
 import com.example.ililbooks.global.image.service.S3ImageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
 import static com.example.ililbooks.domain.user.enums.UserRole.isUser;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
@@ -44,24 +44,26 @@ public class ReviewService {
             throw new BadRequestException(DUPLICATE_REVIEW.getMessage());
         }
 
-        Review review = Review.of(users, book, reviewCreateRequest);
+        Review review = Review.of(
+                users,
+                book,
+                reviewCreateRequest.getRating(),
+                reviewCreateRequest.getComments()
+        );
         Review savedReview = reviewRepository.save(review);
 
         return ReviewResponse.of(savedReview);
     }
     
     @Transactional
-    public void uploadReviewImage(AuthUser authUser, Long reviewId, String imageUrl) {
+    public void uploadReviewImage(AuthUser authUser, Long reviewId, ImageRequest imageRequest) {
         Review review = findReviewByIdOrElseThrow(reviewId);
 
         if (!review.getUsers().getId().equals(authUser.getUserId())) {
             throw new ForbiddenException(CANNOT_UPDATE_OTHERS_REVIEW_IMAGE.getMessage());
         }
 
-        String fileName = s3ImageService.extractFileName(imageUrl);
-        String extension = s3ImageService.extractExtension(fileName);
-
-        ReviewImage reviewImage = ReviewImage.of(review, imageUrl, fileName,extension);
+        ReviewImage reviewImage = ReviewImage.of(review, imageRequest.getImageUrl(), imageRequest.getFileName(),imageRequest.getExtension());
 
         //등록 개수 초과 
         if ( imageReviewRepository.countByReviewId(reviewImage.getReview().getId()) >= 5) {
@@ -95,7 +97,7 @@ public class ReviewService {
             throw new ForbiddenException(CANNOT_UPDATE_OTHERS_REVIEW.getMessage());
         }
 
-        review.updateReview(reviewUpdateRequest);
+        review.updateReview(reviewUpdateRequest.getRating(), reviewUpdateRequest.getComments());
     }
 
     public Review findReviewByIdOrElseThrow(Long reviewId) {

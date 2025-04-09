@@ -20,6 +20,7 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.ForbiddenException;
 import com.example.ililbooks.global.exception.NotFoundException;
+import com.example.ililbooks.global.image.dto.request.ImageRequest;
 import com.example.ililbooks.global.image.service.S3ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,9 +34,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
 
-import static com.example.ililbooks.domain.user.enums.UserRole.isPublisher;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
-import static com.example.ililbooks.global.image.dto.response.ImageResponse.ofBookImageList;
+import static com.example.ililbooks.global.image.dto.response.ImageListResponse.ofBookImageList;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +58,17 @@ public class BookService {
 
         Users users = userService.findByIdOrElseThrow(authUser.getUserId());
 
-        Book book = Book.of(users, bookCreateRequest);
+        Book book = Book.of(
+                users,
+                bookCreateRequest.getTitle(),
+                bookCreateRequest.getAuthor(),
+                bookCreateRequest.getPrice(),
+                bookCreateRequest.getCategory(),
+                bookCreateRequest.getStock(),
+                bookCreateRequest.getIsbn(),
+                bookCreateRequest.getPublisher()
+        );
+
         Book savedBook = bookRepository.save(book);
 
         return BookResponse.of(savedBook);
@@ -68,7 +78,7 @@ public class BookService {
     public void createBookByOpenApi(AuthUser authUser, Integer pageNum, Integer pageSize, String keyword) {
 
         //open api를 통해 책 리스트 가져오기
-        BookApiResponse[] books = bookClient.getBooks(keyword, pageNum, pageSize);
+        BookApiResponse[] books = bookClient.findBooks(keyword, pageNum, pageSize);
 
         //랜덤 가격 및 재고 생성을 위한 Random객체 선언
         Random random = new Random();
@@ -83,12 +93,12 @@ public class BookService {
             int randomStock = 1 +  random.nextInt(100);
 
             //책 고유번호가 없는 경우
-            if (!StringUtils.hasText(bookApiResponse.getIsbn())) {
+            if (!StringUtils.hasText(bookApiResponse.isbn())) {
                 continue;
             }
 
             //이미 등록된 책인 경우 저장하지 않음
-            if (bookRepository.existsByIsbn(bookApiResponse.getIsbn())) {
+            if (bookRepository.existsByIsbn(bookApiResponse.isbn())) {
                 continue;
             }
 
@@ -99,7 +109,7 @@ public class BookService {
     }
 
     @Transactional
-    public void uploadBookImage(AuthUser authUser, Long bookId, String imageUrl) {
+    public void uploadBookImage(AuthUser authUser, Long bookId, ImageRequest imageRequest) {
         Book book = findBookByIdOrElseThrow(bookId);
 
         // publisher는 자신이 등록한 책에 대해서만 이미지 등록이 가능
@@ -107,10 +117,7 @@ public class BookService {
             throw new ForbiddenException(CANNOT_UPLOAD_OTHERS_BOOK_IMAGE.getMessage());
         }
 
-        String fileName = s3ImageService.extractFileName(imageUrl);
-        String extension = s3ImageService.extractExtension(fileName);
-
-        BookImage bookImage = BookImage.of(book,imageUrl, fileName, extension);
+        BookImage bookImage = BookImage.of(book,imageRequest.getImageUrl(), imageRequest.getFileName(), imageRequest.getExtension());
 
         //등록된 이미지의 개수가 5개를 넘는 경우
         if(imageBookRepository.countByBookId(bookImage.getBook().getId()) >= 5) {
@@ -135,11 +142,11 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public BookWithImagesResponse getBookResponse(Long bookId, int pageNum, int pageSize) {
+    public BookWithImagesResponse findBookResponse(Long bookId, int pageNum, int pageSize) {
         Book book = findBookByIdOrElseThrow(bookId);
 
         Page<ReviewWithImagesResponse> reviews = reviewFindService.getReviews(book.getId(), pageNum, pageSize);
-        List<BookImage> bookImage = findAllByBookId(book);
+        List<BookImage> bookImage = getAllByBookId(book);
 
         return BookWithImagesResponse.of(book, reviews, ofBookImageList(bookImage));
     }
@@ -153,7 +160,6 @@ public class BookService {
         return books
                 .map(book ->
                 {
-
                     List<BookImage> bookImages = imageBookRepository.findAllByBookId(book.getId());
                     //대표 이미지 하나를 뽑아서 응답
                     if (bookImages.isEmpty()) {
@@ -171,7 +177,15 @@ public class BookService {
             throw new ForbiddenException(CANNOT_UPDATE_OTHERS_BOOK.getMessage());
         }
 
-        book.updateBook(bookUpdateRequest);
+        book.updateBook(
+                bookUpdateRequest.getTitle(),
+                bookUpdateRequest.getAuthor(),
+                bookUpdateRequest.getPrice(),
+                bookUpdateRequest.getCategory(),
+                bookUpdateRequest.getStock(),
+                bookUpdateRequest.getSaleStatus(),
+                bookUpdateRequest.getLimitedType()
+                );
     }
 
     @Transactional
@@ -203,7 +217,7 @@ public class BookService {
                 .orElseThrow(()-> new NotFoundException(NOT_FOUND_IMAGE.getMessage()));
     }
 
-    public List<BookImage> findAllByBookId(Book book) {
+    public List<BookImage> getAllByBookId(Book book) {
         return imageBookRepository.findAllByBookId(book.getId());
     }
 

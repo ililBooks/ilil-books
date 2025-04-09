@@ -18,9 +18,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "AND b.limitedType = 'REGULAR'")
     boolean existsOnSaleRegularBookById(@Param("bookId") Long bookId);
 
-    @Query("SELECT b FROM Book b WHERE b.id = :bookId AND b.deleteAt IS NULL")
+    @Query("SELECT b FROM Book b WHERE b.id = :bookId AND b.isDeleted = false")
     Optional<Book> findBookById(@Param("bookId") Long bookId);
 
-    @Query("SELECT b FROM Book b WHERE b.deleteAt IS NULL")
+    @Query("SELECT b FROM Book b WHERE b.isDeleted = false")
     Page<Book> findAllNotDeleted(Pageable pageable);
 }

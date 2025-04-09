@@ -26,7 +26,7 @@ public class BookUpdateRequest {
     @NotNull(message = NOT_NULL_CATEGORY)
     private String category;
 
-    @NotNull
+    @NotNull(message = NOT_NULL_STOCK)
     @Min(value = 0, message = INVALID_STOCK)
     private int stock;
 

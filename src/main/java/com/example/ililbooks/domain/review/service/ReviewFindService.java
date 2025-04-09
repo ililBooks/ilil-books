@@ -2,10 +2,10 @@ package com.example.ililbooks.domain.review.service;
 
 import com.example.ililbooks.domain.review.dto.response.ReviewWithImagesResponse;
 import com.example.ililbooks.domain.review.entity.Review;
-import com.example.ililbooks.domain.review.repository.ReviewRepository;
-import com.example.ililbooks.global.image.dto.response.ImageResponse;
 import com.example.ililbooks.domain.review.entity.ReviewImage;
 import com.example.ililbooks.domain.review.repository.ImageReviewRepository;
+import com.example.ililbooks.domain.review.repository.ReviewRepository;
+import com.example.ililbooks.global.image.dto.response.ImageListResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.example.ililbooks.global.image.dto.response.ImageResponse.ofReviewImageList;
+import static com.example.ililbooks.global.image.dto.response.ImageListResponse.ofReviewImageList;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +33,7 @@ public class ReviewFindService {
                     List<ReviewImage> reviewImage = imageReviewRepository.findAllByReviewId(review.getId());
 
                     //ImageResponse로 감싸서 반환
-                    List<ImageResponse> imageResponses = ofReviewImageList(reviewImage);
+                    List<ImageListResponse> imageResponses = ofReviewImageList(reviewImage);
                     return ReviewWithImagesResponse.of(review, imageResponses);
                 });
     }

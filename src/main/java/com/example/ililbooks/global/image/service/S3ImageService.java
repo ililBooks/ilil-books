@@ -1,5 +1,6 @@
 package com.example.ililbooks.global.image.service;
 
+import com.example.ililbooks.global.image.dto.response.ImageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
@@ -30,7 +30,7 @@ public class S3ImageService implements ImageService {
     private String region;
 
     @Override
-    public String uploadImage(MultipartFile image) {
+    public ImageResponse uploadImage(MultipartFile image) {
 
         if (image.isEmpty()) {
             throw new IllegalArgumentException(NOT_FOUND_IMAGE.getMessage());
@@ -54,7 +54,11 @@ public class S3ImageService implements ImageService {
             );
 
             if (response.sdkHttpResponse().isSuccessful()) {
-                return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, imageName);
+                String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, imageName);
+                String fileName = extractFileName(imageUrl);
+                String extension = extractExtension(fileName);
+
+                return ImageResponse.of(imageUrl, fileName, extension);
 
             } else {
                 throw new RuntimeException(FAILED_UPLOAD_IMAGE.getMessage());
@@ -79,11 +83,11 @@ public class S3ImageService implements ImageService {
         }
     }
 
-    public String extractFileName(String imageUrl) {
+    private String extractFileName(String imageUrl) {
         return imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
     }
 
-    public String extractExtension(String fileName) {
+    private String extractExtension(String fileName) {
         String extension = "";
         int dotIndex = fileName.lastIndexOf(".");
         if (dotIndex != -1 && dotIndex < fileName.length() - 1) {

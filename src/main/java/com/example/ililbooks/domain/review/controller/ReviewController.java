@@ -7,6 +7,7 @@ import com.example.ililbooks.domain.review.service.ReviewDeleteService;
 import com.example.ililbooks.domain.review.service.ReviewService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
+import com.example.ililbooks.global.image.dto.request.ImageRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
@@ -43,9 +44,9 @@ public class ReviewController {
     public Response<Void> uploadReviewImage(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reviewId,
-            @RequestParam String imageUrl
+            @ModelAttribute ImageRequest imageRequest
     ) {
-        reviewService.uploadReviewImage(authUser, reviewId, imageUrl);
+        reviewService.uploadReviewImage(authUser, reviewId, imageRequest);
         return Response.empty();
     }
 

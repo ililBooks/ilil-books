@@ -9,7 +9,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.ADMIN;
-import static com.example.ililbooks.domain.user.enums.UserRole.Authority.PUBLISHER;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,7 +19,7 @@ public class BookImageController {
     /**
      * 책 이미지 삭제 API
      */
-    @Secured({PUBLISHER, ADMIN})
+    @Secured(ADMIN)
     @DeleteMapping("/{imageId}")
     public Response<Void> deleteBookImage(
             @AuthenticationPrincipal AuthUser authUser,
