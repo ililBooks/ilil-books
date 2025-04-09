@@ -4,6 +4,7 @@ import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
 import com.example.ililbooks.domain.book.dto.response.BookWithImagesResponse;
+import com.example.ililbooks.domain.book.dto.response.BookListResponse;
 import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
@@ -27,7 +28,7 @@ public class BookController {
     /**
      * 직접 입력하여 책을 단건 저장하는 API
      */
-    @Secured({ADMIN, PUBLISHER})
+    @Secured({ADMIN})
     @PostMapping
     public Response<BookResponse> creatBook(
             @AuthenticationPrincipal AuthUser authUser,
@@ -54,12 +55,14 @@ public class BookController {
     /**
      * 책 이미지 업로드 API
      */
+    @Secured({ADMIN})
     @PostMapping("/{bookId}/image")
     public Response<Void> uploadBookImage(
+            @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long bookId,
             @RequestParam String imageUrl
     ) {
-        bookService.uploadBookImage(bookId, imageUrl);
+        bookService.uploadBookImage(authUser, bookId, imageUrl);
         return Response.empty();
     }
 
@@ -79,7 +82,7 @@ public class BookController {
      * 책 다건 조회 API
      */
     @GetMapping
-    public Response<Page<BookResponse>> getBooks(
+    public Response<Page<BookListResponse>> getBooks(
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
@@ -89,25 +92,27 @@ public class BookController {
     /**
      * 책 수정 API
      */
-    @Secured({ADMIN, PUBLISHER})
+    @Secured({ADMIN})
     @PatchMapping("/{bookId}")
     public Response<Void> updateBook(
+            @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long bookId,
             @Valid @RequestBody BookUpdateRequest bookUpdateRequest
     ) {
-        bookService.updateBook(bookId, bookUpdateRequest);
+        bookService.updateBook(authUser, bookId, bookUpdateRequest);
         return Response.empty();
     }
 
     /**
      * 책 삭제 API
      */
-    @Secured({ADMIN, PUBLISHER})
+    @Secured({ADMIN})
     @DeleteMapping("/{bookId}")
     public Response<Void> deleteBook(
+            @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long bookId
     ) {
-        bookService.deleteBook(bookId);
+        bookService.deleteBook(authUser, bookId);
         return Response.empty();
     }
 }

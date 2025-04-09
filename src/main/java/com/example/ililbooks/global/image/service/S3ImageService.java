@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
@@ -65,7 +66,7 @@ public class S3ImageService implements ImageService {
     }
 
     @Override
-    public String deleteImage(String imageUrl) {
+    public void deleteImage(String imageUrl) {
         try {
             s3Client.deleteObject(
                     DeleteObjectRequest.builder()
@@ -76,7 +77,6 @@ public class S3ImageService implements ImageService {
         } catch (S3Exception e) {
             throw new RuntimeException(FAILED_DELETE_IMAGE.getMessage(), e);
         }
-        return imageUrl;
     }
 
     public String extractFileName(String imageUrl) {

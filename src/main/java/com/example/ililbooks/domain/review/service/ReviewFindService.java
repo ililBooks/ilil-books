@@ -24,16 +24,16 @@ public class ReviewFindService {
 
     public Page<ReviewWithImagesResponse> getReviews(Long bookId, int pageNum, int pageSize) {
         Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
-        Page<Review> findReviews = reviewRepository.findAllByBookId(bookId, pageable);
+        Page<Review> reviews = reviewRepository.findAllByBookId(bookId, pageable);
 
-         return findReviews
+         return reviews
                 .map(review ->
                 {
                     //리뷰에 저장되어 있는 이미지 리스트 출력
-                    List<ReviewImage> findReviewImage = imageReviewRepository.findAllByReviewId(review.getId());
+                    List<ReviewImage> reviewImage = imageReviewRepository.findAllByReviewId(review.getId());
 
                     //ImageResponse로 감싸서 반환
-                    List<ImageResponse> imageResponses = ofReviewImageList(findReviewImage);
+                    List<ImageResponse> imageResponses = ofReviewImageList(reviewImage);
                     return ReviewWithImagesResponse.of(review, imageResponses);
                 });
     }

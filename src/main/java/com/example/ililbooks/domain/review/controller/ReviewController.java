@@ -3,6 +3,7 @@ package com.example.ililbooks.domain.review.controller;
 import com.example.ililbooks.domain.review.dto.request.ReviewUpdateRequest;
 import com.example.ililbooks.domain.review.dto.request.ReviewCreateRequest;
 import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
+import com.example.ililbooks.domain.review.service.ReviewDeleteService;
 import com.example.ililbooks.domain.review.service.ReviewService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
@@ -20,6 +21,7 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
 @RequestMapping("/api/v1/reviews")
 public class ReviewController {
     private final ReviewService reviewService;
+    private final ReviewDeleteService reviewDeleteService;
 
     /**
      * 리뷰 등록 API
@@ -39,10 +41,11 @@ public class ReviewController {
     @Secured(USER)
     @PostMapping("/{reviewId}/image")
     public Response<Void> uploadReviewImage(
+            @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reviewId,
             @RequestParam String imageUrl
     ) {
-        reviewService.uploadReviewImage(reviewId, imageUrl);
+        reviewService.uploadReviewImage(authUser, reviewId, imageUrl);
         return Response.empty();
     }
 
@@ -69,7 +72,7 @@ public class ReviewController {
             @PathVariable Long reviewId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        reviewService.deleteReview(reviewId, authUser);
+        reviewDeleteService.deleteReview(reviewId, authUser);
         return Response.empty();
     }
 

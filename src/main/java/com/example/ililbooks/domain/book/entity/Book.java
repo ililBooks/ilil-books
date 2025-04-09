@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import static com.example.ililbooks.domain.book.enums.LimitedType.REGULAR;
 import static com.example.ililbooks.domain.book.enums.SaleStatus.ON_SALE;
@@ -46,14 +47,19 @@ public class Book extends TimeStamped {
     @Column(unique = true)
     private String isbn;
 
+    private String publisher;
+
     @Enumerated(EnumType.STRING)
     private SaleStatus saleStatus;
 
     @Enumerated(EnumType.STRING)
     private LimitedType limitedType;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime deleteAt;
+
     @Builder
-    private Book(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn) {
+    private Book(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher) {
         this.users = users;
         this.title = title;
         this.author = author;
@@ -61,6 +67,7 @@ public class Book extends TimeStamped {
         this.category = category;
         this.stock = stock;
         this.isbn = isbn;
+        this.publisher = publisher;
         this.saleStatus = ON_SALE;
         this.limitedType = REGULAR;
     }
@@ -74,6 +81,7 @@ public class Book extends TimeStamped {
                 .category(bookCreateRequest.getCategory())
                 .stock(bookCreateRequest.getStock())
                 .isbn(bookCreateRequest.getIsbn())
+                .publisher(bookCreateRequest.getPublisher())
                 .build();
     }
 
@@ -86,6 +94,7 @@ public class Book extends TimeStamped {
                 .category(book.getCategory())
                 .stock(stock)
                 .isbn(book.getIsbn())
+                .publisher(book.getPublisher().replaceAll("<[^>]*>", ""))
                 .build();
     }
 
@@ -102,5 +111,9 @@ public class Book extends TimeStamped {
     public int decreaseStock(int quantity) {
         this.stock -= quantity;
         return stock;
+    }
+
+    public void deleteBook() {
+        this.deleteAt = LocalDateTime.now();
     }
 }

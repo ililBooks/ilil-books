@@ -26,10 +26,13 @@ public class BookCreateRequest {
     @NotBlank(message = NOT_NULL_CATEGORY)
     private String category;
 
-    @NotNull
+    @NotNull(message = NOT_NULL_STOCK)
     @Min(value = 0, message = INVALID_STOCK)
     private int stock;
 
     @NotBlank(message = NOT_NULL_ISBN)
     private String isbn;
+
+    @NotBlank(message = NOT_NULL_PUBLISHER)
+    private String publisher;
 }

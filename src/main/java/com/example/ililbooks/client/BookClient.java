@@ -5,11 +5,13 @@ import com.example.ililbooks.client.dto.BookApiWrapper;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.client.RestClientBuilderConfigurer;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -20,23 +22,25 @@ import static com.example.ililbooks.global.exception.ErrorMessage.*;
 @Component
 public class BookClient {
 
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
     private final ObjectMapper objectMapper;
 
     //발급 키
     @Value("${book.api.key}")
     private String apiKey;
 
-    public BookClient(RestTemplateBuilder builder, ObjectMapper objectMapper) {
-        this.restTemplate = builder.build();
+    public BookClient(RestClient.Builder builder, ObjectMapper objectMapper) {
+        this.restClient = builder.build();
         this.objectMapper = objectMapper;
     }
 
     public BookApiResponse[] getBooks(String keyword, Integer pageNum, Integer pageSize) {
         URI uri = buildBookApiUri(keyword, pageNum, pageSize);
 
-        // String 타입으로 응답을 받아서 메세지 컨버터가 처리할 수 있도록 하였다.
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity(uri, String.class);
+        ResponseEntity<String> responseEntity = restClient.get()
+                .uri(uri)
+                .retrieve()
+                .toEntity(String.class);
 
         if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
             throw new RuntimeException(BOOK_API_RESPONSE_FAILED.getMessage());

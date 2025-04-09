@@ -28,6 +28,8 @@ public final class ValidationMessage {
     public static final String NOT_BLANK_PRODUCT_NAME = "상품명은 필수 입력 값입니다.";
     public static final String NOT_NULL_CATEGORY = "카테고리는 필수 입력 값입니다.";
     public static final String NOT_NULL_PRICE = "가격은 필수 입력 값입니다.";
+    public static final String NOT_NULL_PUBLISHER = "출판사는 필수 입력 값입니다.";
+    public static final String NOT_NULL_STOCK = "재고는 필수 입력 값입니다.";
 
     public static final String NOT_BLANK_EVENT_NAME = "이벤트 이름은 필수 입력 값입니다.";
     public static final String NOT_BLANK_EVENT_DESCRIPTION = "이벤트 설명은 필수 입력 값입니다.";

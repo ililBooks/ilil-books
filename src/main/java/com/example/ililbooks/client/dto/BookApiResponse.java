@@ -18,15 +18,20 @@ public class BookApiResponse {
     @JsonProperty("isbn")
     private final String isbn;
 
+    @JsonProperty("pubInfo")
+    private final String publisher;
+
     public BookApiResponse(
             String title,
             String author,
             String category,
-            String isbn
+            String isbn,
+            String publisher
     ) {
         this.title = title;
         this.author = author;
         this.category = category;
         this.isbn = isbn;
+        this.publisher = publisher;
     }
 }

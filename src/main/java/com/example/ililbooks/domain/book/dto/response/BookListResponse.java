@@ -3,16 +3,14 @@ package com.example.ililbooks.domain.book.dto.response;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.enums.SaleStatus;
-import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
-public class BookResponse {
+public class BookListResponse {
     private final Long id;
 
     private final Long userId;
@@ -29,8 +27,6 @@ public class BookResponse {
 
     private final String publisher;
 
-    private final Page<ReviewResponse> reviews;
-
     private final String imageUrl;
 
     private final String saleStatus;
@@ -42,7 +38,7 @@ public class BookResponse {
     private final LocalDateTime modifiedAt;
 
     @Builder
-    private BookResponse(Long id, Long userId, String title, String author, BigDecimal price, String category, int stock,String publisher, Page<ReviewResponse> reviews, String imageUrl, SaleStatus saleStatus, LimitedType limitedType, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private BookListResponse(Long id, Long userId, String title, String author, BigDecimal price, String category, int stock, String publisher, String imageUrl, SaleStatus saleStatus, LimitedType limitedType, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.userId = userId;
         this.title = title;
@@ -51,15 +47,14 @@ public class BookResponse {
         this.category = category;
         this.stock = stock;
         this.publisher = publisher;
-        this.reviews = reviews;
         this.imageUrl = imageUrl;
         this.saleStatus = saleStatus.name();
         this.limitedType = limitedType.name();
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
-    public static BookResponse of(Book book) {
-        return BookResponse.builder()
+    public static BookListResponse of(Book book) {
+        return BookListResponse.builder()
                 .id(book.getId())
                 .userId(book.getUsers().getId())
                 .title(book.getTitle())
@@ -75,8 +70,8 @@ public class BookResponse {
                 .build();
     }
 
-    public static BookResponse of(Book book, String imageUrl) {
-        return BookResponse.builder()
+    public static BookListResponse of(Book book, String imageUrl) {
+        return BookListResponse.builder()
                 .id(book.getId())
                 .userId(book.getUsers().getId())
                 .title(book.getTitle())
@@ -92,5 +87,4 @@ public class BookResponse {
                 .modifiedAt(book.getModifiedAt())
                 .build();
     }
-
 }
