@@ -1,7 +1,7 @@
 package com.example.ililbooks.domain.auth.service;
 
-import com.example.ililbooks.domain.auth.dto.request.AuthSigninRequest;
-import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignInRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignUpRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.auth.entity.RefreshToken;
 import com.example.ililbooks.domain.user.entity.Users;
@@ -25,7 +25,7 @@ public class AuthService {
 
     /* 회원가입 */
     @Transactional
-    public AuthTokensResponse signup(AuthSignupRequest request) {
+    public AuthTokensResponse signUp(AuthSignUpRequest request) {
 
         if (!request.getPassword().equals(request.getPasswordCheck())) {
             throw new BadRequestException(PASSWORD_CONFIRMATION_MISMATCH.getMessage());
@@ -38,7 +38,7 @@ public class AuthService {
 
     /* 로그인 */
     @Transactional
-    public AuthTokensResponse signin(AuthSigninRequest request) {
+    public AuthTokensResponse signIn(AuthSignInRequest request) {
         Users users = userService.findByEmailOrElseThrow(request.getEmail());
 
         if (users.getDeletedAt() != null) {
@@ -55,7 +55,7 @@ public class AuthService {
     /* Access Token, Refresh Token 재발급 */
     @Transactional
     public AuthTokensResponse reissueToken(String refreshToken) {
-        RefreshToken findRefreshToken = tokenService.getRefreshToken(refreshToken);
+        RefreshToken findRefreshToken = tokenService.findRefreshToken(refreshToken);
         Users findUsers = userService.findByIdOrElseThrow(findRefreshToken.getUserId());
 
         String reissuedAccessToken = tokenService.createAccessToken(findUsers);

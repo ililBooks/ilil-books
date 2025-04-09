@@ -1,6 +1,5 @@
 package com.example.ililbooks.domain.order.service;
 
-import com.example.ililbooks.domain.order.dto.response.OrderHistoryResponse;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
 import com.example.ililbooks.domain.order.entity.Order;
@@ -25,7 +24,7 @@ public class OrderGetService {
 
     /* 주문 단건 조회 */
     @Transactional(readOnly = true)
-    public OrderResponse getOrder(AuthUser authUser, Long orderId, int pageNum, int pageSize) {
+    public OrderResponse findOrder(AuthUser authUser, Long orderId, int pageNum, int pageSize) {
         Order order = orderService.findByIdOrElseThrow(orderId);
 
         if (!authUser.getUserId().equals(order.getUsers().getId())) {

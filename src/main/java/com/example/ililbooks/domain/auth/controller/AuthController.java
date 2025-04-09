@@ -1,8 +1,8 @@
 package com.example.ililbooks.domain.auth.controller;
 
 import com.example.ililbooks.config.annotation.RefreshToken;
-import com.example.ililbooks.domain.auth.dto.request.AuthSigninRequest;
-import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignInRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignUpRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.auth.service.AuthService;
@@ -25,12 +25,12 @@ public class AuthController {
     private final AuthService authService;
 
     /* 회원가입 */
-    @PostMapping("/signup")
-    public Response<AuthAccessTokenResponse> signup(
-            @Valid @RequestBody AuthSignupRequest request,
+    @PostMapping("/sign-up")
+    public Response<AuthAccessTokenResponse> signUp(
+            @Valid @RequestBody AuthSignUpRequest request,
             HttpServletResponse httpServletResponse
     ) {
-        AuthTokensResponse tokensResponseDto = authService.signup(request);
+        AuthTokensResponse tokensResponseDto = authService.signUp(request);
 
         setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
 
@@ -38,12 +38,12 @@ public class AuthController {
     }
 
     /* 로그인 */
-    @PostMapping("/signin")
-    public Response<AuthAccessTokenResponse> signin(
-            @Valid @RequestBody AuthSigninRequest request,
+    @PostMapping("/sign-in")
+    public Response<AuthAccessTokenResponse> signIn(
+            @Valid @RequestBody AuthSignInRequest request,
             HttpServletResponse httpServletResponse
     ) {
-        AuthTokensResponse tokensResponseDto = authService.signin(request);
+        AuthTokensResponse tokensResponseDto = authService.signIn(request);
 
         setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
 

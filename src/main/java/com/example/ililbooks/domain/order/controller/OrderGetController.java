@@ -23,13 +23,13 @@ public class OrderGetController {
     /* 주문 단건 조회 */
     @Secured({USER})
     @GetMapping("/{orderId}")
-    public Response<OrderResponse> getOrder(
+    public Response<OrderResponse> findOrder(
             @PathVariable Long orderId,
             @AuthenticationPrincipal AuthUser authUser,
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
-        return Response.of(orderGetService.getOrder(authUser, orderId, pageNum, pageSize));
+        return Response.of(orderGetService.findOrder(authUser, orderId, pageNum, pageSize));
     }
 
     /* 주문 다건 조회 */

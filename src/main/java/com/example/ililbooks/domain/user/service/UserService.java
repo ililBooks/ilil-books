@@ -1,15 +1,13 @@
 package com.example.ililbooks.domain.user.service;
 
 import com.example.ililbooks.config.util.JwtUtil;
-import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignUpRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.user.dto.request.UserDeleteRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.dto.response.UserResponse;
 import com.example.ililbooks.domain.user.entity.Users;
-import com.example.ililbooks.domain.user.enums.LoginType;
-import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.repository.UserRepository;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -32,7 +30,7 @@ public class UserService {
 
     /* 회원 저장 */
     @Transactional
-    public Users saveUser(AuthSignupRequest authSignupRequest) {
+    public Users saveUser(AuthSignUpRequest authSignupRequest) {
 
         if (userRepository.existsByEmail(authSignupRequest.getEmail())) {
             throw new BadRequestException(DUPLICATE_EMAIL.getMessage());
@@ -47,7 +45,7 @@ public class UserService {
 
     /* 회원 조회 */
     @Transactional(readOnly = true)
-    public UserResponse getUser(AuthUser authUser) {
+    public UserResponse findUser(AuthUser authUser) {
         Users findUsers = findByIdOrElseThrow(authUser.getUserId());
         return UserResponse.of(findUsers);
     }

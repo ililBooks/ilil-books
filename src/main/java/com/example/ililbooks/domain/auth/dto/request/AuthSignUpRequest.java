@@ -9,7 +9,7 @@ import lombok.Getter;
 import static com.example.ililbooks.global.dto.ValidationMessage.*;
 
 @Getter
-public class AuthSignupRequest {
+public class AuthSignUpRequest {
 
     @NotBlank(message = NOT_BLANK_EMAIL)
     @Email(message = PATTERN_EMAIL)
@@ -28,7 +28,7 @@ public class AuthSignupRequest {
     private String userRole;
 
     @Builder
-    private AuthSignupRequest(String email, String nickname, String password, String passwordCheck, String userRole) {
+    private AuthSignUpRequest(String email, String nickname, String password, String passwordCheck, String userRole) {
         this.email = email;
         this.nickname = nickname;
         this.password = password;
