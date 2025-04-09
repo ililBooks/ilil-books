@@ -11,7 +11,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
+import static com.example.ililbooks.domain.user.enums.UserRole.Authority.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -76,5 +76,16 @@ public class OrderController {
             @RequestParam(defaultValue = "10") int pageSize
     ) {
         return Response.of(orderService.updateOrderStatus(authUser, orderId, pageNum, pageSize));
+    }
+
+    /* 배송 상태 변경 (배송 대기 -> 배송 중 -> 배송완료+주문완료) */
+    @Secured({ADMIN})
+    @PatchMapping("/{orderId}/delivery")
+    public Response<OrderResponse> updateDeliveryStatus(
+            @PathVariable Long orderId,
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return Response.of(orderService.updateDeliveryStatus(orderId, pageNum, pageSize));
     }
 }

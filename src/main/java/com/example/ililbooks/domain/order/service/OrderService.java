@@ -10,6 +10,7 @@ import com.example.ililbooks.domain.order.dto.response.OrderHistoryResponse;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
 import com.example.ililbooks.domain.order.entity.Order;
+import com.example.ililbooks.domain.order.enums.DeliveryStatus;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.repository.OrderRepository;
 import com.example.ililbooks.domain.user.entity.Users;
@@ -28,6 +29,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.example.ililbooks.domain.order.enums.DeliveryStatus.DELIVERED;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
@@ -124,6 +126,20 @@ public class OrderService {
         }
 
         order.updateOrder(OrderStatus.ORDERED);
+        return getOrderResponse(order, pageNum, pageSize);
+    }
+
+    /* 배송 상태 변경 (대기 -> 배송중 -> 배송완료) */
+    @Transactional
+    public OrderResponse updateDeliveryStatus(Long orderId, int pageNum, int pageSize) {
+        Order order = findByIdOrElseThrow(orderId);
+
+        DeliveryStatus deliveryStatus = order.getDeliveryStatus().nextDeliveryStatus(order);
+        order.updateDelivery(deliveryStatus);
+
+        if (deliveryStatus == DELIVERED) {
+            order.updateOrder(OrderStatus.COMPLETE);
+        }
         return getOrderResponse(order, pageNum, pageSize);
     }
 

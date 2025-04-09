@@ -9,4 +9,8 @@ public enum OrderStatus {
     public boolean isCanCancel() {
         return this == PENDING || this == ORDERED;
     }
+
+    public boolean isCanDelivery() {
+        return this == ORDERED;
+    }
 }

@@ -66,4 +66,8 @@ public class Order extends TimeStamped {
     public void updateOrder(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
     }
+
+    public void updateDelivery(DeliveryStatus deliveryStatus) {
+        this.deliveryStatus = deliveryStatus;
+    }
 }
