@@ -7,6 +7,32 @@ import lombok.Getter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+//
+//@Getter
+//public record OrderResponse(Long id, Long userId, String number, BigDecimal totalPrice, String orderStatus,
+//                            String deliveryStatus, String paymentStatus, LocalDateTime createdAt,
+//                            LocalDateTime modifiedAt) {
+//
+//    @Builder
+//    public OrderResponse {
+//    }
+//
+//    public static OrderResponse of(Order order) {
+//        return OrderResponse.builder()
+//                .id(order.getId())
+//                .userId(order.getUsers().getId())
+//                .number(order.getNumber())
+//                .totalPrice(order.getTotalPrice())
+//                .orderStatus(order.getOrderStatus().name())
+//                .deliveryStatus(order.getDeliveryStatus().name())
+//                .paymentStatus(order.getPaymentStatus().name())
+//                .createdAt(order.getCreatedAt())
+//                .modifiedAt(order.getModifiedAt())
+//                .build();
+//    }
+//}
+
+
 @Getter
 public class OrderResponse {
 

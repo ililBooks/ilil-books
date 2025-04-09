@@ -1,7 +1,7 @@
 package com.example.ililbooks.domain.auth.service;
 
-import com.example.ililbooks.domain.auth.dto.request.AuthSigninRequest;
-import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignInRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignUpRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.UserRole;
@@ -38,14 +38,14 @@ public class AuthServiceTest {
     @InjectMocks
     private AuthService authService;
 
-    private AuthSignupRequest successSignup;
-    private AuthSignupRequest passwordCheckErrorSignup;
-    private AuthSigninRequest successSignin;
+    private AuthSignUpRequest successSignup;
+    private AuthSignUpRequest passwordCheckErrorSignup;
+    private AuthSignInRequest successSignin;
     private Users users;
 
     @BeforeEach
     public void setUp() {
-        passwordCheckErrorSignup = AuthSignupRequest.builder()
+        passwordCheckErrorSignup = AuthSignUpRequest.builder()
                 .email("email@email.com")
                 .nickname("nickname")
                 .password("password1234")
@@ -53,7 +53,7 @@ public class AuthServiceTest {
                 .userRole("USER_ROLE")
                 .build();
 
-        successSignup = AuthSignupRequest.builder()
+        successSignup = AuthSignUpRequest.builder()
                 .email("email@email.com")
                 .nickname("nickname")
                 .password("password1234")
@@ -61,7 +61,7 @@ public class AuthServiceTest {
                 .userRole("USER_ROLE")
                 .build();
 
-        successSignin = AuthSigninRequest.builder()
+        successSignin = AuthSignInRequest.builder()
                 .email("email@email.com")
                 .password("password1234")
                 .build();
@@ -80,7 +80,7 @@ public class AuthServiceTest {
 
         // when & then
         BadRequestException badRequestException = assertThrows(BadRequestException.class,
-                () -> authService.signup(passwordCheckErrorSignup));
+                () -> authService.signUp(passwordCheckErrorSignup));
         assertEquals(badRequestException.getMessage(), PASSWORD_CONFIRMATION_MISMATCH.getMessage());
     }
 
@@ -95,7 +95,7 @@ public class AuthServiceTest {
         given(tokenService.createRefreshToken(any(Users.class))).willReturn(refreshToken);
 
         // when
-        AuthTokensResponse result = authService.signup(successSignup);
+        AuthTokensResponse result = authService.signUp(successSignup);
 
         // then
         assertEquals(accessToken, result.getAccessToken());
@@ -111,7 +111,7 @@ public class AuthServiceTest {
 
         // when & then
         UnauthorizedException unauthorizedException = assertThrows(UnauthorizedException.class,
-                () -> authService.signin(successSignin));
+                () -> authService.signIn(successSignin));
         assertEquals(unauthorizedException.getMessage(), DEACTIVATED_USER_EMAIL.getMessage());
     }
 
@@ -125,7 +125,7 @@ public class AuthServiceTest {
 
         // when & then
         UnauthorizedException unauthorizedException = assertThrows(UnauthorizedException.class,
-                () -> authService.signin(successSignin));
+                () -> authService.signIn(successSignin));
         assertEquals(unauthorizedException.getMessage(), INVALID_PASSWORD.getMessage());
     }
 
@@ -143,7 +143,7 @@ public class AuthServiceTest {
         given(tokenService.createRefreshToken(any(Users.class))).willReturn(refreshToken);
 
         // when
-        AuthTokensResponse result = authService.signin(successSignin);
+        AuthTokensResponse result = authService.signIn(successSignin);
 
         // then
         assertEquals(accessToken, result.getAccessToken());

@@ -16,6 +16,9 @@ public class CartItem {
         this.quantity = quantity;
     }
 
+    //TODO 패턴 피해야해요, 의존성 역전되어있는 케이스임
+    //CartItem은 Dto로만 생성이 가능
+    //CartItem of(bookId, quantity)
     public static CartItem of(CartItemRequest cartItemRequest) {
         return CartItem.builder()
                 .bookId(cartItemRequest.getBookId())

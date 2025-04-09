@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface LimitedEventRepository extends JpaRepository<LimitedEvent, Long> {
 
+    //TODO delete여부도 체크해줘야함 쿼리에서
     Optional<LimitedEvent> findByIdAndDeletedAtIsNull(Long limitedEventId);
 
     Page<LimitedEvent> findAllByDeletedAtIsNull(Pageable pageable);

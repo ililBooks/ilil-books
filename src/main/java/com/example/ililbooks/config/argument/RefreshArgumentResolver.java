@@ -17,7 +17,8 @@ import static com.example.ililbooks.global.exception.ErrorMessage.REFRESH_TOKEN_
 public class RefreshArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        boolean hasRefreshTokenAnnotation = parameter.getParameterAnnotation(RefreshToken.class) != null;
+        parameter.getParameterAnnotation(RefreshToken.class);
+        boolean hasRefreshTokenAnnotation = true;
         boolean isStringType = parameter.getParameterType().equals(String.class);
 
         if (hasRefreshTokenAnnotation != isStringType) {

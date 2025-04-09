@@ -89,7 +89,7 @@ public class CartService {
         List<CartItemResponse> itemResponses = cart.getItems().values().stream()
                 .map(CartItemResponse::of)
                 .collect(Collectors.toList());
-
+        //빈배열 -> 에러 안던져줌
         return CartResponse.of(authUser.getUserId(), itemResponses);
     }
 }

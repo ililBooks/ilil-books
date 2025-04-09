@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 public class BookApiResponse {
 
+    //TODO Java doc에 설명 써주시거나, 맞춰주세요
     @JsonProperty("titleInfo")
     private final String title;
 

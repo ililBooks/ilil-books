@@ -5,6 +5,8 @@ import com.example.ililbooks.domain.review.entity.Review;
 import lombok.Builder;
 import lombok.Getter;
 
+
+
 @Getter
 @Builder
 public class ReviewResponse {
@@ -38,3 +40,23 @@ public class ReviewResponse {
     }
 
 }
+
+
+//@Getter
+//@Builder
+//public record ReviewResponse(Long id, Long userId, Long bookId, int rating, String comment) {
+//    @Builder
+//    public ReviewResponse {
+//    }
+//
+//    public static ReviewResponse of(Review review) {
+//        return ReviewResponse.builder()
+//                .id(review.getId())
+//                .userId(review.getUsers().getId())
+//                .bookId(review.getBook().getId())
+//                .rating(review.getRating())
+//                .comment(review.getComments())
+//                .build();
+//    }
+//
+//}

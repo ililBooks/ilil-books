@@ -1,15 +1,13 @@
 package com.example.ililbooks.domain.user.service;
 
 import com.example.ililbooks.config.util.JwtUtil;
-import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignUpRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.user.dto.request.UserDeleteRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.dto.response.UserResponse;
 import com.example.ililbooks.domain.user.entity.Users;
-import com.example.ililbooks.domain.user.enums.LoginType;
-import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.repository.UserRepository;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -32,7 +30,7 @@ public class UserService {
 
     /* 회원 저장 */
     @Transactional
-    public Users saveUser(AuthSignupRequest authSignupRequest) {
+    public Users saveUser(AuthSignUpRequest authSignupRequest) {
 
         if (userRepository.existsByEmail(authSignupRequest.getEmail())) {
             throw new BadRequestException(DUPLICATE_EMAIL.getMessage());
@@ -70,7 +68,7 @@ public class UserService {
         if (!userUpdatePasswordRequest.getNewPassword().equals(userUpdatePasswordRequest.getNewPasswordCheck())) {
             throw new BadRequestException(PASSWORD_CONFIRMATION_MISMATCH.getMessage());
         }
-
+        //TODO findUsers 네이밍 좀 이상 existUsers ..
         Users findUsers = findByIdOrElseThrow(authUser.getUserId());
 
         if (!passwordEncoder.matches(userUpdatePasswordRequest.getOldPassword(), findUsers.getPassword())) {
@@ -88,7 +86,7 @@ public class UserService {
         if (!passwordEncoder.matches(userDeleteRequest.getPassword(), findUsers.getPassword())) {
             throw new BadRequestException(INVALID_PASSWORD.getMessage());
         }
-
+        //TODO 도메인 로직으로 뺼 필요없음
         findUsers.deleteUser();
     }
 
