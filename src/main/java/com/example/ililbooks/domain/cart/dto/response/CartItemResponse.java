@@ -2,18 +2,11 @@ package com.example.ililbooks.domain.cart.dto.response;
 
 import com.example.ililbooks.domain.cart.entity.CartItem;
 import lombok.Builder;
-import lombok.Getter;
 
-@Getter
-public class CartItemResponse {
-
-    private final Long bookId;
-    private final int quantity;
+public record CartItemResponse(Long bookId, int quantity) {
 
     @Builder
-    private CartItemResponse(Long bookId, int quantity) {
-        this.bookId = bookId;
-        this.quantity = quantity;
+    public CartItemResponse {
     }
 
     public static CartItemResponse of(CartItem cartItem) {
