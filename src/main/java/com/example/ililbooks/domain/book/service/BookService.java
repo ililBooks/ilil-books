@@ -58,10 +58,10 @@ public class BookService {
     }
 
     @Transactional
-    public void createBookByOpenApi(AuthUser authUser, Integer pageNum, Integer pageSize, String kwd) {
+    public void createBookByOpenApi(AuthUser authUser, Integer pageNum, Integer pageSize, String keyword) {
 
         //open api를 통해 책 리스트 가져오기
-        BookApiResponse[] books = bookClient.getBooks(kwd, pageNum, pageSize);
+        BookApiResponse[] books = bookClient.getBooks(keyword, pageNum, pageSize);
 
         //랜덤 가격 및 재고 생성을 위한 Random객체 선언
         Random random = new Random();
@@ -94,7 +94,11 @@ public class BookService {
     @Transactional
     public void uploadBookImage(Long bookId, String imageUrl) {
         Book findBook = findBookByIdOrElseThrow(bookId);
-        BookImage bookImage = BookImage.of(findBook, imageUrl);
+
+        String fileName = s3ImageService.extractFileName(imageUrl);
+        String extension = s3ImageService.extractExtension(fileName);
+
+        BookImage bookImage = BookImage.of(findBook,imageUrl, fileName, extension);
 
         //등록된 이미지의 개수가 5개를 넘는 경우
         if(imageBookRepository.countByBookId(bookImage.getBook().getId()) >= 5) {
@@ -158,7 +162,6 @@ public class BookService {
     @Transactional
     public void deleteBook(Long bookId) {
         Book findBook = findBookByIdOrElseThrow(bookId);
-
         bookRepository.delete(findBook);
     }
 

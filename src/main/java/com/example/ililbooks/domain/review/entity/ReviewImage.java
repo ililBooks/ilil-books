@@ -33,18 +33,7 @@ public class ReviewImage {
         this.extension = extension;
     }
 
-    public static ReviewImage of(Review review, String imageUrl) {
-
-        // URL에서 파일 이름 추출
-        String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-
-        // 확장자 추출
-        String extension = "";
-        int dotIndex = fileName.lastIndexOf(".");
-        if (dotIndex != -1 && dotIndex < fileName.length() - 1) {
-            extension = fileName.substring(dotIndex + 1).toLowerCase(); // 소문자로
-        }
-
+    public static ReviewImage of(Review review, String imageUrl, String fileName, String extension) {
         return ReviewImage.builder()
                 .review(review)
                 .imageUrl(imageUrl)
@@ -52,6 +41,4 @@ public class ReviewImage {
                 .extension(extension)
                 .build();
     }
-
-
 }
