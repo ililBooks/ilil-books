@@ -79,4 +79,17 @@ public class S3ImageService implements ImageService {
         return imageUrl;
     }
 
+    public String extractFileName(String imageUrl) {
+        return imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+    }
+
+    public String extractExtension(String fileName) {
+        String extension = "";
+        int dotIndex = fileName.lastIndexOf(".");
+        if (dotIndex != -1 && dotIndex < fileName.length() - 1) {
+            extension = fileName.substring(dotIndex + 1).toLowerCase(); // 소문자로
+        }
+
+        return extension;
+    }
 }

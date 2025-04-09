@@ -32,8 +32,8 @@ public class BookClient {
         this.objectMapper = objectMapper;
     }
 
-    public BookApiResponse[] getBooks(String kwd, Integer pageNum, Integer pageSize) {
-        URI uri = buildBookApiUri(kwd, pageNum, pageSize);
+    public BookApiResponse[] getBooks(String keyword, Integer pageNum, Integer pageSize) {
+        URI uri = buildBookApiUri(keyword, pageNum, pageSize);
 
         // String 타입으로 응답을 받아서 메세지 컨버터가 처리할 수 있도록 하였다.
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(uri, String.class);
@@ -70,12 +70,12 @@ public class BookClient {
      * pageNum: 현재 페이지
      * pageSize: 페이지 크기 (default 10건)
      */
-    private URI buildBookApiUri(String kwd, Integer pageNum, Integer pageSize) {
+    private URI buildBookApiUri(String keyword, Integer pageNum, Integer pageSize) {
         return UriComponentsBuilder
                 .fromUriString("https://www.nl.go.kr/NL/search/openApi/search.do")
                 .queryParam("key", apiKey)
                 .queryParam("apiType", "json")
-                .queryParam("kwd", kwd)
+                .queryParam("kwd", keyword)
                 .queryParam("srchTarget", "total")
                 .queryParam("category", "도서")
                 .queryParam("pageNum", pageNum)
