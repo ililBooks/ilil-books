@@ -18,7 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
@@ -39,21 +41,21 @@ public class LimitedReservationService {
     @Transactional
     public LimitedReservationResponse createReservation(AuthUser authUser, LimitedReservationCreateRequest request) {
         Users user = findUser(authUser.getUserId());
-        LimitedEvent event = findEvent(request.getLimitedEventId());
+        LimitedEvent limitedEvent = findEvent(request.limitedEventId());
 
         // 중복 예약 체크
-        limitedReservationRepository.findByUsersAndLimitedEvent(user, event).ifPresent(reservation -> {
+        limitedReservationRepository.findByUsersAndLimitedEvent(user, limitedEvent).ifPresent(reservation -> {
             throw new BadRequestException(ALREADY_RESERVED_EVENT.getMessage());
         });
 
         // 예약 수량 체크
-        long successCount = limitedReservationRepository.countByLimitedEventAndStatus(event, LimitedReservationStatus.SUCCESS);
-        boolean isReservable = event.canAcceptReservation(successCount);
+        long successCount = limitedReservationRepository.countByLimitedEventAndStatus(limitedEvent, LimitedReservationStatus.SUCCESS);
+        boolean isReservable = limitedEvent.canAcceptReservation(successCount);
 
         LimitedReservationStatus status = isReservable ? LimitedReservationStatus.SUCCESS : LimitedReservationStatus.WAITING;
-        LocalDateTime expiredAt = LocalDateTime.now().plusHours(EXPIRATION_HOURS);
+        Instant expiredAt = Instant.now().plus(EXPIRATION_HOURS, ChronoUnit.HOURS);
 
-        LimitedReservation reservation = LimitedReservation.createFrom(user, event, status, expiredAt);
+        LimitedReservation reservation = LimitedReservation.createFrom(user, limitedEvent, status, expiredAt);
         limitedReservationRepository.save(reservation);
 
         return LimitedReservationResponse.of(reservation);

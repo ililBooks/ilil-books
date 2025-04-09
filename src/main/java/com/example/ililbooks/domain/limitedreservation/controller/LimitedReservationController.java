@@ -60,7 +60,7 @@ public class LimitedReservationController {
 //    }
 
     /*/ 예약 취소 */
-    @PatchMapping("/{reservationId}/cancel")
+    @PatchMapping("/{reservationId}")
     public Response<Void> cancelReservation(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reservationId

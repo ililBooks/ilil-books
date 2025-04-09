@@ -10,12 +10,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "limited_events")
+//TODO @SQL 로 delete 때릴때마다 delete관련 컬럼 update되게 설정
 public class LimitedEvent extends TimeStamped {
 
     @Id
@@ -29,23 +30,26 @@ public class LimitedEvent extends TimeStamped {
     private String title;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 50)
     private LimitedEventStatus status;
 
-    private LocalDateTime startTime;
+    @Column(nullable = false)
+    private Instant startTime;
 
-    private LocalDateTime endTime;
+    @Column(nullable = false)
+    private Instant endTime;
 
     private String contents;
 
     private int bookQuantity;
 
-    private LocalDateTime deletedAt;
+    private Instant deletedAt;
 
     /*
      * LimitedEvent 생성자
      */
     @Builder
-    public LimitedEvent(Book book, String title, LocalDateTime startTime, LocalDateTime endTime, String contents, int bookQuantity) {
+    public LimitedEvent(Book book, String title, Instant startTime, Instant endTime, String contents, int bookQuantity) {
         this.book = book;
         this.title = title;
         this.status = LimitedEventStatus.INACTIVE;
@@ -65,7 +69,7 @@ public class LimitedEvent extends TimeStamped {
     /*
      * 행사 수정
      */
-    public void update(String title, LocalDateTime startTime, LocalDateTime endTime, String contents, int bookQuantity) {
+    public void update(String title, Instant startTime, Instant endTime, String contents, int bookQuantity) {
         this.title = title;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -77,9 +81,9 @@ public class LimitedEvent extends TimeStamped {
      * 행사 수정(행사 시작 후)
      */
     public void updateAfterStart(LimitedEventUpdateRequest request) {
-        this.endTime = request.getEndTime();
-        this.contents = request.getContents();
-        this.bookQuantity = request.getBookQuantity();
+        this.endTime = request.endTime();
+        this.contents = request.contents();
+        this.bookQuantity = request.bookQuantity();
     }
 
     /*
@@ -93,7 +97,7 @@ public class LimitedEvent extends TimeStamped {
      * soft delete 처리
      */
     public void softDelete() {
-        this.deletedAt = LocalDateTime.now();
+        this.deletedAt = Instant.now();
     }
 
     public boolean canAcceptReservation(Long reservedCount) {

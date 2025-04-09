@@ -1,21 +1,12 @@
 package com.example.ililbooks.domain.limitedevent.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import java.time.Instant;
 
-import java.time.LocalDateTime;
+public record LimitedEventUpdateRequest (
 
-@Getter
-@AllArgsConstructor
-public class LimitedEventUpdateRequest {
-
-    private String title;
-
-    private LocalDateTime startTime;
-
-    private LocalDateTime endTime;
-
-    private String contents;
-
-    private Integer bookQuantity;
-}
+        String title,
+        Instant startTime,
+        Instant endTime,
+        String contents,
+        Integer bookQuantity
+) {}
