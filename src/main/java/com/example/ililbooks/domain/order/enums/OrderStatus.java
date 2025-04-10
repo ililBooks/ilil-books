@@ -6,11 +6,11 @@ public enum OrderStatus {
     COMPLETE,       // 주문 과정 전체 완료
     CANCELLED;      // 주문 취소(유저가 상태변경)
 
-    public boolean isCanCancel() {
+    public boolean canCancel() {
         return this == PENDING || this == ORDERED;
     }
 
-    public boolean isCanDelivery() {
+    public boolean canDelivery() {
         return this == ORDERED;
     }
 }

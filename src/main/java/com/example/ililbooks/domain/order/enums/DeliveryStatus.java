@@ -11,14 +11,14 @@ public enum DeliveryStatus {
     IN_TRANSIT,         // 배송 중
     DELIVERED;          // 배송 완료
 
-    public boolean isCanCancel() {
+    public boolean canCancel() {
         return this == READY;
     }
 
     public DeliveryStatus nextDeliveryStatus(Order order){
         return switch (order.getDeliveryStatus()) {
             case READY -> {
-                if (!order.getOrderStatus().isCanDelivery()) {
+                if (!order.getOrderStatus().canDelivery()) {
                     throw new BadRequestException(CANNOT_START_DELIVERY.getMessage());
                 }
                 yield IN_TRANSIT;

@@ -73,7 +73,7 @@ public class OrderService {
             throw new ForbiddenException(NOT_OWN_ORDER.getMessage());
         }
 
-        if (!isCanCancelOrder(order)) {
+        if (!canCancelOrder(order)) {
             throw new BadRequestException(CANNOT_CANCEL_ORDER.getMessage());
         }
 
@@ -145,8 +145,8 @@ public class OrderService {
         return OrderResponse.of(order, orderHistories);
     }
 
-    private boolean isCanCancelOrder(Order order) {
-        return order.getOrderStatus().isCanCancel() && order.getDeliveryStatus().isCanCancel();
+    private boolean canCancelOrder(Order order) {
+        return order.getOrderStatus().canCancel() && order.getDeliveryStatus().canCancel();
     }
 
     public Order findByIdOrElseThrow(Long orderId) {
