@@ -1,18 +1,11 @@
 package com.example.ililbooks.domain.auth.dto.response;
 
 import lombok.Builder;
-import lombok.Getter;
 
-@Getter
-public class AuthTokensResponse {
-
-    private final String accessToken;
-    private final String refreshToken;
+public record AuthTokensResponse(String accessToken, String refreshToken) {
 
     @Builder
-    private AuthTokensResponse(String accessToken, String refreshToken) {
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
+    public AuthTokensResponse {
     }
 
     public static AuthTokensResponse of(String accessToken, String refreshToken) {

@@ -36,6 +36,7 @@ public class OrderHistory extends TimeStamped {
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "limited_type", columnDefinition = "VARCHAR(50)")
     private LimitedType limitedType;
 
     private int quantity;
@@ -50,5 +51,17 @@ public class OrderHistory extends TimeStamped {
         this.price = price;
         this.limitedType = limitedType;
         this.quantity = quantity;
+    }
+
+    public static OrderHistory of(Order order, Book book, int quantity) {
+        return OrderHistory.builder()
+                .order(order)
+                .book(book)
+                .title(book.getTitle())
+                .author(book.getAuthor())
+                .price(book.getPrice())
+                .limitedType(book.getLimitedType())
+                .quantity(quantity)
+                .build();
     }
 }

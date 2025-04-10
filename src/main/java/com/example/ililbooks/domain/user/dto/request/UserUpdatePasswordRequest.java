@@ -7,22 +7,12 @@ import lombok.Getter;
 
 import static com.example.ililbooks.global.dto.ValidationMessage.*;
 
-@Getter
-public class UserUpdatePasswordRequest {
-
-    @NotBlank(message = NOT_BLANK_PASSWORD)
-    private String oldPassword;
-
-    @NotBlank(message = NOT_BLANK_PASSWORD)
-    @Pattern(regexp = PATTERN_PASSWORD_REGEXP,
-            message = PATTERN_PASSWORD)
-    private String newPassword;
-
-    @NotBlank(message = NOT_BLANK_PASSWORD)
-    private String newPasswordCheck;
+public record UserUpdatePasswordRequest(@NotBlank(message = NOT_BLANK_PASSWORD) String oldPassword,
+                                        @NotBlank(message = NOT_BLANK_PASSWORD) @Pattern(regexp = PATTERN_PASSWORD_REGEXP, message = PATTERN_PASSWORD) String newPassword,
+                                        @NotBlank(message = NOT_BLANK_PASSWORD) String newPasswordCheck) {
 
     @Builder
-    private UserUpdatePasswordRequest(String oldPassword, String newPassword, String newPasswordCheck) {
+    public UserUpdatePasswordRequest(String oldPassword, String newPassword, String newPasswordCheck) {
         this.oldPassword = oldPassword;
         this.newPassword = newPassword;
         this.newPasswordCheck = newPasswordCheck;
