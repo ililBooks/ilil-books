@@ -1,10 +1,12 @@
 package com.example.ililbooks.global.image.service;
 
+import com.example.ililbooks.global.image.dto.response.ImageResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ImageService {
-    String uploadImage(MultipartFile image);
+    ImageResponse uploadImage(MultipartFile image);
 
-    String deleteImage(String imageUrl);
+    void deleteImage(String imageUrl);
+
 }
 
