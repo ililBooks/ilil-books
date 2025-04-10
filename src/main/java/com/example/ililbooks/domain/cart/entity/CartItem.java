@@ -1,6 +1,5 @@
 package com.example.ililbooks.domain.cart.entity;
 
-import com.example.ililbooks.domain.cart.dto.request.CartItemRequest;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,13 +15,10 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    //TODO 패턴 피해야해요, 의존성 역전되어있는 케이스임
-    //CartItem은 Dto로만 생성이 가능
-    //CartItem of(bookId, quantity)
-    public static CartItem of(CartItemRequest cartItemRequest) {
+    public static CartItem of(Long bookId, int quantity) {
         return CartItem.builder()
-                .bookId(cartItemRequest.getBookId())
-                .quantity(cartItemRequest.getQuantity())
+                .bookId(bookId)
+                .quantity(quantity)
                 .build();
     }
 

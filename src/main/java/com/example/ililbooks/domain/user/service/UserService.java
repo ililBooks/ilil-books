@@ -8,6 +8,7 @@ import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.dto.response.UserResponse;
 import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.repository.UserRepository;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -30,33 +31,37 @@ public class UserService {
 
     /* 회원 저장 */
     @Transactional
-    public Users saveUser(AuthSignUpRequest authSignupRequest) {
+    public Users saveUser(AuthSignUpRequest request) {
 
-        if (userRepository.existsByEmail(authSignupRequest.getEmail())) {
+        if (userRepository.existsByEmail(request.email())) {
             throw new BadRequestException(DUPLICATE_EMAIL.getMessage());
         }
 
-        String encodedPassword = passwordEncoder.encode(authSignupRequest.getPassword());
+        String encodedPassword = passwordEncoder.encode(request.password());
 
-        Users users = Users.of(authSignupRequest, encodedPassword);
+        Users users = Users.of(request.email(), request.nickname(), encodedPassword, request.userRole(), LoginType.EMAIL);
 
         return userRepository.save(users);
     }
 
     /* 회원 조회 */
     @Transactional(readOnly = true)
-    public UserResponse getUser(AuthUser authUser) {
-        Users findUsers = findByIdOrElseThrow(authUser.getUserId());
-        return UserResponse.of(findUsers);
+    public UserResponse findUser(AuthUser authUser) {
+        Users users = findByIdOrElseThrow(authUser.getUserId());
+        return UserResponse.of(users);
     }
 
     /* 회원 수정 */
     @Transactional
     public AuthAccessTokenResponse updateUser(AuthUser authUser, UserUpdateRequest userUpdateRequest) {
-        Users findUsers = findByIdOrElseThrow(authUser.getUserId());
-        findUsers.updateUser(userUpdateRequest);
+        Users users = findByIdOrElseThrow(authUser.getUserId());
+        users.updateUser(userUpdateRequest.nickname(),
+                userUpdateRequest.zipCode(),
+                userUpdateRequest.roadAddress(),
+                userUpdateRequest.detailedAddress(),
+                userUpdateRequest.contactNumber());
 
-        String accessToken = jwtUtil.createAccessToken(findUsers.getId(), findUsers.getEmail(), findUsers.getNickname(), findUsers.getUserRole());
+        String accessToken = jwtUtil.createAccessToken(users.getId(), users.getEmail(), users.getNickname(), users.getUserRole());
 
         return AuthAccessTokenResponse.of(accessToken);
     }
@@ -65,29 +70,29 @@ public class UserService {
     @Transactional
     public void updatePasswordUser(AuthUser authUser, UserUpdatePasswordRequest userUpdatePasswordRequest) {
 
-        if (!userUpdatePasswordRequest.getNewPassword().equals(userUpdatePasswordRequest.getNewPasswordCheck())) {
+        if (!userUpdatePasswordRequest.newPassword().equals(userUpdatePasswordRequest.newPasswordCheck())) {
             throw new BadRequestException(PASSWORD_CONFIRMATION_MISMATCH.getMessage());
         }
-        //TODO findUsers 네이밍 좀 이상 existUsers ..
-        Users findUsers = findByIdOrElseThrow(authUser.getUserId());
 
-        if (!passwordEncoder.matches(userUpdatePasswordRequest.getOldPassword(), findUsers.getPassword())) {
+        Users users = findByIdOrElseThrow(authUser.getUserId());
+
+        if (!passwordEncoder.matches(userUpdatePasswordRequest.oldPassword(), users.getPassword())) {
             throw new BadRequestException(INVALID_PASSWORD.getMessage());
         }
 
-        findUsers.updatePassword(passwordEncoder.encode(userUpdatePasswordRequest.getNewPassword()));
+        users.updatePassword(passwordEncoder.encode(userUpdatePasswordRequest.newPassword()));
     }
 
     /* 회원 삭제 */
     @Transactional
     public void deleteUser(AuthUser authUser, UserDeleteRequest userDeleteRequest) {
-        Users findUsers = findByIdOrElseThrow(authUser.getUserId());
+        Users users = findByIdOrElseThrow(authUser.getUserId());
 
-        if (!passwordEncoder.matches(userDeleteRequest.getPassword(), findUsers.getPassword())) {
+        if (!passwordEncoder.matches(userDeleteRequest.getPassword(), users.getPassword())) {
             throw new BadRequestException(INVALID_PASSWORD.getMessage());
         }
-        //TODO 도메인 로직으로 뺼 필요없음
-        findUsers.deleteUser();
+
+        users.deleteUser();
     }
 
     public Users findByEmailOrElseThrow(String email) {

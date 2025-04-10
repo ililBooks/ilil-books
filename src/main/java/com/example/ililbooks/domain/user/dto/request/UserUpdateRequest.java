@@ -8,29 +8,14 @@ import lombok.Getter;
 
 import static com.example.ililbooks.global.dto.ValidationMessage.*;
 
-@Getter
-public class UserUpdateRequest {
-
-    @NotBlank(message = NOT_BLANK_NICKNAME)
-    private String nickname;
-
-    @NotBlank(message = NOT_BLANK_ZIPCODE)
-    @Pattern(regexp = PATTERN_ZIPCODE_REGEXP,
-            message = PATTERN_ZIPCODE)
-    private String zipCode;
-
-    @NotBlank(message = NOT_BLANK_ROAD_ADDRESS)
-    private String roadAddress;
-
-    @NotBlank(message = NOT_BLANK_DETAILED_ADDRESS)
-    private String detailedAddress;
-
-    @NotBlank(message = NOT_BLANK_CONTACT_NUMBER)
-    @Size(min = 10, max = 11, message = VALIDATE_CONTACT_NUMBER_SIZE)
-    private String contactNumber;
+public record UserUpdateRequest(@NotBlank(message = NOT_BLANK_NICKNAME) String nickname,
+                                @NotBlank(message = NOT_BLANK_ZIPCODE) @Pattern(regexp = PATTERN_ZIPCODE_REGEXP, message = PATTERN_ZIPCODE) String zipCode,
+                                @NotBlank(message = NOT_BLANK_ROAD_ADDRESS) String roadAddress,
+                                @NotBlank(message = NOT_BLANK_DETAILED_ADDRESS) String detailedAddress,
+                                @NotBlank(message = NOT_BLANK_CONTACT_NUMBER) @Size(min = 10, max = 11, message = VALIDATE_CONTACT_NUMBER_SIZE) String contactNumber) {
 
     @Builder
-    private UserUpdateRequest(String nickname, String zipCode, String roadAddress, String detailedAddress, String contactNumber) {
+    public UserUpdateRequest(String nickname, String zipCode, String roadAddress, String detailedAddress, String contactNumber) {
         this.nickname = nickname;
         this.zipCode = zipCode;
         this.roadAddress = roadAddress;

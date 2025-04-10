@@ -1,49 +1,49 @@
-//package com.example.ililbooks.domain.user.service;
-//
-//import com.example.ililbooks.domain.user.entity.Users;
-//import com.example.ililbooks.domain.user.enums.UserRole;
-//import com.example.ililbooks.domain.user.repository.UserRepository;
-//import com.example.ililbooks.global.exception.BadRequestException;
-//import com.example.ililbooks.global.exception.NotFoundException;
-//import com.example.ililbooks.global.exception.UnauthorizedException;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.test.util.ReflectionTestUtils;
-//
-//import java.util.Optional;
-//
-//import static com.example.ililbooks.global.exception.ErrorMessage.*;
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.ArgumentMatchers.any;
-//import static org.mockito.ArgumentMatchers.anyLong;
-//import static org.mockito.BDDMockito.given;
-//
-//@ExtendWith(MockitoExtension.class)
-//public class UsersServiceTest {
-//
-//    @Mock
-//    private UserRepository userRepository;
-//    @Mock
-//    private PasswordEncoder passwordEncoder;
-//
-//    @InjectMocks
-//    private UserService userService;
-//
-//    private Users users;
-//
-//    @BeforeEach
-//    public void setUp() {
-//        users = Users.builder()
-//                .nickname("nickname")
-//                .userRole(UserRole.ROLE_USER)
-//                .build();
-//    }
-//
+package com.example.ililbooks.domain.user.service;
+
+import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.enums.UserRole;
+import com.example.ililbooks.domain.user.repository.UserRepository;
+import com.example.ililbooks.global.exception.BadRequestException;
+import com.example.ililbooks.global.exception.NotFoundException;
+import com.example.ililbooks.global.exception.UnauthorizedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.Optional;
+
+import static com.example.ililbooks.global.exception.ErrorMessage.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+
+@ExtendWith(MockitoExtension.class)
+public class UsersServiceTest {
+
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @InjectMocks
+    private UserService userService;
+
+    private Users users;
+
+    @BeforeEach
+    public void setUp() {
+        users = Users.builder()
+                .nickname("nickname")
+                .userRole(UserRole.ROLE_USER)
+                .build();
+    }
+
 //    /* findUserByIdOrElseThrow */
 //    @Test
 //    void findById조회_userId가_없을_경우_실패() {
@@ -120,9 +120,9 @@
 //        given(userRepository.existsByEmail(any(String.class))).willReturn(true);
 //
 //        // when & then
-////        BadRequestException badRequestException = assertThrows(BadRequestException.class,
-////                () -> userService.saveUser(email, nickname, password, userRole));
-////        assertEquals(badRequestException.getMessage(), DUPLICATE_EMAIL.getMessage());
+//        BadRequestException badRequestException = assertThrows(BadRequestException.class,
+//                () -> userService.saveUser(email, nickname, password, userRole));
+//        assertEquals(badRequestException.getMessage(), DUPLICATE_EMAIL.getMessage());
 //    }
 //
 //    @Test
@@ -153,4 +153,4 @@
 //        assertEquals(UserRole.of(userRole), resultUsers.getUserRole());
 //
 //    }
-//}
+}

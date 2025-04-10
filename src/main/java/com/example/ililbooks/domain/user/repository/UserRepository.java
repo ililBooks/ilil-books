@@ -15,6 +15,6 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
     @Query("SELECT u FROM Users u " +
             "WHERE u.id = :userId " +
-            "AND u.deletedAt IS NULL")
+            "AND u.isDeleted = false")
     Optional<Users> findById(@Param("userId") Long id);
 }

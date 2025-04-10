@@ -25,29 +25,29 @@ public class AuthController {
     private final AuthService authService;
 
     /* 회원가입 */
-    @PostMapping("/signup")
+    @PostMapping("/sign-up")
     public Response<AuthAccessTokenResponse> signUp(
             @Valid @RequestBody AuthSignUpRequest request,
             HttpServletResponse httpServletResponse
     ) {
         AuthTokensResponse tokensResponseDto = authService.signUp(request);
 
-        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
+        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
 
-        return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.getAccessToken()));
+        return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
     }
 
     /* 로그인 */
-    @PostMapping("/signin")
+    @PostMapping("/sign-in")
     public Response<AuthAccessTokenResponse> signIn(
             @Valid @RequestBody AuthSignInRequest request,
             HttpServletResponse httpServletResponse
     ) {
         AuthTokensResponse tokensResponseDto = authService.signIn(request);
 
-        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
+        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
 
-        return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.getAccessToken()));
+        return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
     }
 
     /* 토큰 재발급 (로그인 기간 연장) */
@@ -59,9 +59,9 @@ public class AuthController {
     ) {
         AuthTokensResponse tokensResponseDto = authService.reissueToken(refreshToken);
 
-        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.getRefreshToken());
+        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
 
-        return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.getAccessToken()));
+        return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
     }
 
     /* http only 사용하기 위해 쿠키에 refreshToken 저장 */

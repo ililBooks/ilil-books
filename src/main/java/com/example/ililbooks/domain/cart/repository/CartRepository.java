@@ -13,7 +13,7 @@ public class CartRepository {
 
     private final RedisClient redisClient;
 
-    private static final Duration CART_TTL = Duration.ofMinutes(30);        // 30분
+    private static final Duration CART_TTL = Duration.ofMinutes(60 * 24);        // 하루
     private static final String CART_KEY_PREFIX = "cart:";
 
     /* 장바구니 조회 */
