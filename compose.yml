@@ -1,0 +1,5 @@
+services:
+  test-ci:
+    build: .
+    ports:
+      - 8080:8080

@@ -1,0 +1,74 @@
+name: Deploy Docker Image to EC2 via CodeDeploy
+
+on:
+  push:
+    branches:
+    - main
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: test_ci
+  IMAGE_TAG: latest
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with: 
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: true
+
+      - name: Build and Push Docker image to ECR
+        run: |
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Prepare deployment zip
+        run: |
+          mkdir -p deploy/scripts
+          cp appspec.yml deploy/
+          cp -r scripts/* deploy/scripts/
+          cd deploy
+          zip -r deploy.zip .
+
+      - name: Upload to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl private
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ env.AWS_REGION }}
+          SOURCE_DIR: deploy
+          DEST_DIR: codedeploy/
+
+      - name: Deploy using AWS CLI
+        run: |
+          aws deploy create-deployment \
+            --application-name my-docker-app \
+            --deployment-group-name docker-app-ec2-group \
+            --deployment-config-name CodeDeployDefault.OneAtATime \
+            --s3-location bucket=ec2-docker-deploy,bundleType=zip,key=codedeploy/deploy.zip \
+            --region ap-northeast-2
+
+      - name: Notify via Slack
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEB_MESSAGE: "Docker, S3, AWS 를 통해 deploy 완료하였습니다."
+
