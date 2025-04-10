@@ -1,33 +1,33 @@
 package com.example.ililbooks.client.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
 
-@Getter
-public class BookApiResponse {
+/**
+ * Open API 응답의 필드명(titleInfo, authorInfo, kdcName1s, isbn, pubInfo)은
+ * 본 프로젝트의 Book 엔티티 필드명(title, author, category, isbn, publisher)과 다르기 때문에,
+ * 이를 매핑하기 위해 각 필드에 @JsonProperty 어노테이션을 사용한다.
+ *
+ * @param title     책 제목
+ * @param author    저자
+ * @param category  분류(카테고리)
+ * @param isbn      ISBN
+ * @param publisher 출판사
+ */
+public record BookApiResponse (
+        @JsonProperty("titleInfo")
+        String title,
 
-    //TODO Java doc에 설명 써주시거나, 맞춰주세요
-    @JsonProperty("titleInfo")
-    private final String title;
+       @JsonProperty("authorInfo")
+       String author,
 
-    @JsonProperty("authorInfo")
-    private final String author;
+       @JsonProperty("kdcName1s")
+       String category,
 
-    @JsonProperty("kdcName1s")
-    private final String category;
+       @JsonProperty("isbn")
+       String isbn,
 
-    @JsonProperty("isbn")
-    private final String isbn;
+       @JsonProperty("pubInfo")
+       String publisher
+) {
 
-    public BookApiResponse(
-            String title,
-            String author,
-            String category,
-            String isbn
-    ) {
-        this.title = title;
-        this.author = author;
-        this.category = category;
-        this.isbn = isbn;
-    }
 }

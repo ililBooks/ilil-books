@@ -1,8 +1,6 @@
 package com.example.ililbooks.domain.review.entity;
 
 import com.example.ililbooks.domain.book.entity.Book;
-import com.example.ililbooks.domain.review.dto.request.ReviewCreateRequest;
-import com.example.ililbooks.domain.review.dto.request.ReviewUpdateRequest;
 import com.example.ililbooks.domain.user.entity.Users;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -40,18 +38,17 @@ public class Review {
         this.comments = comments;
     }
 
-    //TODO dto빼고 인자로 넣기
-    public static Review of(Users users, Book book, ReviewCreateRequest reviewCreateRequest) {
+    public static Review of(Users users, Book book, int rating, String comments) {
         return Review.builder()
                 .users(users)
                 .book(book)
-                .rating(reviewCreateRequest.getRating())
-                .comments(reviewCreateRequest.getComments())
+                .rating(rating)
+                .comments(comments)
                 .build();
     }
 
-    public void updateReview(ReviewUpdateRequest reviewUpdateRequest) {
-        this.rating = reviewUpdateRequest.getRating();
-        this.comments = reviewUpdateRequest.getComments();
+    public void updateReview(int rating, String comments) {
+        this.rating = rating;
+        this.comments = comments;
     }
 }
