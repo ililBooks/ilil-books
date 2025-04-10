@@ -32,31 +32,31 @@ public class CartService {
 
         Cart cart = findByUserIdOrElseNewCart(authUser.getUserId());
 
-        for (CartItemRequest item : cartItemUpdateRequest.getCartItemList()) {
+        for (CartItemRequest item : cartItemUpdateRequest.cartItemList()) {
 
-            if (!bookService.existsOnSaleRegularBookById(item.getBookId())) {
+            if (!bookService.existsOnSaleRegularBookById(item.bookId())) {
                 throw new BadRequestException(CANNOT_ADD_BOOK_TO_CART.getMessage());
             }
 
-            CartItem existingItem = cart.getItems().get(item.getBookId());
+            CartItem existingItem = cart.getItems().get(item.bookId());
 
             if (existingItem != null) {
-                int updatedQuantity = existingItem.getQuantity() + item.getQuantity();
+                int updatedQuantity = existingItem.getQuantity() + item.quantity();
 
                 if (updatedQuantity < 0) {
                     throw new BadRequestException(CART_QUANTITY_INVALID.getMessage());
                 }
 
                 if (updatedQuantity == 0) {
-                    cart.getItems().remove(item.getBookId());
+                    cart.getItems().remove(item.bookId());
                 }
 
-                existingItem.updateQuantity(item.getQuantity());
+                existingItem.updateQuantity(item.quantity());
             } else {
-                if (item.getQuantity() <= 0) {
+                if (item.quantity() <= 0) {
                     throw new BadRequestException(CART_QUANTITY_INVALID.getMessage());
                 }
-                cart.getItems().put(item.getBookId(), CartItem.of(item.getBookId(), item.getQuantity()));
+                cart.getItems().put(item.bookId(), CartItem.of(item.bookId(), item.quantity()));
             }
         }
 

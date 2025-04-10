@@ -27,7 +27,7 @@ public class AuthService {
     @Transactional
     public AuthTokensResponse signUp(AuthSignUpRequest request) {
 
-        if (!request.getPassword().equals(request.getPasswordCheck())) {
+        if (!request.password().equals(request.passwordCheck())) {
             throw new BadRequestException(PASSWORD_CONFIRMATION_MISMATCH.getMessage());
         }
 
@@ -39,13 +39,13 @@ public class AuthService {
     /* 로그인 */
     @Transactional
     public AuthTokensResponse signIn(AuthSignInRequest request) {
-        Users users = userService.findByEmailOrElseThrow(request.getEmail());
+        Users users = userService.findByEmailOrElseThrow(request.email());
 
         if (users.isDeleted()) {
             throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());
         }
 
-        if (!passwordEncoder.matches(request.getPassword(), users.getPassword())) {
+        if (!passwordEncoder.matches(request.password(), users.getPassword())) {
             throw new UnauthorizedException(INVALID_PASSWORD.getMessage());
         }
 

@@ -33,13 +33,13 @@ public class UserService {
     @Transactional
     public Users saveUser(AuthSignUpRequest request) {
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(request.email())) {
             throw new BadRequestException(DUPLICATE_EMAIL.getMessage());
         }
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        String encodedPassword = passwordEncoder.encode(request.password());
 
-        Users users = Users.of(request.getEmail(), request.getNickname(), encodedPassword, request.getUserRole(), LoginType.EMAIL);
+        Users users = Users.of(request.email(), request.nickname(), encodedPassword, request.userRole(), LoginType.EMAIL);
 
         return userRepository.save(users);
     }
@@ -55,11 +55,11 @@ public class UserService {
     @Transactional
     public AuthAccessTokenResponse updateUser(AuthUser authUser, UserUpdateRequest userUpdateRequest) {
         Users users = findByIdOrElseThrow(authUser.getUserId());
-        users.updateUser(userUpdateRequest.getNickname(),
-                userUpdateRequest.getZipCode(),
-                userUpdateRequest.getRoadAddress(),
-                userUpdateRequest.getDetailedAddress(),
-                userUpdateRequest.getContactNumber());
+        users.updateUser(userUpdateRequest.nickname(),
+                userUpdateRequest.zipCode(),
+                userUpdateRequest.roadAddress(),
+                userUpdateRequest.detailedAddress(),
+                userUpdateRequest.contactNumber());
 
         String accessToken = jwtUtil.createAccessToken(users.getId(), users.getEmail(), users.getNickname(), users.getUserRole());
 
@@ -70,17 +70,17 @@ public class UserService {
     @Transactional
     public void updatePasswordUser(AuthUser authUser, UserUpdatePasswordRequest userUpdatePasswordRequest) {
 
-        if (!userUpdatePasswordRequest.getNewPassword().equals(userUpdatePasswordRequest.getNewPasswordCheck())) {
+        if (!userUpdatePasswordRequest.newPassword().equals(userUpdatePasswordRequest.newPasswordCheck())) {
             throw new BadRequestException(PASSWORD_CONFIRMATION_MISMATCH.getMessage());
         }
 
         Users users = findByIdOrElseThrow(authUser.getUserId());
 
-        if (!passwordEncoder.matches(userUpdatePasswordRequest.getOldPassword(), users.getPassword())) {
+        if (!passwordEncoder.matches(userUpdatePasswordRequest.oldPassword(), users.getPassword())) {
             throw new BadRequestException(INVALID_PASSWORD.getMessage());
         }
 
-        users.updatePassword(passwordEncoder.encode(userUpdatePasswordRequest.getNewPassword()));
+        users.updatePassword(passwordEncoder.encode(userUpdatePasswordRequest.newPassword()));
     }
 
     /* 회원 삭제 */
