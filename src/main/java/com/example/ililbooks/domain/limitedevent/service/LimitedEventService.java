@@ -37,14 +37,14 @@ public class LimitedEventService {
         Book book = bookRepository.findById(request.bookId())
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_BOOK.getMessage()));
 
-        LimitedEvent limitedEvent = LimitedEvent.builder()
-                .book(book)
-                .title(request.title())
-                .startTime(request.startTime())
-                .endTime(request.endTime())
-                .contents(request.contents())
-                .bookQuantity(request.bookQuantity())
-                .build();
+        LimitedEvent limitedEvent = LimitedEvent.of(
+                book,
+                request.title(),
+                request.startTime(),
+                request.endTime(),
+                request.contents(),
+                request.bookQuantity()
+        );
 
         limitedEventRepository.save(limitedEvent);
 

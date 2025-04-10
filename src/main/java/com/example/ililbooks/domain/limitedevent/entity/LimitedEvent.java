@@ -16,7 +16,6 @@ import java.time.Instant;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "limited_events")
-//TODO @SQL 로 delete 때릴때마다 delete관련 컬럼 update되게 설정
 public class LimitedEvent extends TimeStamped {
 
     @Id
@@ -30,7 +29,7 @@ public class LimitedEvent extends TimeStamped {
     private String title;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 50)
+    @Column(columnDefinition = "VARCHAR(50)")
     private LimitedEventStatus status;
 
     @Column(nullable = false)
@@ -46,17 +45,18 @@ public class LimitedEvent extends TimeStamped {
     private Instant deletedAt;
 
     /*
-     * LimitedEvent 생성자
+     * 정적 팩토리 메서드
      */
-    @Builder
-    public LimitedEvent(Book book, String title, Instant startTime, Instant endTime, String contents, int bookQuantity) {
-        this.book = book;
-        this.title = title;
-        this.status = LimitedEventStatus.INACTIVE;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.contents = contents;
-        this.bookQuantity = bookQuantity;
+    public static LimitedEvent of(Book book, String title, Instant startTime, Instant endTime, String contents, int bookQuantity) {
+        LimitedEvent event = new LimitedEvent();
+        event.book = book;
+        event.title = title;
+        event.status = LimitedEventStatus.INACTIVE;
+        event.startTime = startTime;
+        event.endTime = endTime;
+        event.contents = contents;
+        event.bookQuantity = bookQuantity;
+        return event;
     }
 
     /*

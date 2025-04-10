@@ -62,7 +62,7 @@ public class LimitedEventController {
 
     /*/ 행사 삭제 (PUBLISHER 와 ADMIN 만 가능) */
     @Secured({PUBLISHER, ADMIN})
-    @DeleteMapping("/{limitedEventId}")
+    @DeleteMapping("/delete/{limitedEventId}")
     public Response<Void> deleteLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long limitedEventId

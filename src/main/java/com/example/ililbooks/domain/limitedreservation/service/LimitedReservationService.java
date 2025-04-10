@@ -85,17 +85,17 @@ public class LimitedReservationService {
     }
 
     /*
-     * 예약 상태별 조회 (출판사/관리자)
+     * 예약 상태별 조회 (출판사/관리자) - V2용
      */
-    @Transactional(readOnly = true)
-    public List<LimitedReservationResponse> getReservationsByEventAndStatus(Long eventId, List<LimitedReservationStatus> statuses) {
-        LimitedEvent limitedEvent = findEvent(eventId);
-        List<LimitedReservation> reservations = limitedReservationRepository.findAllByLimitedEventAndStatusIn(limitedEvent, statuses);
-
-        return reservations.stream()
-                .map(LimitedReservationResponse::of)
-                .toList();
-    }
+//    @Transactional(readOnly = true)
+//    public List<LimitedReservationResponse> getReservationsByEventAndStatus(Long eventId, List<LimitedReservationStatus> statuses) {
+//        LimitedEvent limitedEvent = findEvent(eventId);
+//        List<LimitedReservation> reservations = limitedReservationRepository.findAllByLimitedEventAndStatusIn(limitedEvent, statuses);
+//
+//        return reservations.stream()
+//                .map(LimitedReservationResponse::of)
+//                .toList();
+//    }
 
     /*
      * 예약 취소
