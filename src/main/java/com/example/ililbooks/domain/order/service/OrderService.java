@@ -45,7 +45,7 @@ public class OrderService {
         Cart cart = cartService.findByUserIdOrElseNewCart(authUser.getUserId());
 
         if (cart.getItems().isEmpty()) {
-            throw new BadRequestException(NOT_EXIST_SHOPPING_CART.getMessage());
+            throw new NotFoundException(NOT_EXIST_SHOPPING_CART.getMessage());
         }
 
         Map<Long, Book> bookMap = getBookMap(cart);
