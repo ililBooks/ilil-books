@@ -48,7 +48,16 @@ public class LimitedEventService {
 
         limitedEventRepository.save(limitedEvent);
 
-        return LimitedEventResponse.from(limitedEvent);
+        return new LimitedEventResponse(
+                limitedEvent.getId(),
+                limitedEvent.getBook().getId(),
+                limitedEvent.getTitle(),
+                limitedEvent.getStatus(),
+                limitedEvent.getStartTime(),
+                limitedEvent.getEndTime(),
+                limitedEvent.getContents(),
+                limitedEvent.getBookQuantity()
+        );
     }
 
     /*
@@ -57,7 +66,17 @@ public class LimitedEventService {
     @Transactional(readOnly = true)
     public LimitedEventResponse getLimitedEvent(Long limitedEventId) {
         LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
-        return LimitedEventResponse.from(limitedEvent);
+
+        return new LimitedEventResponse(
+                limitedEvent.getId(),
+                limitedEvent.getBook().getId(),
+                limitedEvent.getTitle(),
+                limitedEvent.getStatus(),
+                limitedEvent.getStartTime(),
+                limitedEvent.getEndTime(),
+                limitedEvent.getContents(),
+                limitedEvent.getBookQuantity()
+        );
     }
 
     /*
@@ -65,8 +84,23 @@ public class LimitedEventService {
      */
     @Transactional(readOnly = true)
     public Page<LimitedEventResponse> getAllLimitedEvents(Pageable pageable) {
-        return limitedEventRepository.findAllByIsDeletedFalse(pageable)
-                .map(LimitedEventResponse::from);
+        Page<LimitedEvent> page = limitedEventRepository.findAll(pageable);
+
+        List<LimitedEventResponse> filtered = page.getContent().stream()
+                .filter(event -> !event.isDeleted())
+                .map(event -> new LimitedEventResponse(
+                        event.getId(),
+                        event.getBook().getId(),
+                        event.getTitle(),
+                        event.getStatus(),
+                        event.getStartTime(),
+                        event.getEndTime(),
+                        event.getContents(),
+                        event.getBookQuantity()
+                ))
+                .toList();
+
+        return new PageImpl<>(filtered, pageable, filtered.size());
     }
 
     /*
@@ -88,7 +122,16 @@ public class LimitedEventService {
             );
         }
 
-        return LimitedEventResponse.from(limitedEvent);
+        return new LimitedEventResponse(
+                limitedEvent.getId(),
+                limitedEvent.getBook().getId(),
+                limitedEvent.getTitle(),
+                limitedEvent.getStatus(),
+                limitedEvent.getStartTime(),
+                limitedEvent.getEndTime(),
+                limitedEvent.getContents(),
+                limitedEvent.getBookQuantity()
+        );
     }
 
     /*
@@ -102,7 +145,7 @@ public class LimitedEventService {
             throw new BadRequestException(ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED.getMessage());
         }
 
-        limitedEvent.isDeleted();
+        limitedEvent.softDelete();
     }
 
     /*
