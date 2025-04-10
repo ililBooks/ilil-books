@@ -25,8 +25,11 @@ public enum ErrorMessage {
     INVALID_JWT_SIGNATURE("유효하지 않는 JWT 서명입니다."),
     EXPIRED_JWT_TOKEN("만료된 JWT 토큰입니다."),
     UNSUPPORTED_JWT_TOKEN("지원되지 않는 JWT 토큰입니다."),
+
     NOT_FOUND_BOOK("책을 찾을 수 없습니다."),
     DUPLICATE_BOOK("이미 등록된 책 입니다."),
+    CANNOT_UPLOAD_OTHERS_BOOK_IMAGE("다른 사람의 책에 이미지를 업로드 할 수 없습니다."),
+    CANNOT_UPDATE_OTHERS_BOOK("다른 사람의 책을 수정할 수 없습니다."),
     BOOK_PARSING_FAILED("도서 정보 파싱 실패"),
     BOOK_API_RESPONSE_FAILED("도서 API 응답 실패"),
     BOOK_ISBN_MISSING("도서의 ISBN이 존재하지 않거나 비어 있습니다."),
@@ -35,6 +38,7 @@ public enum ErrorMessage {
     NOT_FOUND_REVIEW("리뷰를 찾을 수 없습니다."),
     CANNOT_UPDATE_OTHERS_REVIEW("다른 사람의 리뷰를 수정할 수 없습니다."),
     CANNOT_DELETE_OTHERS_REVIEW("다른 사람의 리뷰를 삭제할 수 없습니다."),
+    CANNOT_UPDATE_OTHERS_REVIEW_IMAGE("다른 사람의 리뷰에 이미지를 업로드할 수 없습니다."),
 
     ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다."),
     ALREADY_RESERVED_EVENT("이미 예약된 행사입니다."),
