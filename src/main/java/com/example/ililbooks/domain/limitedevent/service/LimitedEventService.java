@@ -65,13 +65,8 @@ public class LimitedEventService {
      */
     @Transactional(readOnly = true)
     public Page<LimitedEventResponse> getAllLimitedEvents(Pageable pageable) {
-        Page<LimitedEvent> page = limitedEventRepository.findAll(pageable);
-        List<LimitedEventResponse> filtered = page.getContent().stream()
-                .filter(event -> !event.isDeleted())
-                .map(LimitedEventResponse::from)
-                .toList();
-
-        return new PageImpl<>(filtered, pageable, filtered.size());
+        return limitedEventRepository.findAllByIsDeletedFalse(pageable)
+                .map(LimitedEventResponse::from);
     }
 
     /*
@@ -82,10 +77,15 @@ public class LimitedEventService {
         LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
 
         if (limitedEvent.getStatus() == LimitedEventStatus.ACTIVE) {
-            // 시작된 행사인 경우 제한된 필드만 수정 가능
             limitedEvent.updateAfterStart(request);
         } else {
-            limitedEvent.update(request.title(), request.startTime(), request.endTime(), request.contents(), request.bookQuantity());
+            limitedEvent.update(
+                    request.title(),
+                    request.startTime(),
+                    request.endTime(),
+                    request.contents(),
+                    request.bookQuantity()
+            );
         }
 
         return LimitedEventResponse.from(limitedEvent);
@@ -102,15 +102,14 @@ public class LimitedEventService {
             throw new BadRequestException(ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED.getMessage());
         }
 
-        limitedEvent.softDelete();
+        limitedEvent.isDeleted();
     }
 
     /*
      * 내부용 find 메서드
      */
     private LimitedEvent findByIdOrElseThrow(Long limitedEventId) {
-        return limitedEventRepository.findById(limitedEventId)
-                .filter(event -> !event.isDeleted())
+        return limitedEventRepository.findByIdAndIsDeletedFalse(limitedEventId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_TOKEN.getMessage()));
     }
 }

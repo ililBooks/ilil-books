@@ -42,7 +42,7 @@ public class LimitedEvent extends TimeStamped {
 
     private int bookQuantity;
 
-    private Instant deletedAt;
+    private boolean isDeleted;
 
     /*
      * 정적 팩토리 메서드
@@ -56,6 +56,7 @@ public class LimitedEvent extends TimeStamped {
         event.endTime = endTime;
         event.contents = contents;
         event.bookQuantity = bookQuantity;
+        event.isDeleted = false;
         return event;
     }
 
@@ -90,14 +91,14 @@ public class LimitedEvent extends TimeStamped {
      * soft delete 처리 여부 확인
      */
     public boolean isDeleted() {
-        return this.deletedAt != null;
+        return this.isDeleted;
     }
 
     /*
      * soft delete 처리
      */
     public void softDelete() {
-        this.deletedAt = Instant.now();
+        this.isDeleted = true;
     }
 
     public boolean canAcceptReservation(Long reservedCount) {
