@@ -42,7 +42,7 @@ public class LimitedEventController {
 
     /*/ 행사 다건 조회 */
     @GetMapping
-    public Response<Page<LimitedEventResponse>> getLimitedEventList(Pageable pageable) {
+    public Response<Page<LimitedEventResponse>> getAllLimitedEventList(Pageable pageable) {
         return Response.of(limitedEventService.getAllLimitedEvents(pageable));
     }
 
