@@ -30,6 +30,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        String[] SWAGGER_URI = {
+                "/v3/api-docs/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html"
+        };
+
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
@@ -44,6 +51,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers(HttpMethod.GET).permitAll()
                                 .requestMatchers(request -> request.getRequestURI().startsWith("/api/v1/auth")).permitAll()
+                                .requestMatchers(SWAGGER_URI).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .build();
