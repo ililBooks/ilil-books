@@ -11,14 +11,15 @@ import static com.example.ililbooks.global.exception.ErrorMessage.OUT_OF_STOCK;
 @RequiredArgsConstructor
 public class BookStokeService {
 
-    private final BookService bookService;
-
-    public void decreaseStock(Long bookId, int quantity) {
-        Book book = bookService.findBookByIdOrElseThrow(bookId);
+    public void decreaseStock(Book book, int quantity) {
         int remainingStock = book.decreaseStock(quantity);
 
         if (remainingStock < 0) {
             throw new BadRequestException(OUT_OF_STOCK.getMessage());
         }
+    }
+
+    public void rollbackStock(Book book, int quantity) {
+        book.rollbackStock(quantity);
     }
 }

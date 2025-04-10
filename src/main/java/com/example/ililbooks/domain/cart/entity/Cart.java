@@ -21,7 +21,7 @@ public class Cart {
     }
 
     @Builder
-    private Cart(Long userId, Map<Long, CartItem> items) {
+    public Cart(Long userId, Map<Long, CartItem> items) {
         this.userId = userId;
         this.items = items;
     }

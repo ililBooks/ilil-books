@@ -115,4 +115,8 @@ public class Book extends TimeStamped {
     public void deleteBook() {
         this.isDeleted = true;
     }
+
+    public void rollbackStock(int quantity) {
+        this.stock += quantity;
+    }
 }

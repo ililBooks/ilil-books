@@ -1,0 +1,27 @@
+package com.example.ililbooks.domain.order.dto.response;
+
+import com.example.ililbooks.domain.order.entity.Order;
+import lombok.Builder;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+public record OrdersGetResponse(Long orderId, String number, BigDecimal totalPrice, String orderStatus,
+                                String deliveryStatus, String paymentStatus, LocalDateTime createdAt) {
+
+    @Builder
+    public OrdersGetResponse {
+    }
+
+    public static OrdersGetResponse of(Order order) {
+        return OrdersGetResponse.builder()
+                .orderId(order.getId())
+                .number(order.getNumber())
+                .totalPrice(order.getTotalPrice())
+                .orderStatus(order.getOrderStatus().name())
+                .deliveryStatus(order.getDeliveryStatus().name())
+                .paymentStatus(order.getPaymentStatus().name())
+                .createdAt(order.getCreatedAt())
+                .build();
+    }
+}
