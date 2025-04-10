@@ -1,7 +1,7 @@
 package com.example.ililbooks.domain.auth.service;
 
-import com.example.ililbooks.domain.auth.dto.request.AuthSigninRequest;
-import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignInRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignUpRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.auth.entity.RefreshToken;
 import com.example.ililbooks.domain.user.entity.Users;
@@ -25,9 +25,9 @@ public class AuthService {
 
     /* 회원가입 */
     @Transactional
-    public AuthTokensResponse signup(AuthSignupRequest request) {
+    public AuthTokensResponse signUp(AuthSignUpRequest request) {
 
-        if (!request.getPassword().equals(request.getPasswordCheck())) {
+        if (!request.password().equals(request.passwordCheck())) {
             throw new BadRequestException(PASSWORD_CONFIRMATION_MISMATCH.getMessage());
         }
 
@@ -38,14 +38,14 @@ public class AuthService {
 
     /* 로그인 */
     @Transactional
-    public AuthTokensResponse signin(AuthSigninRequest request) {
-        Users users = userService.findByEmailOrElseThrow(request.getEmail());
+    public AuthTokensResponse signIn(AuthSignInRequest request) {
+        Users users = userService.findByEmailOrElseThrow(request.email());
 
-        if (users.getDeletedAt() != null) {
+        if (users.isDeleted()) {
             throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());
         }
 
-        if (!passwordEncoder.matches(request.getPassword(), users.getPassword())) {
+        if (!passwordEncoder.matches(request.password(), users.getPassword())) {
             throw new UnauthorizedException(INVALID_PASSWORD.getMessage());
         }
 
@@ -55,10 +55,10 @@ public class AuthService {
     /* Access Token, Refresh Token 재발급 */
     @Transactional
     public AuthTokensResponse reissueToken(String refreshToken) {
-        RefreshToken findRefreshToken = tokenService.getRefreshToken(refreshToken);
-        Users findUsers = userService.findByIdOrElseThrow(findRefreshToken.getUserId());
+        RefreshToken findRefreshToken = tokenService.findRefreshToken(refreshToken);
+        Users users = userService.findByIdOrElseThrow(findRefreshToken.getUserId());
 
-        String reissuedAccessToken = tokenService.createAccessToken(findUsers);
+        String reissuedAccessToken = tokenService.createAccessToken(users);
         String reissuedRefreshToken = findRefreshToken.updateToken();
 
         return AuthTokensResponse.of(reissuedAccessToken, reissuedRefreshToken);

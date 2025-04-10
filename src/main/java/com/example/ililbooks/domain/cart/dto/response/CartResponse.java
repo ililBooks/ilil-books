@@ -1,19 +1,12 @@
 package com.example.ililbooks.domain.cart.dto.response;
 
 import lombok.Builder;
-import lombok.Getter;
 
 import java.util.List;
 
-@Getter
-public class CartResponse {
-    private final Long userId;
-    private final List<CartItemResponse> items;
-
+public record CartResponse(Long userId, List<CartItemResponse> items) {
     @Builder
-    private CartResponse(Long userId, List<CartItemResponse> items) {
-        this.userId = userId;
-        this.items = items;
+    public CartResponse {
     }
 
     public static CartResponse of(Long userId, List<CartItemResponse> items) {

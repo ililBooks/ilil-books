@@ -1,6 +1,6 @@
 package com.example.ililbooks.domain.user.entity;
 
-import com.example.ililbooks.domain.auth.dto.request.AuthSignupRequest;
+import com.example.ililbooks.domain.auth.dto.request.AuthSignUpRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.enums.UserRole;
@@ -38,16 +38,18 @@ public class Users extends TimeStamped {
     private String contactNumber;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "login_type", columnDefinition = "VARCHAR(50)")
     private LoginType loginType;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "user_role", columnDefinition = "VARCHAR(50)")
     private UserRole userRole;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime deletedAt;
+    private boolean isDeleted;
 
     @Builder
-    private Users(Long id, String email, String nickname, String password, String zipCode, String roadAddress, String detailedAddress, String contactNumber, LoginType loginType, UserRole userRole, LocalDateTime deletedAt) {
+    private Users(Long id, String email, String nickname, String password, String zipCode, String roadAddress, String detailedAddress, String contactNumber, LoginType loginType, UserRole userRole, boolean isDeleted) {
         this.id = id;
         this.email = email;
         this.nickname = nickname;
@@ -58,7 +60,7 @@ public class Users extends TimeStamped {
         this.contactNumber = contactNumber;
         this.loginType = loginType;
         this.userRole = userRole;
-        this.deletedAt = deletedAt;
+        this.isDeleted = isDeleted;
     }
 
     public static Users fromAuthUser(AuthUser authUser) {
@@ -70,25 +72,26 @@ public class Users extends TimeStamped {
                 .build();
     }
 
-    public static Users of(AuthSignupRequest authSignupRequest, String encodedPassword) {
+    public static Users of(String email, String nickname, String encodedPassword, String userRole, LoginType loginType) {
         return Users.builder()
-                .email(authSignupRequest.getEmail())
-                .nickname(authSignupRequest.getNickname())
+                .email(email)
+                .nickname(nickname)
                 .password(encodedPassword)
-                .userRole(UserRole.of(authSignupRequest.getUserRole()))
+                .loginType(loginType)
+                .userRole(UserRole.of(userRole))
                 .build();
     }
 
-    public void updateUser(UserUpdateRequest userUpdateRequest) {
-        this.nickname = userUpdateRequest.getNickname();
-        this.zipCode = userUpdateRequest.getZipCode();
-        this.roadAddress = userUpdateRequest.getRoadAddress();
-        this.detailedAddress = userUpdateRequest.getDetailedAddress();
-        this.contactNumber = userUpdateRequest.getContactNumber();
+    public void updateUser(String nickname, String zipCode, String roadAddress, String detailedAddress, String contactNumber) {
+        this.nickname = nickname;
+        this.zipCode = zipCode;
+        this.roadAddress = roadAddress;
+        this.detailedAddress = detailedAddress;
+        this.contactNumber = contactNumber;
     }
 
     public void deleteUser() {
-        this.deletedAt = LocalDateTime.now();
+        this.isDeleted = true;
     }
 
     public void updatePassword(String newPassword) {

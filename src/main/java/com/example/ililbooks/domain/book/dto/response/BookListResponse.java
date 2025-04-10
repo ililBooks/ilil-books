@@ -1,12 +1,10 @@
 package com.example.ililbooks.domain.book.dto.response;
 
 import com.example.ililbooks.domain.book.entity.Book;
-import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
-import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 
-public record BookResponse(
+public record BookListResponse (
         Long id,
         Long userId,
         String title,
@@ -15,13 +13,12 @@ public record BookResponse(
         String category,
         int stock,
         String publisher,
-        Page<ReviewResponse> reviews,
         String imageUrl,
         String saleStatus,
         String limitedType
 ) {
-    public static BookResponse of(Book book) {
-        return new BookResponse(
+    public static BookListResponse of(Book book) {
+        return new BookListResponse(
                 book.getId(),
                 book.getUsers().getId(),
                 book.getTitle(),
@@ -30,15 +27,14 @@ public record BookResponse(
                 book.getCategory(),
                 book.getStock(),
                 book.getPublisher(),
-                null,
                 null,
                 book.getSaleStatus().name(),
                 book.getLimitedType().name()
         );
     }
 
-    public static BookResponse of(Book book, String imageUrl) {
-        return new BookResponse(
+    public static BookListResponse of(Book book, String imageUrl) {
+        return new BookListResponse(
                 book.getId(),
                 book.getUsers().getId(),
                 book.getTitle(),
@@ -47,27 +43,9 @@ public record BookResponse(
                 book.getCategory(),
                 book.getStock(),
                 book.getPublisher(),
-                null,
                 imageUrl,
                 book.getSaleStatus().name(),
                 book.getLimitedType().name()
-        );
-    }
-
-    public BookResponse withReviews(Page<ReviewResponse> reviews) {
-        return new BookResponse(
-                this.id,
-                this.userId,
-                this.title,
-                this.author,
-                this.price,
-                this.category,
-                this.stock,
-                this.publisher,
-                reviews,
-                this.imageUrl,
-                this.saleStatus,
-                this.limitedType
         );
     }
 }

@@ -3,6 +3,8 @@ package com.example.ililbooks.domain.review.controller;
 import com.example.ililbooks.domain.review.service.ReviewService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,12 +19,14 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/review-images")
+@Tag(name = "Review Image", description = "리뷰 이미지 관련 API")
 public class ReviewImageController {
     private final ReviewService reviewService;
 
     /**
      * 리뷰 이미지 삭제 API
      */
+    @Operation(summary = "리뷰 이미지 삭제", description = "리뷰 이미지 ID를 이용하여 이미지를 삭제하는 API입니다.")
     @Secured({USER, ADMIN})
     @DeleteMapping("/{imageId}")
     public Response<Void> deleteReviewImage(

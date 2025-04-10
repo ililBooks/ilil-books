@@ -25,8 +25,11 @@ public enum ErrorMessage {
     INVALID_JWT_SIGNATURE("유효하지 않는 JWT 서명입니다."),
     EXPIRED_JWT_TOKEN("만료된 JWT 토큰입니다."),
     UNSUPPORTED_JWT_TOKEN("지원되지 않는 JWT 토큰입니다."),
+
     NOT_FOUND_BOOK("책을 찾을 수 없습니다."),
     DUPLICATE_BOOK("이미 등록된 책 입니다."),
+    CANNOT_UPLOAD_OTHERS_BOOK_IMAGE("다른 사람의 책에 이미지를 업로드 할 수 없습니다."),
+    CANNOT_UPDATE_OTHERS_BOOK("다른 사람의 책을 수정할 수 없습니다."),
     BOOK_PARSING_FAILED("도서 정보 파싱 실패"),
     BOOK_API_RESPONSE_FAILED("도서 API 응답 실패"),
     BOOK_ISBN_MISSING("도서의 ISBN이 존재하지 않거나 비어 있습니다."),
@@ -35,6 +38,7 @@ public enum ErrorMessage {
     NOT_FOUND_REVIEW("리뷰를 찾을 수 없습니다."),
     CANNOT_UPDATE_OTHERS_REVIEW("다른 사람의 리뷰를 수정할 수 없습니다."),
     CANNOT_DELETE_OTHERS_REVIEW("다른 사람의 리뷰를 삭제할 수 없습니다."),
+    CANNOT_UPDATE_OTHERS_REVIEW_IMAGE("다른 사람의 리뷰에 이미지를 업로드할 수 없습니다."),
 
     ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다."),
     ALREADY_RESERVED_EVENT("이미 예약된 행사입니다."),
@@ -54,6 +58,14 @@ public enum ErrorMessage {
     CANNOT_ADD_BOOK_TO_CART("장바구니에 담을 수 없는 책입니다."),
     CART_QUANTITY_INVALID("장바구니 수량은 0 이상이어야 합니다."),
     OUT_OF_STOCK("요청하신 수량보다 재고가 부족합니다."),
+
+    NOT_FOUND_ORDER("주문 확인 불가"),
+    NOT_OWN_ORDER("본인 외 주문 확인 불가"),
+    CANNOT_CANCEL_ORDER("해당 주문은 취소할 수 없습니다."),
+    CANNOT_CHANGE_ORDER("주문 대기 상태만 주문 승인 할 수 있습니다."),
+    CANNOT_START_DELIVERY("주문 승인 상태만 배송할 수 있습니다."),
+    COMPLETE_DELIVERY("배송 완료 상태입니다."),
+    CANNOT_DELIVER_CANCELLED_ORDER("취소된 주문은 배송이 불가합니다."),
 
     REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
     REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패");

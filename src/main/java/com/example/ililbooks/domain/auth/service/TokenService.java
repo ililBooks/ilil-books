@@ -28,7 +28,7 @@ public class TokenService {
         return refreshToken.getToken();
     }
 
-    public RefreshToken getRefreshToken(String token) {
+    public RefreshToken findRefreshToken(String token) {
         return refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException(REFRESH_TOKEN_NOT_FOUND.getMessage()));
     }

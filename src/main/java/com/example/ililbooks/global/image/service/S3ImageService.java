@@ -1,5 +1,6 @@
 package com.example.ililbooks.global.image.service;
 
+import com.example.ililbooks.global.image.dto.response.ImageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class S3ImageService implements ImageService {
     private String region;
 
     @Override
-    public String uploadImage(MultipartFile image) {
+    public ImageResponse uploadImage(MultipartFile image) {
 
         if (image.isEmpty()) {
             throw new IllegalArgumentException(NOT_FOUND_IMAGE.getMessage());
@@ -53,7 +54,11 @@ public class S3ImageService implements ImageService {
             );
 
             if (response.sdkHttpResponse().isSuccessful()) {
-                return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, imageName);
+                String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, imageName);
+                String fileName = extractFileName(imageUrl);
+                String extension = extractExtension(fileName);
+
+                return ImageResponse.of(imageUrl, fileName, extension);
 
             } else {
                 throw new RuntimeException(FAILED_UPLOAD_IMAGE.getMessage());
@@ -65,7 +70,7 @@ public class S3ImageService implements ImageService {
     }
 
     @Override
-    public String deleteImage(String imageUrl) {
+    public void deleteImage(String imageUrl) {
         try {
             s3Client.deleteObject(
                     DeleteObjectRequest.builder()
@@ -76,14 +81,13 @@ public class S3ImageService implements ImageService {
         } catch (S3Exception e) {
             throw new RuntimeException(FAILED_DELETE_IMAGE.getMessage(), e);
         }
-        return imageUrl;
     }
 
-    public String extractFileName(String imageUrl) {
+    private String extractFileName(String imageUrl) {
         return imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
     }
 
-    public String extractExtension(String fileName) {
+    private String extractExtension(String fileName) {
         String extension = "";
         int dotIndex = fileName.lastIndexOf(".");
         if (dotIndex != -1 && dotIndex < fileName.length() - 1) {
