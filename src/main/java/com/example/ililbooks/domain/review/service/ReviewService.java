@@ -37,7 +37,7 @@ public class ReviewService {
     public ReviewResponse createReview(AuthUser authUser, ReviewCreateRequest reviewCreateRequest) {
 
         Users users = userService.findByIdOrElseThrow(authUser.getUserId());
-        Book book = bookService.findBookByIdOrElseThrow(reviewCreateRequest.getBookId());
+        Book book = bookService.findBookByIdOrElseThrow(reviewCreateRequest.bookId());
 
         //이미 리뷰를 등록한 경우
         if (reviewRepository.existsByBookIdAndUsersId(book.getId(), users.getId())) {
@@ -47,8 +47,8 @@ public class ReviewService {
         Review review = Review.of(
                 users,
                 book,
-                reviewCreateRequest.getRating(),
-                reviewCreateRequest.getComments()
+                reviewCreateRequest.rating(),
+                reviewCreateRequest.comments()
         );
         Review savedReview = reviewRepository.save(review);
 
@@ -63,7 +63,7 @@ public class ReviewService {
             throw new ForbiddenException(CANNOT_UPDATE_OTHERS_REVIEW_IMAGE.getMessage());
         }
 
-        ReviewImage reviewImage = ReviewImage.of(review, imageRequest.getImageUrl(), imageRequest.getFileName(),imageRequest.getExtension());
+        ReviewImage reviewImage = ReviewImage.of(review, imageRequest.imageUrl(), imageRequest.fileName(),imageRequest.extension());
 
         //등록 개수 초과 
         if ( imageReviewRepository.countByReviewId(reviewImage.getReview().getId()) >= 5) {
@@ -97,7 +97,7 @@ public class ReviewService {
             throw new ForbiddenException(CANNOT_UPDATE_OTHERS_REVIEW.getMessage());
         }
 
-        review.updateReview(reviewUpdateRequest.getRating(), reviewUpdateRequest.getComments());
+        review.updateReview(reviewUpdateRequest.rating(), reviewUpdateRequest.comments());
     }
 
     public Review findReviewByIdOrElseThrow(Long reviewId) {
