@@ -1,21 +1,30 @@
 package com.example.ililbooks.domain.limitedevent.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
-@Getter
-@AllArgsConstructor
-public class LimitedEventUpdateRequest {
+import static com.example.ililbooks.global.dto.ValidationMessage.*;
 
-    private String title;
+public record LimitedEventUpdateRequest (
 
-    private LocalDateTime startTime;
+        @NotBlank(message = NOT_NULL_EVENT_TITLE)
+        String title,
 
-    private LocalDateTime endTime;
+        @NotNull(message = NOT_NULL_START_DATE)
+        Instant startTime,
 
-    private String contents;
+        @NotNull(message = NOT_NULL_END_DATE)
+        @Future(message = FUTURE_EVENT_END_DATE)
+        Instant endTime,
 
-    private Integer bookQuantity;
-}
+        @NotBlank(message = NOT_BLANK_EVENT_DESCRIPTION)
+        String contents,
+
+        @NotNull(message = INVALID_EVENT_QUANTITY)
+        @Min(value = 1, message = INVALID_EVENT_QUANTITY)
+        Integer bookQuantity
+) {}

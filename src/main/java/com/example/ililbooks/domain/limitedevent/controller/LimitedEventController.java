@@ -27,25 +27,22 @@ public class LimitedEventController {
     /*/ 행사 등록 (PUBLISHER 만 가능) */
     @Secured(PUBLISHER) // 향후 AuthPermission 으로 수정 여부 체크
     @PostMapping
-    public Response<LimitedEventResponse> createEvent(
+    public Response<LimitedEventResponse> createLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestBody LimitedEventCreateRequest request
     ) {
-        LimitedEventResponse response = limitedEventService.createLimitedEvent(authUser, request);
-        return Response.of(response);
+        return Response.of(limitedEventService.createLimitedEvent(authUser, request));
     }
 
     /*/ 행사 단건 조회 */
     @GetMapping("/{limitedEventId}")
-    public Response<LimitedEventResponse> getLimitedEvent(
-            @PathVariable Long limitedEventId
-    ) {
+    public Response<LimitedEventResponse> getLimitedEvent(@PathVariable Long limitedEventId) {
         return Response.of(limitedEventService.getLimitedEvent(limitedEventId));
     }
 
     /*/ 행사 다건 조회 */
     @GetMapping
-    public Response<Page<LimitedEventResponse>> getAllLimitedEvents(Pageable pageable) {
+    public Response<Page<LimitedEventResponse>> getLimitedEventList(Pageable pageable) {
         return Response.of(limitedEventService.getAllLimitedEvents(pageable));
     }
 
@@ -62,7 +59,7 @@ public class LimitedEventController {
 
     /*/ 행사 삭제 (PUBLISHER 와 ADMIN 만 가능) */
     @Secured({PUBLISHER, ADMIN})
-    @DeleteMapping("/{limitedEventId}")
+    @DeleteMapping("/delete/{limitedEventId}")
     public Response<Void> deleteLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long limitedEventId
