@@ -1,5 +1,6 @@
 package com.example.ililbooks.global.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -28,6 +29,8 @@ public final class ValidationMessage {
     public static final String NOT_BLANK_PRODUCT_NAME = "상품명은 필수 입력 값입니다.";
     public static final String NOT_NULL_CATEGORY = "카테고리는 필수 입력 값입니다.";
     public static final String NOT_NULL_PRICE = "가격은 필수 입력 값입니다.";
+    public static final String NOT_NULL_PUBLISHER = "출판사는 필수 입력 값입니다.";
+    public static final String NOT_NULL_STOCK = "재고는 필수 입력 값입니다.";
 
     public static final String NOT_BLANK_EVENT_NAME = "이벤트 이름은 필수 입력 값입니다.";
     public static final String NOT_BLANK_EVENT_DESCRIPTION = "이벤트 설명은 필수 입력 값입니다.";
@@ -45,5 +48,10 @@ public final class ValidationMessage {
     public static final String NOT_NULL_EVENT_TITLE = "행사 제목은 필수 입력 값입니다.";
     public static final String FUTURE_EVENT_END_DATE = "행사 종료일은 현재 시각보다 이후여야 합니다.";
     public static final String NOT_NULL_EVENT_ID = "예약할 한정판 행사 ID는 필수입니다.";
+
+    public static final String NOT_NULL_IMAGE_URL = "ImageUrl은 필수 입력 값입니다.";
+    public static final String NOT_NULL_FILENAME = "fileName은 필수 입력 값입니다.";
+    public static final String NOT_NULL_EXTENSION = "확장자는 필수 입력 값입니다.";
+
 
 }
