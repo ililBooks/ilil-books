@@ -112,7 +112,6 @@ public class BookService {
     public void uploadBookImage(AuthUser authUser, Long bookId, ImageRequest imageRequest) {
         Book book = findBookByIdOrElseThrow(bookId);
 
-        // publisher는 자신이 등록한 책에 대해서만 이미지 등록이 가능
         if (!book.getUsers().getId().equals(authUser.getUserId())) {
             throw new ForbiddenException(CANNOT_UPLOAD_OTHERS_BOOK_IMAGE.getMessage());
         }
