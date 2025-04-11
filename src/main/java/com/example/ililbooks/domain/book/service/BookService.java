@@ -1,7 +1,7 @@
 package com.example.ililbooks.domain.book.service;
 
-import com.example.ililbooks.client.BookClient;
-import com.example.ililbooks.client.dto.BookApiResponse;
+import com.example.ililbooks.client.book.BookClient;
+import com.example.ililbooks.client.book.dto.BookApiResponse;
 import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookListResponse;

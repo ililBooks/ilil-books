@@ -1,7 +1,7 @@
-package com.example.ililbooks.client;
+package com.example.ililbooks.client.book;
 
-import com.example.ililbooks.client.dto.BookApiResponse;
-import com.example.ililbooks.client.dto.BookApiWrapper;
+import com.example.ililbooks.client.book.dto.BookApiResponse;
+import com.example.ililbooks.client.book.dto.BookApiWrapper;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,6 +1,6 @@
 package com.example.ililbooks.domain.book.entity;
 
-import com.example.ililbooks.client.dto.BookApiResponse;
+import com.example.ililbooks.client.book.dto.BookApiResponse;
 import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.enums.SaleStatus;
 import com.example.ililbooks.domain.user.entity.Users;

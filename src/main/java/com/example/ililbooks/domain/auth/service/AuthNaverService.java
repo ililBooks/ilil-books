@@ -1,8 +1,8 @@
 package com.example.ililbooks.domain.auth.service;
 
-import com.example.ililbooks.client.NaverClient;
-import com.example.ililbooks.client.dto.NaverApiProfileResponse;
-import com.example.ililbooks.client.dto.NaverApiResponse;
+import com.example.ililbooks.client.naver.NaverClient;
+import com.example.ililbooks.client.naver.dto.NaverApiProfileResponse;
+import com.example.ililbooks.client.naver.dto.NaverApiResponse;
 import com.example.ililbooks.domain.auth.dto.request.AuthNaverRefreshTokenRequest;
 import com.example.ililbooks.domain.auth.dto.request.AuthNaverAccessTokenRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
@@ -22,7 +22,7 @@ import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class NaverService {
+public class AuthNaverService {
 
     private final NaverClient naverClient;
     private final UserService userService;
@@ -35,7 +35,7 @@ public class NaverService {
     }
 
     @Transactional
-    public NaverApiResponse requestToken(String code, String state) {
+    public NaverApiResponse requestNaverToken(String code, String state) {
         return naverClient.issueToken(code, state);
     }
 
@@ -45,7 +45,7 @@ public class NaverService {
     }
 
     @Transactional
-    public AuthTokensResponse naverSignUp(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
+    public AuthTokensResponse signUpWithNaver(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
         NaverApiProfileResponse profile = getProfile(authNaverAccessTokenRequest);
 
         if (userService.existsByEmail(profile.email())) {
@@ -59,7 +59,7 @@ public class NaverService {
     }
 
     @Transactional
-    public AuthTokensResponse naverSignIn(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
+    public AuthTokensResponse signInWithNaver(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
         NaverApiProfileResponse profile = getProfile(authNaverAccessTokenRequest);
         Users users = userService.findByEmailOrElseThrow(profile.email());
 
