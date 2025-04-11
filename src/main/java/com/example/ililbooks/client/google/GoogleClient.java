@@ -1,7 +1,11 @@
 package com.example.ililbooks.client.google;
 
+import com.example.ililbooks.client.google.dto.GoogleApiProfileResponse;
 import com.example.ililbooks.client.google.dto.GoogleApiResponse;
+import com.example.ililbooks.client.naver.dto.NaverApiProfileResponse;
+import com.example.ililbooks.client.naver.dto.NaverApiProfileWrapper;
 import com.example.ililbooks.client.naver.dto.NaverApiResponse;
+import com.example.ililbooks.global.exception.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -9,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -92,6 +97,14 @@ public class GoogleClient {
         return formBody;
     }
 
+    private URI buildUserProfileApiUri() {
+        return UriComponentsBuilder
+                .fromUriString("https://www.googleapis.com/userinfo/v2/me")
+                .encode()
+                .build()
+                .toUri();
+    }
+
     private GoogleApiResponse findResponseBody(URI uri, MultiValueMap<String, String> body) {
         ResponseEntity<String> responseEntity = restClient.post()
                 .uri(uri)
@@ -111,6 +124,38 @@ public class GoogleClient {
 
         } catch (Exception e) {
             throw new RuntimeException(GOOGLE_PASING_FAILED.getMessage(), e);
+        }
+    }
+
+    public GoogleApiProfileResponse findProfile(String accessToken) {
+        URI uri = buildUserProfileApiUri();
+
+        ResponseEntity<String> responseEntity = restClient.get()
+                .uri(uri)
+                .headers(httpHeaders -> httpHeaders.setBearerAuth(accessToken)) // 토큰 추가
+                .retrieve()
+                .toEntity(String.class);
+
+        if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
+            throw new RuntimeException(GOOGLE_API_RESPONSE_FAILED.getMessage());
+        }
+
+        String responseBody = responseEntity.getBody();
+
+        try {
+
+            //json 형태의 데이터 파싱
+            GoogleApiProfileResponse googleApiProfileResponse = objectMapper.readValue(responseBody, GoogleApiProfileResponse.class);
+
+            //검색된 프로필이 없는 경우
+            if (ObjectUtils.isEmpty(googleApiProfileResponse)) {
+                throw new NotFoundException(NOT_FOUND_PROFILE.getMessage());
+            }
+
+            return googleApiProfileResponse;
+
+        } catch (Exception e) {
+            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
         }
     }
 }

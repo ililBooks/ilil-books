@@ -90,6 +90,15 @@ public class Users extends TimeStamped {
                 .build();
     }
 
+    public static Users of(String email, String nickname, LoginType loginType) {
+        return Users.builder()
+                .email(email)
+                .nickname(nickname)
+                .loginType(loginType)
+                .userRole(ROLE_USER)
+                .build();
+    }
+
     public void updateUser(String nickname, String zipCode, String roadAddress, String detailedAddress, String contactNumber) {
         this.nickname = nickname;
         this.zipCode = zipCode;
