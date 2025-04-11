@@ -23,7 +23,7 @@ public class AuthGoogleController {
     private final AuthGoogleService authGoogleService;
 
     /* 로그인 인증 요청 */
-    @GetMapping("/request")
+    @GetMapping
     public Response<URI> createAuthorizationUrl() {
         return Response.of(authGoogleService.createAuthorizationUrl());
     }
