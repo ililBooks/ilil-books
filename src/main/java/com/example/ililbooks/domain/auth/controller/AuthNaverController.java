@@ -47,18 +47,6 @@ public class AuthNaverController {
     }
 
     /**
-     * 접근 토큰 재발급
-     */
-    @Operation(summary = "접근 토큰 재발급", description = "접근 토큰을 재발급하는 API입니다.")
-    @PostMapping("/refresh")
-    public Response<NaverApiResponse> refreshTokenWithNaver(
-            @RequestBody AuthNaverRefreshTokenRequest authNaverRefreshTokenRequest
-    ) {
-        return Response.of(authNaverService.refreshNaverToken(authNaverRefreshTokenRequest));
-
-    }
-
-    /**
      * 접근 토큰 발급 후 해당 토큰으로 프로필을 조회한 후 회원가입을 하는 API입니다.
      */
     @Operation(summary = "네이버를 통한 회원가입", description = "접근 토근을 통해 프로필을 조회한 후 해당 값으로 회원가입을 하는 API입니다.")

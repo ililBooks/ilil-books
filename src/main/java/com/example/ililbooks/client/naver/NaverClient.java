@@ -48,12 +48,6 @@ public class NaverClient {
         return findResponseBody(uri);
     }
 
-    public NaverApiResponse refreshToken(String refreshToken) {
-        URI uri = buildNaverRefreshTokenApiUri(refreshToken);
-
-        return findResponseBody(uri);
-    }
-
     public NaverApiProfileResponse findProfile(String accessToken) {
         URI uri = buildNaverUserProfileApiUri();
 
@@ -125,19 +119,6 @@ public class NaverClient {
                 .queryParam("client_secret", clientSecret)
                 .queryParam("code", code)
                 .queryParam("state", state)
-                .encode()
-                .build()
-                .toUri();
-    }
-
-    private URI buildNaverRefreshTokenApiUri(String refreshToken) {
-
-        return UriComponentsBuilder
-                .fromUriString("https://nid.naver.com/oauth2.0/token")
-                .queryParam("grant_type", "refresh_token")
-                .queryParam("client_id", clientId)
-                .queryParam("client_secret", clientSecret)
-                .queryParam("refresh_token", refreshToken)
                 .encode()
                 .build()
                 .toUri();

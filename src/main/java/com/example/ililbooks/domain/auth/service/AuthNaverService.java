@@ -37,10 +37,6 @@ public class AuthNaverService {
         return naverClient.issueToken(code, state);
     }
 
-    public NaverApiResponse refreshNaverToken(AuthNaverRefreshTokenRequest authNaverRefreshTokenRequest) {
-        return naverClient.refreshToken(authNaverRefreshTokenRequest.refreshToken());
-    }
-
     @Transactional
     public AuthTokensResponse signUpWithNaver(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
         NaverApiProfileResponse profile = getProfile(authNaverAccessTokenRequest);
@@ -55,7 +51,7 @@ public class AuthNaverService {
         return authService.getTokenResponse(users);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public AuthTokensResponse signInWithNaver(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
         NaverApiProfileResponse profile = getProfile(authNaverAccessTokenRequest);
         Users users = userService.findByEmailOrElseThrow(profile.email());
