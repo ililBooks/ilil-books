@@ -3,8 +3,10 @@ package com.example.ililbooks.domain.auth.service;
 import com.example.ililbooks.client.NaverClient;
 import com.example.ililbooks.client.dto.NaverProfileResponse;
 import com.example.ililbooks.client.dto.NaverResponse;
+import com.example.ililbooks.domain.auth.dto.request.AuthNaverRefreshRequest;
 import com.example.ililbooks.domain.auth.dto.request.AuthNaverReqeust;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
+import com.example.ililbooks.domain.auth.entity.RefreshToken;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.repository.UserRepository;
@@ -28,6 +30,7 @@ public class NaverService {
     private final NaverClient naverClient;
     private final UserService userService;
     private final AuthService authService;
+    private final TokenService tokenService;
     private final UserRepository userRepository;
 
     @Transactional
@@ -38,6 +41,11 @@ public class NaverService {
     @Transactional
     public NaverResponse requestToken(String code, String state) {
         return naverClient.findToken(code, state);
+    }
+
+    @Transactional
+    public NaverResponse refreshNaverToken(AuthNaverRefreshRequest authNaverRefreshRequest) {
+        return naverClient.findRefreshToken(authNaverRefreshRequest.refreshToken());
     }
 
     @Transactional

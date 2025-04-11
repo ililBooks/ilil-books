@@ -3,6 +3,7 @@ package com.example.ililbooks.client;
 import com.example.ililbooks.client.dto.*;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,10 +44,26 @@ public class NaverClient {
     public NaverResponse findToken(String code, String state) {
         URI uri = tokenNaverApiUri(code, state);
 
-        ResponseEntity<String> responseEntity = restClient.get()
-                .uri(uri)
-                .retrieve()
-                .toEntity(String.class);
+        ResponseEntity<String> responseEntity = getResponseEntity(uri);
+
+        if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
+            throw new RuntimeException(NAVER_API_RESPONSE_FAILED.getMessage());
+        }
+
+        String responseBody = responseEntity.getBody();
+
+        try {
+            return objectMapper.readValue(responseBody, NaverResponse.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
+        }
+    }
+
+    public NaverResponse findRefreshToken(String refreshToken) {
+        URI uri = refreshTokenNaverApiUri(refreshToken);
+
+        ResponseEntity<String> responseEntity = getResponseEntity(uri);
 
         if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
             throw new RuntimeException(NAVER_API_RESPONSE_FAILED.getMessage());
@@ -138,11 +155,31 @@ public class NaverClient {
                 .toUri();
     }
 
+    private URI refreshTokenNaverApiUri(String refreshToken) {
+
+        return UriComponentsBuilder
+                .fromUriString("https://nid.naver.com/oauth2.0/token")
+                .queryParam("grant_type", "refresh_token")
+                .queryParam("client_id", clientId)
+                .queryParam("client_secret", clientSecret)
+                .queryParam("refresh_token", refreshToken)
+                .encode()
+                .build()
+                .toUri();
+    }
+
     private URI profileNaverApiUri() {
         return UriComponentsBuilder
                 .fromUriString("https://openapi.naver.com/v1/nid/me")
                 .encode()
                 .build()
                 .toUri();
+    }
+
+    private ResponseEntity<String> getResponseEntity(URI uri) {
+        return restClient.get()
+                .uri(uri)
+                .retrieve()
+                .toEntity(String.class);
     }
 }

@@ -2,6 +2,7 @@ package com.example.ililbooks.domain.auth.controller;
 
 import com.example.ililbooks.client.dto.NaverProfileResponse;
 import com.example.ililbooks.client.dto.NaverResponse;
+import com.example.ililbooks.domain.auth.dto.request.AuthNaverRefreshRequest;
 import com.example.ililbooks.domain.auth.dto.request.AuthNaverReqeust;
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
@@ -20,10 +21,11 @@ import static com.example.ililbooks.config.util.JwtUtil.REFRESH_TOKEN_TIME;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/naver")
+@RequestMapping("/api/v1/auth/naver")
 @Tag(name = "Naver", description = "Naver 로그인 및 회원가입, 토큰 재발급과 관련된 API")
 public class NaverAuthController {
     private final NaverService naverService;
+    private final AuthController authController;
 
     /**
      * 네이버 로그인 인증 요청을 위한 API 입니다.
@@ -56,9 +58,21 @@ public class NaverAuthController {
             HttpServletResponse httpServletResponse
     ) {
         AuthTokensResponse tokensResponseDto = naverService.naverSignUp(authNaverReqeust);
-        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
+        authController.setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
 
         return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
+    }
+
+    /**
+     * 접근 토큰 재발급
+     */
+    @Operation(summary = "접근 토큰 재발급", description = "접근 토큰을 갱신합니다.")
+    @PostMapping("/refresh")
+    public Response<NaverResponse> refreshNaverToken(
+            @RequestBody AuthNaverRefreshRequest authNaverRefreshRequest
+    ) {
+        return Response.of(naverService.refreshNaverToken(authNaverRefreshRequest));
+
     }
 
     /**
@@ -71,19 +85,8 @@ public class NaverAuthController {
             HttpServletResponse httpServletResponse
     ) {
         AuthTokensResponse tokensResponseDto = naverService.naverSignIn(authNaverReqeust);
-        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
+        authController.setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
 
         return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
-    }
-
-    /* http only 사용하기 위해 쿠키에 refreshToken 저장 */
-    private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setMaxAge(REFRESH_TOKEN_TIME);
-        cookie.setSecure(true);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-
-        response.addCookie(cookie);
     }
 }
