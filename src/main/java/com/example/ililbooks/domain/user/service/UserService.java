@@ -106,4 +106,8 @@ public class UserService {
                 () -> new NotFoundException(USER_ID_NOT_FOUND.getMessage())
         );
     }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
 }
