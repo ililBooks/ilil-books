@@ -9,8 +9,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import static com.example.ililbooks.domain.user.enums.UserRole.Authority.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +23,7 @@ public class LimitedReservationController {
     private final LimitedReservationService limitedReservationService;
 
     /*/ 예약 생성 */
+    @Secured(USER)
     @PostMapping
     public Response<LimitedReservationResponse> createReservation(
             @AuthenticationPrincipal AuthUser authUser,
@@ -30,6 +34,7 @@ public class LimitedReservationController {
     }
 
     /*/ 예약 단건 조회 */
+    @Secured(USER)
     @GetMapping("/{reservationId}")
     public Response<LimitedReservationResponse> getMyReservation(
             @AuthenticationPrincipal AuthUser authUser,
@@ -39,6 +44,7 @@ public class LimitedReservationController {
     }
 
     /*/ 행사별 전체 예약 조회 */
+    @Secured({PUBLISHER, ADMIN})
     @GetMapping("/events/{eventId}")
     public Response<Page<LimitedReservationResponse>> getAllReservationsByEvent(
             @PathVariable Long eventId,
@@ -57,6 +63,7 @@ public class LimitedReservationController {
 //    }
 
     /*/ 예약 취소 */
+    @Secured(USER)
     @PatchMapping("/cancel/{reservationId}")
     public Response<Void> cancelReservation(
             @AuthenticationPrincipal AuthUser authUser,
