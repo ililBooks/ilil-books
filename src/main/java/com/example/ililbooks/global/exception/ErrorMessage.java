@@ -16,6 +16,7 @@ public enum ErrorMessage {
     USER_ID_NOT_FOUND("해당 유저의 Id를 찾을 수 없습니다."),
     REFRESH_TOKEN_MUST_BE_STRING("@RefreshToken과 String 타입은 함께 사용되어야 합니다."),
     NOT_NAVER_USER("네이버로 가입된 사용자가 아닙니다."),
+    NOT_GOOGLE_USER("구글로 가입된 사용자가 아닙니다."),
 
     DEFAULT_UNAUTHORIZED("인증이 필요합니다."),
     DEFAULT_BAD_REQUEST("잘못된 요청입니다."),

@@ -2,7 +2,6 @@ package com.example.ililbooks.domain.auth.controller;
 
 import com.example.ililbooks.client.google.dto.GoogleApiResponse;
 import com.example.ililbooks.domain.auth.dto.request.AuthGoogleAccessTokenRequest;
-import com.example.ililbooks.domain.auth.dto.request.AuthNaverAccessTokenRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.auth.service.AuthGoogleService;
@@ -24,7 +23,7 @@ public class AuthGoogleController {
     private final AuthGoogleService authGoogleService;
 
     /* 로그인 인증 요청 */
-    @GetMapping("/sign-in")
+    @GetMapping("/request")
     public Response<URI> createAuthorizationUrl() {
         return Response.of(authGoogleService.createAuthorizationUrl());
     }
@@ -49,8 +48,20 @@ public class AuthGoogleController {
         return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
     }
 
+    /* 로그인 */
+    @PostMapping("/sign-in")
+    public Response<AuthAccessTokenResponse> signIn(
+            @RequestBody AuthGoogleAccessTokenRequest authGoogleAccessTokenRequest,
+            HttpServletResponse httpServletResponse
+    ) {
+        AuthTokensResponse tokensResponseDto = authGoogleService.signIn(authGoogleAccessTokenRequest);
+        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
+
+        return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
+    }
+
     /* http only 사용하기 위해 쿠키에 refreshToken 저장 */
-    public void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+    private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         Cookie cookie = new Cookie("refreshToken", refreshToken);
         cookie.setMaxAge(REFRESH_TOKEN_TIME);
         cookie.setSecure(true);

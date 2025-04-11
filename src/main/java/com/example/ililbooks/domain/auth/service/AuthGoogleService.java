@@ -3,14 +3,13 @@ package com.example.ililbooks.domain.auth.service;
 import com.example.ililbooks.client.google.GoogleClient;
 import com.example.ililbooks.client.google.dto.GoogleApiProfileResponse;
 import com.example.ililbooks.client.google.dto.GoogleApiResponse;
-import com.example.ililbooks.client.naver.dto.NaverApiProfileResponse;
 import com.example.ililbooks.domain.auth.dto.request.AuthGoogleAccessTokenRequest;
-import com.example.ililbooks.domain.auth.dto.request.AuthNaverAccessTokenRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.domain.user.service.UserSocialService;
 import com.example.ililbooks.global.exception.BadRequestException;
+import com.example.ililbooks.global.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.URI;
 
 import static com.example.ililbooks.domain.user.enums.LoginType.GOOGLE;
-import static com.example.ililbooks.global.exception.ErrorMessage.DUPLICATE_EMAIL;
+import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +38,7 @@ public class AuthGoogleService {
         return googleClient.issueToken(code);
     }
 
-    /*  */
+    /* 회원가입 */
     @Transactional
     public AuthTokensResponse signUp(AuthGoogleAccessTokenRequest authGoogleAccessTokenRequest) {
         GoogleApiProfileResponse profile = getProfile(authGoogleAccessTokenRequest);
@@ -51,6 +50,23 @@ public class AuthGoogleService {
         Users users = Users.of(profile.email(), profile.name(), GOOGLE);
 
         userSocialService.saveUser(users);
+        return authService.getTokenResponse(users);
+    }
+
+    /* 로그인 */
+    @Transactional(readOnly = true)
+    public AuthTokensResponse signIn(AuthGoogleAccessTokenRequest authGoogleAccessTokenRequest) {
+        GoogleApiProfileResponse profile = getProfile(authGoogleAccessTokenRequest);
+        Users users = userService.findByEmailOrElseThrow(profile.email());
+
+        if (users.isDeleted()) {
+            throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());
+        }
+
+        if (!GOOGLE.equals(users.getLoginType())) {
+            throw new UnauthorizedException(NOT_GOOGLE_USER.getMessage());
+        }
+
         return authService.getTokenResponse(users);
     }
 
