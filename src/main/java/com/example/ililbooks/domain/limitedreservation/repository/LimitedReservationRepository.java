@@ -7,6 +7,8 @@ import com.example.ililbooks.domain.user.entity.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +21,7 @@ public interface LimitedReservationRepository extends JpaRepository<LimitedReser
 
     Page<LimitedReservation> findAllByLimitedEvent(LimitedEvent limitedEvent, Pageable pageable);
 
-    List<LimitedReservation> findAllByLimitedEventAndStatusIn(LimitedEvent limitedEvent, List<LimitedReservationStatus> statuses);
+    @Query("SELECT r FROM LimitedReservation r JOIN FETCH r.limitedEvent e JOIN FETCH e.book WHERE r.id = :id")
+    Optional<LimitedReservation> findByIdWithEvent(@Param("id") Long id);
 
 }
