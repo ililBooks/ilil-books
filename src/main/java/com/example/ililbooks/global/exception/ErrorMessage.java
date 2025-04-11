@@ -15,6 +15,7 @@ public enum ErrorMessage {
     USER_EMAIL_NOT_FOUND("가입한 유저의 이메일이 아닙니다."),
     USER_ID_NOT_FOUND("해당 유저의 Id를 찾을 수 없습니다."),
     REFRESH_TOKEN_MUST_BE_STRING("@RefreshToken과 String 타입은 함께 사용되어야 합니다."),
+    NOT_NAVER_USER("네이버로 가입된 사용자가 아닙니다."),
 
     DEFAULT_UNAUTHORIZED("인증이 필요합니다."),
     DEFAULT_BAD_REQUEST("잘못된 요청입니다."),
@@ -66,6 +67,10 @@ public enum ErrorMessage {
     CANNOT_START_DELIVERY("주문 승인 상태만 배송할 수 있습니다."),
     COMPLETE_DELIVERY("배송 완료 상태입니다."),
     CANNOT_DELIVER_CANCELLED_ORDER("취소된 주문은 배송이 불가합니다."),
+
+    NAVER_API_RESPONSE_FAILED("네이버 api 응답 실패"),
+    NAVER_PASING_FAILED("네이버 파싱 실패"),
+    NOT_FOUND_PROFILE("프로필을 찾을 수 없습니다."),
 
     REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
     REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패");

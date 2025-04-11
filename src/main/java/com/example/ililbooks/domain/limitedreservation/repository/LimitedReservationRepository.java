@@ -20,4 +20,5 @@ public interface LimitedReservationRepository extends JpaRepository<LimitedReser
     Page<LimitedReservation> findAllByLimitedEvent(LimitedEvent limitedEvent, Pageable pageable);
 
     List<LimitedReservation> findAllByLimitedEventAndStatusIn(LimitedEvent limitedEvent, List<LimitedReservationStatus> statuses);
+
 }

@@ -43,7 +43,7 @@ public class LimitedReservationController {
 
     /*/ 행사별 전체 예약 조회 */
     @GetMapping("/events/{eventId}")
-    public Response<Page<LimitedReservationResponse>> getReservationsByEvent(
+    public Response<Page<LimitedReservationResponse>> getAllReservationsByEvent(
             @PathVariable Long eventId,
             Pageable pageable
     ) {
@@ -60,7 +60,7 @@ public class LimitedReservationController {
 //    }
 
     /*/ 예약 취소 */
-    @PatchMapping("/{reservationId}/cancel")
+    @PatchMapping("/cancel/{reservationId}")
     public Response<Void> cancelReservation(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reservationId

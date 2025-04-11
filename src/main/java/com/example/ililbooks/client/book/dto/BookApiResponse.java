@@ -1,4 +1,4 @@
-package com.example.ililbooks.client.dto;
+package com.example.ililbooks.client.book.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
