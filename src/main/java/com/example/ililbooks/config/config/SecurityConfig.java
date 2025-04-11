@@ -52,7 +52,6 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET).permitAll()
                                 .requestMatchers(request -> request.getRequestURI().startsWith("/api/v1/auth")).permitAll()
                                 .requestMatchers(SWAGGER_URI).permitAll()
-                                .requestMatchers("/api/v1/naver/*").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .build();

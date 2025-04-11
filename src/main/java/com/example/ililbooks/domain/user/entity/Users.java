@@ -1,7 +1,5 @@
 package com.example.ililbooks.domain.user.entity;
 
-import com.example.ililbooks.domain.auth.dto.request.AuthSignUpRequest;
-import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -12,7 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import static com.example.ililbooks.domain.user.enums.UserRole.ROLE_USER;
 
 @Getter
 @Entity
@@ -79,6 +77,16 @@ public class Users extends TimeStamped {
                 .password(encodedPassword)
                 .loginType(loginType)
                 .userRole(UserRole.of(userRole))
+                .build();
+    }
+
+    public static Users of(String email, String nickname, String contactNumber, LoginType loginType) {
+        return Users.builder()
+                .email(email)
+                .nickname(nickname)
+                .contactNumber(contactNumber)
+                .loginType(loginType)
+                .userRole(ROLE_USER)
                 .build();
     }
 

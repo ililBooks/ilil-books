@@ -36,33 +36,23 @@ public class NaverClient {
         this.objectMapper = objectMapper;
     }
 
-    public URI createAuthorizationUrl() {
+    public URI getNaverLoginRedirectUrl() {
         return buildNaverApiUri();
     }
 
-    public NaverResponse findAccessToken(String code, String state) {
+    public NaverApiResponse issueToken(String code, String state) {
         URI uri = tokenNaverApiUri(code, state);
 
-        ResponseEntity<String> responseEntity = restClient.get()
-                .uri(uri)
-                .retrieve()
-                .toEntity(String.class);
-
-        if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-            throw new RuntimeException(NAVER_API_RESPONSE_FAILED.getMessage());
-        }
-
-        String responseBody = responseEntity.getBody();
-
-        try {
-            return objectMapper.readValue(responseBody, NaverResponse.class);
-
-        } catch (Exception e) {
-            throw new RuntimeException(NAVER_PASING_FAILED.getMessage());
-        }
+        return findResponseBody(uri);
     }
 
-    public NaverProfileResponse findProfile(String accessToken) {
+    public NaverApiResponse refreshToken(String refreshToken) {
+        URI uri = refreshTokenNaverApiUri(refreshToken);
+
+        return findResponseBody(uri);
+    }
+
+    public NaverApiProfileResponse findProfile(String accessToken) {
         URI uri = profileNaverApiUri();
 
         ResponseEntity<String> responseEntity = restClient.get()
@@ -80,8 +70,8 @@ public class NaverClient {
         try {
 
             //json 형태의 데이터 파싱
-            NaverProfileWrapper naverProfile = objectMapper.readValue(responseBody, NaverProfileWrapper.class);
-            NaverProfileResponse profile = naverProfile.response();
+            NaverApiProfileWrapper naverProfile = objectMapper.readValue(responseBody, NaverApiProfileWrapper.class);
+            NaverApiProfileResponse profile = naverProfile.response();
 
             //검색된 프로필이 없는 경우
             if (ObjectUtils.isEmpty(profile)) {
@@ -91,10 +81,16 @@ public class NaverClient {
             return profile;
 
         } catch (Exception e) {
-            throw new RuntimeException(NAVER_PASING_FAILED.getMessage());
+            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
         }
     }
 
+    /**
+     * response_type: 인증 과정에 대한 내부 구분 값 (반드시 code)로 전송
+     * client_id: 등록된 Client ID
+     * redirect_uri: callback URL
+     * state:  위조 공격 방지를 위한 상태값
+     */
     private URI buildNaverApiUri() {
 
         //고유의 UUID 생성
@@ -111,6 +107,13 @@ public class NaverClient {
                 .toUri();
     }
 
+    /**
+     *
+     * @param code: redirect_uri를 통해 얻은 내부 구분값
+     * @param state: redirect_uri를 통해 얻은 상태 값
+     *
+     * grant_type: authorization_code(발급)
+     */
     private URI tokenNaverApiUri(String code, String state) {
 
         return UriComponentsBuilder
@@ -125,11 +128,44 @@ public class NaverClient {
                 .toUri();
     }
 
+    private URI refreshTokenNaverApiUri(String refreshToken) {
+
+        return UriComponentsBuilder
+                .fromUriString("https://nid.naver.com/oauth2.0/token")
+                .queryParam("grant_type", "refresh_token")
+                .queryParam("client_id", clientId)
+                .queryParam("client_secret", clientSecret)
+                .queryParam("refresh_token", refreshToken)
+                .encode()
+                .build()
+                .toUri();
+    }
+
     private URI profileNaverApiUri() {
         return UriComponentsBuilder
                 .fromUriString("https://openapi.naver.com/v1/nid/me")
                 .encode()
                 .build()
                 .toUri();
+    }
+
+    private NaverApiResponse findResponseBody(URI uri) {
+        ResponseEntity<String> responseEntity = restClient.get()
+                .uri(uri)
+                .retrieve()
+                .toEntity(String.class);
+
+        if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
+            throw new RuntimeException(NAVER_API_RESPONSE_FAILED.getMessage());
+        }
+
+        String responseBody = responseEntity.getBody();
+
+        try {
+            return objectMapper.readValue(responseBody, NaverApiResponse.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
+        }
     }
 }

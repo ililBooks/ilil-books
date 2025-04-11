@@ -1,6 +1,6 @@
 package com.example.ililbooks.domain.auth.dto.request;
 
-public record NaverReqeust (
+public record AuthNaverAccessTokenRequest(
         String accessToken
 ){
 }

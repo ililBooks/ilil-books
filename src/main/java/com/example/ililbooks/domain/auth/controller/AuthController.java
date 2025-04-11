@@ -65,7 +65,7 @@ public class AuthController {
     }
 
     /* http only 사용하기 위해 쿠키에 refreshToken 저장 */
-    private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+    public void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         Cookie cookie = new Cookie("refreshToken", refreshToken);
         cookie.setMaxAge(REFRESH_TOKEN_TIME);
         cookie.setSecure(true);
