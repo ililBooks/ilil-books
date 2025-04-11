@@ -65,7 +65,7 @@ public class AuthService {
     }
 
     /* Access Token, Refresh Token 생성 및 저장 */
-    private AuthTokensResponse getTokenResponse(Users users) {
+    public AuthTokensResponse getTokenResponse(Users users) {
 
         String accessToken = tokenService.createAccessToken(users);
         String refreshToken = tokenService.createRefreshToken(users);

@@ -36,11 +36,11 @@ public class NaverClient {
         this.objectMapper = objectMapper;
     }
 
-    public URI createAuthorizationUrl() {
+    public URI getNaverLoginRedirectUrl() {
         return buildNaverApiUri();
     }
 
-    public NaverResponse findAccessToken(String code, String state) {
+    public NaverResponse findToken(String code, String state) {
         URI uri = tokenNaverApiUri(code, state);
 
         ResponseEntity<String> responseEntity = restClient.get()
@@ -58,7 +58,7 @@ public class NaverClient {
             return objectMapper.readValue(responseBody, NaverResponse.class);
 
         } catch (Exception e) {
-            throw new RuntimeException(NAVER_PASING_FAILED.getMessage());
+            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
         }
     }
 
@@ -91,10 +91,16 @@ public class NaverClient {
             return profile;
 
         } catch (Exception e) {
-            throw new RuntimeException(NAVER_PASING_FAILED.getMessage());
+            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
         }
     }
 
+    /**
+     * response_type: 인증 과정에 대한 내부 구분 값 (반드시 code)로 전송
+     * client_id: 등록된 Client ID
+     * redirect_uri: callback URL
+     * state:  위조 공격 방지를 위한 상태값
+     */
     private URI buildNaverApiUri() {
 
         //고유의 UUID 생성
@@ -111,6 +117,13 @@ public class NaverClient {
                 .toUri();
     }
 
+    /**
+     *
+     * @param code: redirect_uri를 통해 얻은 내부 구분값
+     * @param state: redirect_uri를 통해 얻은 상태 값
+     *
+     * grant_type: authorization_code(발급)
+     */
     private URI tokenNaverApiUri(String code, String state) {
 
         return UriComponentsBuilder
