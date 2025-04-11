@@ -1,9 +1,9 @@
-name: Deploy Docker Image to EC2 via CodeDeploy
+name: Deploy Docker Image to EC2
 
 on:
   push:
     branches:
-    - main
+      - main
 
 env:
   AWS_REGION: ap-northeast-2
@@ -15,12 +15,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout source
         uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
-        with: 
+        with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
@@ -37,51 +37,52 @@ jobs:
           docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
           docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Prepare deployment zip
+      - name: Setup SSH key
         run: |
-          mkdir -p deploy/scripts
-          cp appspec.yml deploy/
-          cp -r scripts/. deploy/scripts/ || echo "No scripts to copy"
-          cd deploy
-          zip -r deploy.zip .
+          mkdir -p ~/.ssh
+          SSH_PRIVATE_KEY="${{ secrets.EC2_SSH_KEY }}"
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 400 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> $HOME/.ssh/known_hosts
 
-      - name: Upload to S3
-        uses: jakejarvis/s3-sync-action@master
+      - name: Connect with SSH
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} 'echo connected'
+
+      - name: Upload docker-compose.yml to EC2
+        uses: appleboy/ssh-action@master
         with:
-          args: --acl private
-        env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET_NAME }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ env.AWS_REGION }}
-          SOURCE_DIR: deploy
-          DEST_DIR: codedeploy/
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: ".docker/docker-compose.yml"
+          target: "/home/ubuntu/"
 
-      - name: Install AWS CLI
-        run: |
-          apt-get update && \
-          apt-get install -y curl unzip && \
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-          unzip awscliv2.zip && \
-          ./aws/install
+      - name: Create .env.production on EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "DB_URL=${{ secrets.DB_URL }}" > /home/ubuntu/.env.production
+            echo "DB_USER=${{ secrets.DB_USER }}" >> /home/ubuntu/.env.production
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> /home/ubuntu/.env.production
 
-      - name: Check AWS CLI
-        run: aws --version
-
-      - name: Deploy using AWS CLI
-        run: |
-          aws deploy create-deployment \
-            --application-name my-docker-app \
-            --deployment-group-name docker-app-ec2-group \
-            --deployment-config-name CodeDeployDefault.OneAtATime \
-            --s3-location bucket=ec2-docker-deploy,bundleType=zip,key=codedeploy/deploy.zip \
-            --region ap-northeast-2
-        env:
-          AWS_PAGER: ""
+      - name: Run docker-compose on EC2
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu
+            docker-compose down
+            docker-compose pull
+            docker-compose up -d
 
       - name: Notify via Slack
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_WEB_MESSAGE: "Docker, S3, AWS 를 통해 deploy 완료하였습니다."
-
+          SLACK_WEB_MESSAGE: "EC2에 Docker 이미지 배포를 완료하였습니다."
