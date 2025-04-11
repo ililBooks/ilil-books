@@ -100,6 +100,13 @@ public class OrderService {
         return getOrderResponse(order, pageNum, pageSize);
     }
 
+    /* 예약 기반 주문 생성 */
+    @Transactional
+    public Order createOrderForReservation(Users user) {
+        Order order = Order.of(user, BigDecimal.ZERO); // 현재는 총액 0원, 향후 책 가격 연동
+        return orderRepository.save(order);
+    }
+
     /* 주문 총 가격 계산 */
     private BigDecimal calculateTotalPrice(Map<Long, Book> bookMap, Cart cart) {
         BigDecimal totalPrice = BigDecimal.ZERO;

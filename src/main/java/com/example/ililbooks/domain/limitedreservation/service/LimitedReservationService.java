@@ -7,6 +7,8 @@ import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReser
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
 import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
 import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
+import com.example.ililbooks.domain.order.entity.Order;
+import com.example.ililbooks.domain.order.service.OrderService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.repository.UserRepository;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -19,9 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
@@ -32,6 +32,7 @@ public class LimitedReservationService {
     private final LimitedReservationRepository limitedReservationRepository;
     private final LimitedEventRepository limitedEventRepository;
     private final UserRepository userRepository;
+    private final OrderService orderService;
 
     private static final int EXPIRATION_HOURS = 24;
 
@@ -55,9 +56,16 @@ public class LimitedReservationService {
         LimitedReservationStatus status = isReservable ? LimitedReservationStatus.SUCCESS : LimitedReservationStatus.WAITING;
         Instant expiredAt = Instant.now().plus(EXPIRATION_HOURS, ChronoUnit.HOURS);
 
-        LimitedReservation reservation = LimitedReservation.createFrom(user, limitedEvent, status, expiredAt);
-        limitedReservationRepository.save(reservation);
+        // 주문 생성 및 예약 연결 (if-success)
+        LimitedReservation reservation;
+        if (status == LimitedReservationStatus.SUCCESS) {
+            Order order = orderService.createOrderForReservation(user);
+            reservation = LimitedReservation.createWithOrder(user, limitedEvent, status, expiredAt, order);
+        } else {
+            reservation = LimitedReservation.of(user, limitedEvent, status, expiredAt);
+        }
 
+        limitedReservationRepository.save(reservation);
         return LimitedReservationResponse.of(reservation);
     }
 

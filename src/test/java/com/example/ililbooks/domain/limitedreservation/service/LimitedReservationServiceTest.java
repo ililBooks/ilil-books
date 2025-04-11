@@ -7,6 +7,8 @@ import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReser
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
 import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
 import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
+import com.example.ililbooks.domain.order.entity.Order;
+import com.example.ililbooks.domain.order.service.OrderService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.enums.UserRole;
@@ -15,11 +17,12 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.domain.limitedevent.repository.LimitedEventRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -29,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.*;
 
-@org.junit.jupiter.api.extension.ExtendWith(MockitoExtension.class)
+@ExtendWith(MockitoExtension.class)
 class LimitedReservationServiceTest {
 
     @InjectMocks
@@ -43,6 +46,9 @@ class LimitedReservationServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private OrderService orderService;
 
     private AuthUser authUser;
     private Users user;
@@ -72,7 +78,6 @@ class LimitedReservationServiceTest {
     }
 
     @Test
-    @DisplayName("예약 생성 - 성공")
     void 예약생성_성공() {
         // Given
         LimitedReservationCreateRequest request = new LimitedReservationCreateRequest(limitedEvent.getId());
@@ -91,11 +96,10 @@ class LimitedReservationServiceTest {
     }
 
     @Test
-    @DisplayName("예약 생성 - 이미 예약된 경우 예외")
     void 예약생성_중복예외() {
         // Given
         LimitedReservationCreateRequest request = new LimitedReservationCreateRequest(limitedEvent.getId());
-        LimitedReservation duplicated = LimitedReservation.createFrom(user, limitedEvent, LimitedReservationStatus.SUCCESS, Instant.now());
+        LimitedReservation duplicated = LimitedReservation.of(user, limitedEvent, LimitedReservationStatus.SUCCESS, Instant.now());
 
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
         given(limitedEventRepository.findById(limitedEvent.getId())).willReturn(Optional.of(limitedEvent));
@@ -106,10 +110,9 @@ class LimitedReservationServiceTest {
     }
 
     @Test
-    @DisplayName("예약 단건 조회 - 성공")
     void 예약조회_성공() {
         // Given
-        LimitedReservation reservation = LimitedReservation.createFrom(user, limitedEvent, LimitedReservationStatus.SUCCESS, Instant.now());
+        LimitedReservation reservation = LimitedReservation.of(user, limitedEvent, LimitedReservationStatus.SUCCESS, Instant.now());
 
         given(limitedReservationRepository.findById(1L)).willReturn(Optional.of(reservation));
 
@@ -121,11 +124,10 @@ class LimitedReservationServiceTest {
     }
 
     @Test
-    @DisplayName("예약 단건 조회 - 본인 소유 아님 예외")
     void 예약조회_권한없음예외() {
         // Given
         Users anotherUser = Users.builder().id(2L).email("a@a.com").nickname("a").loginType(LoginType.EMAIL).userRole(UserRole.ROLE_USER).isDeleted(false).build();
-        LimitedReservation reservation = LimitedReservation.createFrom(anotherUser, limitedEvent, LimitedReservationStatus.SUCCESS, Instant.now());
+        LimitedReservation reservation = LimitedReservation.of(anotherUser, limitedEvent, LimitedReservationStatus.SUCCESS, Instant.now());
 
         given(limitedReservationRepository.findById(1L)).willReturn(Optional.of(reservation));
 
@@ -134,10 +136,9 @@ class LimitedReservationServiceTest {
     }
 
     @Test
-    @DisplayName("예약 취소 - 성공")
     void 예약취소_성공() {
         // Given
-        LimitedReservation reservation = LimitedReservation.createFrom(user, limitedEvent, LimitedReservationStatus.SUCCESS, Instant.now());
+        LimitedReservation reservation = LimitedReservation.of(user, limitedEvent, LimitedReservationStatus.SUCCESS, Instant.now());
 
         given(limitedReservationRepository.findById(1L)).willReturn(Optional.of(reservation));
 
@@ -146,5 +147,28 @@ class LimitedReservationServiceTest {
 
         // Then
         assertThat(reservation.getStatus()).isEqualTo(LimitedReservationStatus.CANCELED);
+    }
+
+    @Test
+    void 예약생성_주문연동_성공() {
+        LimitedReservationCreateRequest request = new LimitedReservationCreateRequest(limitedEvent.getId());
+        Order dummyOrder = Order.of(user, BigDecimal.ZERO); // 가짜 주문 객체
+
+        // ID 수동 설정
+        ReflectionTestUtils.setField(dummyOrder, "id", 100L);
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(limitedEventRepository.findById(limitedEvent.getId())).willReturn(Optional.of(limitedEvent));
+        given(limitedReservationRepository.findByUsersAndLimitedEvent(user, limitedEvent)).willReturn(Optional.empty());
+        given(limitedReservationRepository.countByLimitedEventAndStatus(limitedEvent, LimitedReservationStatus.SUCCESS)).willReturn(1L);
+        given(orderService.createOrderForReservation(user)).willReturn(dummyOrder);
+        given(limitedReservationRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
+
+        // When
+        LimitedReservationResponse response = limitedReservationService.createReservation(authUser, request);
+
+        // Then
+        assertThat(response.status()).isEqualTo(LimitedReservationStatus.SUCCESS);
+        assertThat(response.orderId()).isNotNull();
     }
 }

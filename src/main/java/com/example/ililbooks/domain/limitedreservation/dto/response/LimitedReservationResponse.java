@@ -10,7 +10,8 @@ public record LimitedReservationResponse(
         Long limitedEventId,
         Long userId,
         LimitedReservationStatus status,
-        Instant expiredAt
+        Instant expiredAt,
+        Long orderId
 ) {
     public static LimitedReservationResponse of(LimitedReservation reservation) {
         return new LimitedReservationResponse(
@@ -18,7 +19,8 @@ public record LimitedReservationResponse(
                 reservation.getLimitedEvent().getId(),
                 reservation.getUsers().getId(),
                 reservation.getStatus(),
-                reservation.getExpiredAt()
+                reservation.getExpiredAt(),
+                reservation.hasOrder() ? reservation.getOrder().getId() : null
         );
     }
 }
