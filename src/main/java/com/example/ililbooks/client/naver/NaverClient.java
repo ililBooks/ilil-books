@@ -1,6 +1,8 @@
-package com.example.ililbooks.client;
+package com.example.ililbooks.client.naver;
 
-import com.example.ililbooks.client.dto.*;
+import com.example.ililbooks.client.naver.dto.NaverApiProfileResponse;
+import com.example.ililbooks.client.naver.dto.NaverApiProfileWrapper;
+import com.example.ililbooks.client.naver.dto.NaverApiResponse;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,19 +43,19 @@ public class NaverClient {
     }
 
     public NaverApiResponse issueToken(String code, String state) {
-        URI uri = tokenNaverApiUri(code, state);
+        URI uri = buildNaverAccessTokenApiUri(code, state);
 
         return findResponseBody(uri);
     }
 
     public NaverApiResponse refreshToken(String refreshToken) {
-        URI uri = refreshTokenNaverApiUri(refreshToken);
+        URI uri = buildNaverRefreshTokenApiUri(refreshToken);
 
         return findResponseBody(uri);
     }
 
     public NaverApiProfileResponse findProfile(String accessToken) {
-        URI uri = profileNaverApiUri();
+        URI uri = buildNaverUserProfileApiUri();
 
         ResponseEntity<String> responseEntity = restClient.get()
                 .uri(uri)
@@ -114,7 +116,7 @@ public class NaverClient {
      *
      * grant_type: authorization_code(발급)
      */
-    private URI tokenNaverApiUri(String code, String state) {
+    private URI buildNaverAccessTokenApiUri(String code, String state) {
 
         return UriComponentsBuilder
                 .fromUriString("https://nid.naver.com/oauth2.0/token")
@@ -128,7 +130,7 @@ public class NaverClient {
                 .toUri();
     }
 
-    private URI refreshTokenNaverApiUri(String refreshToken) {
+    private URI buildNaverRefreshTokenApiUri(String refreshToken) {
 
         return UriComponentsBuilder
                 .fromUriString("https://nid.naver.com/oauth2.0/token")
@@ -141,7 +143,7 @@ public class NaverClient {
                 .toUri();
     }
 
-    private URI profileNaverApiUri() {
+    private URI buildNaverUserProfileApiUri() {
         return UriComponentsBuilder
                 .fromUriString("https://openapi.naver.com/v1/nid/me")
                 .encode()

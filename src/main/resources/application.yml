@@ -1,14 +1,3 @@
-server:
-  port: 8080
-  servlet:
-    context-path: /
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
-    session:
-      timeout: 1800
-
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -35,6 +24,17 @@ spring:
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQLDialect
 
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+    session:
+      timeout: 1800
+
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
@@ -45,13 +45,12 @@ book:
 
 cloud:
   aws:
+    region: ${AWS_REGION}
     credentials:
       secret-key: ${AWS_SECRET_ACCESS_KEY}
       access-key: ${AWS_ACCESS_KEY_ID}
     s3:
       bucket: ${AWS_S3_BUCKET_NAME}
-    region: ${AWS_REGION}
-
 
 client:
    naver:
