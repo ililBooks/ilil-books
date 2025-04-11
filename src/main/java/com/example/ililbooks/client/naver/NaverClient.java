@@ -38,7 +38,7 @@ public class NaverClient {
         this.objectMapper = objectMapper;
     }
 
-    public URI getNaverLoginRedirectUrl() {
+    public URI getRedirectUrl() {
         return buildNaverApiUri();
     }
 

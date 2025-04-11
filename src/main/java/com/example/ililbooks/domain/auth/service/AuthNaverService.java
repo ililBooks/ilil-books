@@ -29,17 +29,14 @@ public class AuthNaverService {
     private final AuthService authService;
     private final UserRepository userRepository;
 
-    @Transactional(readOnly = true)
     public URI getNaverLoginRedirectUrl() {
-        return naverClient.getNaverLoginRedirectUrl();
+        return naverClient.getRedirectUrl();
     }
 
-    @Transactional
     public NaverApiResponse requestNaverToken(String code, String state) {
         return naverClient.issueToken(code, state);
     }
 
-    @Transactional
     public NaverApiResponse refreshNaverToken(AuthNaverRefreshTokenRequest authNaverRefreshTokenRequest) {
         return naverClient.refreshToken(authNaverRefreshTokenRequest.refreshToken());
     }

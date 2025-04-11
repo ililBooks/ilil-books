@@ -9,11 +9,14 @@ import com.example.ililbooks.domain.auth.service.AuthNaverService;
 import com.example.ililbooks.global.dto.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+
+import static com.example.ililbooks.config.util.JwtUtil.REFRESH_TOKEN_TIME;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,7 +24,6 @@ import java.net.URI;
 @Tag(name = "Naver", description = "Naver 소셜 로그인과 관련된 API")
 public class AuthNaverController {
     private final AuthNaverService authNaverService;
-    private final AuthController authController;
 
     /**
      * 네이버 로그인 인증 요청을 위한 API 입니다.
@@ -66,7 +68,7 @@ public class AuthNaverController {
             HttpServletResponse httpServletResponse
     ) {
         AuthTokensResponse tokensResponseDto = authNaverService.signUpWithNaver(authNaverAccessTokenRequest);
-        authController.setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
+        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
 
         return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
     }
@@ -81,8 +83,19 @@ public class AuthNaverController {
             HttpServletResponse httpServletResponse
     ) {
         AuthTokensResponse tokensResponseDto = authNaverService.signInWithNaver(authNaverAccessTokenRequest);
-        authController.setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
+        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
 
         return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
+    }
+
+    /* http only 사용하기 위해 쿠키에 refreshToken 저장 */
+    private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+        Cookie cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setMaxAge(REFRESH_TOKEN_TIME);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
     }
 }
