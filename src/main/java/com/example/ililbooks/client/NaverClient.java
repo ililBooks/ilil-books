@@ -3,7 +3,6 @@ package com.example.ililbooks.client;
 import com.example.ililbooks.client.dto.*;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,45 +40,19 @@ public class NaverClient {
         return buildNaverApiUri();
     }
 
-    public NaverResponse findToken(String code, String state) {
+    public NaverApiResponse issueToken(String code, String state) {
         URI uri = tokenNaverApiUri(code, state);
 
-        ResponseEntity<String> responseEntity = getResponseEntity(uri);
-
-        if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-            throw new RuntimeException(NAVER_API_RESPONSE_FAILED.getMessage());
-        }
-
-        String responseBody = responseEntity.getBody();
-
-        try {
-            return objectMapper.readValue(responseBody, NaverResponse.class);
-
-        } catch (Exception e) {
-            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
-        }
+        return findResponseBody(uri);
     }
 
-    public NaverResponse findRefreshToken(String refreshToken) {
+    public NaverApiResponse refreshToken(String refreshToken) {
         URI uri = refreshTokenNaverApiUri(refreshToken);
 
-        ResponseEntity<String> responseEntity = getResponseEntity(uri);
-
-        if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-            throw new RuntimeException(NAVER_API_RESPONSE_FAILED.getMessage());
-        }
-
-        String responseBody = responseEntity.getBody();
-
-        try {
-            return objectMapper.readValue(responseBody, NaverResponse.class);
-
-        } catch (Exception e) {
-            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
-        }
+        return findResponseBody(uri);
     }
 
-    public NaverProfileResponse findProfile(String accessToken) {
+    public NaverApiProfileResponse findProfile(String accessToken) {
         URI uri = profileNaverApiUri();
 
         ResponseEntity<String> responseEntity = restClient.get()
@@ -97,8 +70,8 @@ public class NaverClient {
         try {
 
             //json 형태의 데이터 파싱
-            NaverProfileWrapper naverProfile = objectMapper.readValue(responseBody, NaverProfileWrapper.class);
-            NaverProfileResponse profile = naverProfile.response();
+            NaverApiProfileWrapper naverProfile = objectMapper.readValue(responseBody, NaverApiProfileWrapper.class);
+            NaverApiProfileResponse profile = naverProfile.response();
 
             //검색된 프로필이 없는 경우
             if (ObjectUtils.isEmpty(profile)) {
@@ -176,10 +149,23 @@ public class NaverClient {
                 .toUri();
     }
 
-    private ResponseEntity<String> getResponseEntity(URI uri) {
-        return restClient.get()
+    private NaverApiResponse findResponseBody(URI uri) {
+        ResponseEntity<String> responseEntity = restClient.get()
                 .uri(uri)
                 .retrieve()
                 .toEntity(String.class);
+
+        if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
+            throw new RuntimeException(NAVER_API_RESPONSE_FAILED.getMessage());
+        }
+
+        String responseBody = responseEntity.getBody();
+
+        try {
+            return objectMapper.readValue(responseBody, NaverApiResponse.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
+        }
     }
 }

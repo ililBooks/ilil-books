@@ -1,6 +1,6 @@
 package com.example.ililbooks.client.dto;
 
-public record NaverProfileResponse(
+public record NaverApiProfileResponse(
         String nickname,
 
         String name,
