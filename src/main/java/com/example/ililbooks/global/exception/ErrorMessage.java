@@ -53,6 +53,7 @@ public enum ErrorMessage {
     IMAGE_ALREADY_EXISTS("해당 책에는 이미 업로드된 이미지가 있습니다."),
     FAILED_DELETE_IMAGE("이미지 삭제에 실패하였습니다."),
     IMAGE_UPLOAD_LIMIT_OVER("등록 가능한 이미지 개수를 초과하였습니다."),
+    NO_PERMISSION("권한이 없습니다."),
 
     NOT_EXIST_SHOPPING_CART("장바구니가 존재하지 않습니다."),
     CANNOT_ADD_BOOK_TO_CART("장바구니에 담을 수 없는 책입니다."),

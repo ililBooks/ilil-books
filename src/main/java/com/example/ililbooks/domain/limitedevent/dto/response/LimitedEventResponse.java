@@ -16,4 +16,18 @@ public record LimitedEventResponse(
         String contents,
         int bookQuantity
 
-) {}
+) {
+
+    public static LimitedEventResponse from(LimitedEvent event) {
+        return new LimitedEventResponse(
+                event.getId(),
+                event.getBook().getId(),
+                event.getTitle(),
+                event.getStatus(),
+                event.getStartTime(),
+                event.getEndTime(),
+                event.getContents(),
+                event.getBookQuantity()
+        );
+    }
+}
