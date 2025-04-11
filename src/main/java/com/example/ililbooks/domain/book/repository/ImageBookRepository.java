@@ -13,4 +13,6 @@ public interface ImageBookRepository extends JpaRepository<BookImage, Long> {
     Optional<BookImage> findImageById(Long imageId);
 
     int countByBookId(Long bookId);
+
+    void deleteAllByBookId(Long bookId);
 }

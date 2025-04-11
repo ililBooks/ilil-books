@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -36,12 +37,12 @@ public class LimitedReservation extends TimeStamped {
     private LimitedReservationStatus status;
 
     @Column(nullable = false)
-    private LocalDateTime expiredAt;
+    private Instant expiredAt;
 
     /*
      * 정적 생성 메서드
      */
-    public static LimitedReservation createFrom(Users users, LimitedEvent limitedEvent, LimitedReservationStatus status, LocalDateTime expiredAt) {
+    public static LimitedReservation createFrom(Users users, LimitedEvent limitedEvent, LimitedReservationStatus status, Instant expiredAt) {
         LimitedReservation reservation = new LimitedReservation();
         reservation.users = users;
         reservation.limitedEvent = limitedEvent;
@@ -54,13 +55,6 @@ public class LimitedReservation extends TimeStamped {
      * 예약 상태를 취소로 변경
      */
     public void markCanceled() {
-        this.status = LimitedReservationStatus.CANCELED;
-    }
-
-    /*
-     * 예약 취소
-     */
-    public void cancel() {
         this.status = LimitedReservationStatus.CANCELED;
     }
 }

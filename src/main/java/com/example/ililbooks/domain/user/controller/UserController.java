@@ -10,7 +10,6 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,10 +22,10 @@ public class UserController {
 
     /* 회원 조회 (본인) */
     @GetMapping
-    public Response<UserResponse> getUser(
+    public Response<UserResponse> findUser(
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        return Response.of(userService.getUser(authUser));
+        return Response.of(userService.findUser(authUser));
     }
 
     /* 회원 수정 */

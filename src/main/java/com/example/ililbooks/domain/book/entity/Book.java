@@ -1,8 +1,6 @@
 package com.example.ililbooks.domain.book.entity;
 
 import com.example.ililbooks.client.dto.BookApiResponse;
-import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
-import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.enums.SaleStatus;
 import com.example.ililbooks.domain.user.entity.Users;
@@ -46,14 +44,20 @@ public class Book extends TimeStamped {
     @Column(unique = true)
     private String isbn;
 
+    private String publisher;
+
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(50)")
     private SaleStatus saleStatus;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(50)")
     private LimitedType limitedType;
 
+    private Boolean isDeleted;
+
     @Builder
-    private Book(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn) {
+    private Book(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher) {
         this.users = users;
         this.title = title;
         this.author = author;
@@ -61,41 +65,58 @@ public class Book extends TimeStamped {
         this.category = category;
         this.stock = stock;
         this.isbn = isbn;
+        this.publisher = publisher;
         this.saleStatus = ON_SALE;
         this.limitedType = REGULAR;
+        this.isDeleted = false;
     }
 
-    public static Book of(Users users, BookCreateRequest bookCreateRequest) {
+    public static Book of(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher ) {
         return Book.builder()
                 .users(users)
-                .title(bookCreateRequest.getTitle())
-                .author(bookCreateRequest.getAuthor())
-                .price(bookCreateRequest.getPrice())
-                .category(bookCreateRequest.getCategory())
-                .stock(bookCreateRequest.getStock())
-                .isbn(bookCreateRequest.getIsbn())
+                .title(title)
+                .author(author)
+                .price(price)
+                .category(category)
+                .stock(stock)
+                .isbn(isbn)
+                .publisher(publisher)
                 .build();
     }
 
     public static Book of(Users users, BookApiResponse book, BigDecimal price, int stock) {
         return Book.builder()
                 .users(users)
-                .title(book.getTitle().replaceAll("<[^>]*>", ""))
-                .author(book.getAuthor().replaceAll("<[^>]*>", ""))
+                .title(book.title().replaceAll("<[^>]*>", ""))
+                .author(book.author().replaceAll("<[^>]*>", ""))
                 .price(price)
-                .category(book.getCategory())
+                .category(book.category())
                 .stock(stock)
-                .isbn(book.getIsbn())
+                .isbn(book.isbn())
+                .publisher(book.publisher().replaceAll("<[^>]*>", ""))
                 .build();
     }
 
-    public void updateBook(BookUpdateRequest bookUpdateRequest) {
-        this.title = bookUpdateRequest.getTitle();
-        this.author = bookUpdateRequest.getAuthor();
-        this.price = bookUpdateRequest.getPrice();
-        this.category = bookUpdateRequest.getCategory();
-        this.stock = bookUpdateRequest.getStock();
-        this.saleStatus = SaleStatus.valueOf(bookUpdateRequest.getSaleStatus());
-        this.limitedType = LimitedType.valueOf(bookUpdateRequest.getLimitedType());
+    public void updateBook(String title, String author, BigDecimal price, String category, int stock, String saleStatus, String limitedType) {
+        this.title = title;
+        this.author = author;
+        this.price = price;
+        this.category = category;
+        this.stock = stock;
+        this.saleStatus = SaleStatus.valueOf(saleStatus);
+        this.limitedType = LimitedType.valueOf(limitedType);
+    }
+
+    public int decreaseStock(int quantity) {
+        this.stock -= quantity;
+        return stock;
+    }
+
+    public void deleteBook() {
+        this.isDeleted = true;
+    }
+
+    public void rollbackStock(int quantity) {
+        this.stock += quantity;
     }
 }
