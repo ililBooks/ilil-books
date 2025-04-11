@@ -1,6 +1,6 @@
 package com.example.ililbooks.domain.auth.controller;
 
-import com.example.ililbooks.client.dto.GoogleApiResponse;
+import com.example.ililbooks.client.google.dto.GoogleApiResponse;
 import com.example.ililbooks.domain.auth.service.AuthGoogleService;
 import com.example.ililbooks.global.dto.response.Response;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +21,11 @@ public class AuthGoogleController {
         return Response.of(authGoogleService.createAuthorizationUrl());
     }
 
+    /* 토큰 발급 */
     @PostMapping("/token")
     public Response<GoogleApiResponse> requestToken(
-            @RequestParam String code,
-            @RequestParam String state
+            @RequestParam String code
     ) {
-        return Response.of(authGoogleService.requestToken(code, state));
+        return Response.of(authGoogleService.requestToken(code));
     }
 }
