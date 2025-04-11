@@ -1,7 +1,5 @@
 package com.example.ililbooks.client.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public record NaverProfileResponse(
         String nickname,
 
@@ -9,7 +7,6 @@ public record NaverProfileResponse(
 
         String email,
 
-        String moblie
-
+        String mobile
 ) {
 }

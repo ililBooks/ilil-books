@@ -62,7 +62,7 @@ public class NaverClient {
         }
     }
 
-    public NaverProfileResponse[] findProfile(String accessToken) {
+    public NaverProfileResponse findProfile(String accessToken) {
         URI uri = profileNaverApiUri();
 
         ResponseEntity<String> responseEntity = restClient.get()
@@ -81,7 +81,7 @@ public class NaverClient {
 
             //json 형태의 데이터 파싱
             NaverProfileWrapper naverProfile = objectMapper.readValue(responseBody, NaverProfileWrapper.class);
-            NaverProfileResponse[] profile = naverProfile.response();
+            NaverProfileResponse profile = naverProfile.response();
 
             //검색된 프로필이 없는 경우
             if (ObjectUtils.isEmpty(profile)) {

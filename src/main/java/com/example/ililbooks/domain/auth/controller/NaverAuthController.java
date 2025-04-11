@@ -41,7 +41,7 @@ public class NaverAuthController {
      * 접근 토큰 발급 후 해당 토큰으로 프로필을 조회하는 API 입니다.
      */
     @PostMapping("/profile")
-    public Response<NaverProfileResponse[]> findProfile(
+    public Response<NaverProfileResponse> findProfile(
             @RequestBody NaverReqeust naverReqeust
     ) {
         return Response.of(naverService.findProfile(naverReqeust));

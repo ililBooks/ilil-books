@@ -27,7 +27,7 @@ public class NaverService {
     }
 
     @Transactional
-    public NaverProfileResponse[] findProfile(NaverReqeust naverReqeust) {
+    public NaverProfileResponse findProfile(NaverReqeust naverReqeust) {
         return naverClient.findProfile(naverReqeust.accessToken());
     }
 }
