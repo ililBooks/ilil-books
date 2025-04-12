@@ -1,7 +1,6 @@
 package com.example.ililbooks.domain.auth.controller;
 
 import com.example.ililbooks.client.naver.dto.NaverApiResponse;
-import com.example.ililbooks.domain.auth.dto.request.AuthNaverRefreshTokenRequest;
 import com.example.ililbooks.domain.auth.dto.request.AuthNaverAccessTokenRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
