@@ -41,7 +41,6 @@ public class LimitedEventController {
     }
 
     /*/ 행사 다건 조회 */
-    //TODO Spring boot는 path(url)을 파싱을 잘해줘요
     @GetMapping
     public Response<Page<LimitedEventResponse>> getAllLimitedEventList(Pageable pageable) {
         return Response.of(limitedEventService.getAllLimitedEvents(pageable));

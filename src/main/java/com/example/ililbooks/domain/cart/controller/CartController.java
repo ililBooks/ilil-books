@@ -36,7 +36,6 @@ public class CartController {
     public Response<CartResponse> getCart(
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        //TODO Get -> 무조건 데이터가 있다, find error를 받을 수도 있다
         return Response.of(cartService.getCart(authUser));
     }
 
