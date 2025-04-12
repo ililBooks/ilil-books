@@ -12,13 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/search")
 @Tag(name = "Search", description = "DB 검색 API")
-public class BookSearchController {
+public class BookSearchControllerV1 {
 
     private final BookSearchService bookSearchService;
 
@@ -29,6 +27,6 @@ public class BookSearchController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "100") int size
     ) {
-        return Response.of(bookSearchService.searchBooks(q, page, size));
+        return Response.of(bookSearchService.searchBooksV1(q, page, size));
     }
 }

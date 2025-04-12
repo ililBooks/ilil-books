@@ -30,6 +30,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -112,7 +113,7 @@ public class BookService {
             }
 
             // 책 데이터가 없거나 null 인 경우 처리
-            if (books == null || books.length == 0) {
+            if (ObjectUtils.isEmpty(books)) {
                 continue;
             }
 

@@ -20,7 +20,6 @@ public class BookSearchService {
     private final BookSearchRepository bookSearchRepository;
     private final BookRepository bookRepository;
 
-
     public void saveBookDocumentFromBook(Book book) {
         BookDocument document = BookDocument.toDocument(book);
         bookSearchRepository.save(document);
@@ -33,34 +32,14 @@ public class BookSearchService {
 
         Page<BookDocument> bookDocuments = bookSearchRepository.findByMultiMatch(pageable, keyword);
 
-        return bookDocuments.map(doc ->
-                BookSearchResponse.builder()
-                        .title(doc.getTitle())
-                        .author(doc.getAuthor())
-                        .publisher(doc.getPublisher())
-                        .category(doc.getCategory())
-                        .price(doc.getPrice())
-                        .saleStatus(doc.getSaleStatus())
-                        .limitedType(doc.getLimitedType())
-                        .build()
-        );
+        return bookDocuments.map(BookSearchResponse::of);
     }
 
-    public Page<BookSearchResponse> searchBooks(String keyword, int page, int size){
+    public Page<BookSearchResponse> searchBooksV1(String keyword, int page, int size){
         Pageable pageable = PageRequest.of(page - 1, size);
 
         Page<Book> books = bookRepository.findBooksByKeyword(keyword, pageable);
 
-        return books.map(book ->
-                BookSearchResponse.builder()
-                .title(book.getTitle())
-                .author(book.getAuthor())
-                .publisher(book.getPublisher())
-                .category(book.getCategory())
-                .price(book.getPrice())
-                .saleStatus(book.getSaleStatus().name())
-                .limitedType(book.getLimitedType().name())
-                .build()
-        );
+        return books.map(BookSearchResponse::of);
     }
 }
