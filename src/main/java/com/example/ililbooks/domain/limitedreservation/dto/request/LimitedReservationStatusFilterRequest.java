@@ -1,17 +1,17 @@
 package com.example.ililbooks.domain.limitedreservation.dto.request;
 
 import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class LimitedReservationStatusFilterRequest {
+public record LimitedReservationStatusFilterRequest(
 
-    private Long eventId;
-    private List<LimitedReservationStatus> statuses;
-}
+        @NotNull
+        Long eventId,
+
+        @NotEmpty
+        List<LimitedReservationStatus> statuses
+
+) {}

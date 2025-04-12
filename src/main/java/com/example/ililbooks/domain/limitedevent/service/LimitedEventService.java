@@ -10,16 +10,17 @@ import com.example.ililbooks.domain.limitedevent.enums.LimitedEventStatus;
 import com.example.ililbooks.domain.limitedevent.repository.LimitedEventRepository;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
-import com.example.ililbooks.global.exception.ErrorMessage;
 import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_BOOK;
-import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_TOKEN;
+import java.util.List;
+
+import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -33,22 +34,30 @@ public class LimitedEventService {
      */
     @Transactional
     public LimitedEventResponse createLimitedEvent(AuthUser authUser, LimitedEventCreateRequest request) {
-        Book book = bookRepository.findById(request.getBookId()).orElseThrow(
-                () -> new NotFoundException(NOT_FOUND_BOOK.getMessage())
-        );
+        Book book = bookRepository.findById(request.bookId())
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_BOOK.getMessage()));
 
-        LimitedEvent limitedEvent = LimitedEvent.builder()
-                .book(book)
-                .title(request.getTitle())
-                .startTime(request.getStartTime())
-                .endTime(request.getEndTime())
-                .contents(request.getContents())
-                .bookQuantity(request.getBookQuantity())
-                .build();
+        LimitedEvent limitedEvent = LimitedEvent.of(
+                book,
+                request.title(),
+                request.startTime(),
+                request.endTime(),
+                request.contents(),
+                request.bookQuantity()
+        );
 
         limitedEventRepository.save(limitedEvent);
 
-        return LimitedEventResponse.from(limitedEvent);
+        return new LimitedEventResponse(
+                limitedEvent.getId(),
+                limitedEvent.getBook().getId(),
+                limitedEvent.getTitle(),
+                limitedEvent.getStatus(),
+                limitedEvent.getStartTime(),
+                limitedEvent.getEndTime(),
+                limitedEvent.getContents(),
+                limitedEvent.getBookQuantity()
+        );
     }
 
     /*
@@ -57,7 +66,17 @@ public class LimitedEventService {
     @Transactional(readOnly = true)
     public LimitedEventResponse getLimitedEvent(Long limitedEventId) {
         LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
-        return LimitedEventResponse.from(limitedEvent);
+
+        return new LimitedEventResponse(
+                limitedEvent.getId(),
+                limitedEvent.getBook().getId(),
+                limitedEvent.getTitle(),
+                limitedEvent.getStatus(),
+                limitedEvent.getStartTime(),
+                limitedEvent.getEndTime(),
+                limitedEvent.getContents(),
+                limitedEvent.getBookQuantity()
+        );
     }
 
     /*
@@ -65,8 +84,23 @@ public class LimitedEventService {
      */
     @Transactional(readOnly = true)
     public Page<LimitedEventResponse> getAllLimitedEvents(Pageable pageable) {
-        return limitedEventRepository.findAllByDeletedAtIsNull(pageable)
-                .map(LimitedEventResponse::from);
+        Page<LimitedEvent> page = limitedEventRepository.findAll(pageable);
+
+        List<LimitedEventResponse> filtered = page.getContent().stream()
+                .filter(event -> !event.isDeleted())
+                .map(event -> new LimitedEventResponse(
+                        event.getId(),
+                        event.getBook().getId(),
+                        event.getTitle(),
+                        event.getStatus(),
+                        event.getStartTime(),
+                        event.getEndTime(),
+                        event.getContents(),
+                        event.getBookQuantity()
+                ))
+                .toList();
+
+        return new PageImpl<>(filtered, pageable, filtered.size());
     }
 
     /*
@@ -78,14 +112,27 @@ public class LimitedEventService {
         LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
 
         if (limitedEvent.getStatus() == LimitedEventStatus.ACTIVE) {
-            // 시작된 행사인 경우 제한된 필드만 수정 가능
             limitedEvent.updateAfterStart(request);
         } else {
-            // 아직 시작 안한 행사면 전체 필드 수정 가능
-            limitedEvent.update(request.getTitle(), request.getStartTime(), request.getEndTime(), request.getContents(), request.getBookQuantity());
+            limitedEvent.update(
+                    request.title(),
+                    request.startTime(),
+                    request.endTime(),
+                    request.contents(),
+                    request.bookQuantity()
+            );
         }
 
-        return LimitedEventResponse.from(limitedEvent);
+        return new LimitedEventResponse(
+                limitedEvent.getId(),
+                limitedEvent.getBook().getId(),
+                limitedEvent.getTitle(),
+                limitedEvent.getStatus(),
+                limitedEvent.getStartTime(),
+                limitedEvent.getEndTime(),
+                limitedEvent.getContents(),
+                limitedEvent.getBookQuantity()
+        );
     }
 
     /*
@@ -95,8 +142,8 @@ public class LimitedEventService {
     public void deleteLimitedEvent(AuthUser authUser, Long limitedEventId) {
         LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
 
-        if (limitedEvent.getStatus().equals(LimitedEventStatus.ACTIVE)) {
-            throw new BadRequestException(ErrorMessage.ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED.getMessage());
+        if (limitedEvent.getStatus() == LimitedEventStatus.ACTIVE) {
+            throw new BadRequestException(ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED.getMessage());
         }
 
         limitedEvent.softDelete();
@@ -106,8 +153,7 @@ public class LimitedEventService {
      * 내부용 find 메서드
      */
     private LimitedEvent findByIdOrElseThrow(Long limitedEventId) {
-        return limitedEventRepository.findByIdAndDeletedAtIsNull(limitedEventId).orElseThrow(
-                () -> new NotFoundException(NOT_FOUND_TOKEN.getMessage())
-        );
+        return limitedEventRepository.findByIdAndIsDeletedFalse(limitedEventId)
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_TOKEN.getMessage()));
     }
 }

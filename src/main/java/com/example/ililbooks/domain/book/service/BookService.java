@@ -1,7 +1,7 @@
 package com.example.ililbooks.domain.book.service;
 
-import com.example.ililbooks.client.BookClient;
-import com.example.ililbooks.client.dto.BookApiResponse;
+import com.example.ililbooks.client.book.BookClient;
+import com.example.ililbooks.client.book.dto.BookApiResponse;
 import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookListResponse;
@@ -52,7 +52,7 @@ public class BookService {
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {
 
         //이미 등록된 책인 경우 (책 고유 번호로 판별)
-        if(bookRepository.existsByIsbn(bookCreateRequest.getIsbn())) {
+        if(bookRepository.existsByIsbn(bookCreateRequest.isbn())) {
             throw new BadRequestException(DUPLICATE_BOOK.getMessage());
         }
 
@@ -60,13 +60,13 @@ public class BookService {
 
         Book book = Book.of(
                 users,
-                bookCreateRequest.getTitle(),
-                bookCreateRequest.getAuthor(),
-                bookCreateRequest.getPrice(),
-                bookCreateRequest.getCategory(),
-                bookCreateRequest.getStock(),
-                bookCreateRequest.getIsbn(),
-                bookCreateRequest.getPublisher()
+                bookCreateRequest.title(),
+                bookCreateRequest.author(),
+                bookCreateRequest.price(),
+                bookCreateRequest.category(),
+                bookCreateRequest.stock(),
+                bookCreateRequest.isbn(),
+                bookCreateRequest.publisher()
         );
 
         Book savedBook = bookRepository.save(book);
@@ -112,12 +112,11 @@ public class BookService {
     public void uploadBookImage(AuthUser authUser, Long bookId, ImageRequest imageRequest) {
         Book book = findBookByIdOrElseThrow(bookId);
 
-        // publisher는 자신이 등록한 책에 대해서만 이미지 등록이 가능
         if (!book.getUsers().getId().equals(authUser.getUserId())) {
             throw new ForbiddenException(CANNOT_UPLOAD_OTHERS_BOOK_IMAGE.getMessage());
         }
 
-        BookImage bookImage = BookImage.of(book,imageRequest.getImageUrl(), imageRequest.getFileName(), imageRequest.getExtension());
+        BookImage bookImage = BookImage.of(book,imageRequest.imageUrl(), imageRequest.fileName(), imageRequest.extension());
 
         //등록된 이미지의 개수가 5개를 넘는 경우
         if(imageBookRepository.countByBookId(bookImage.getBook().getId()) >= 5) {
@@ -178,13 +177,13 @@ public class BookService {
         }
 
         book.updateBook(
-                bookUpdateRequest.getTitle(),
-                bookUpdateRequest.getAuthor(),
-                bookUpdateRequest.getPrice(),
-                bookUpdateRequest.getCategory(),
-                bookUpdateRequest.getStock(),
-                bookUpdateRequest.getSaleStatus(),
-                bookUpdateRequest.getLimitedType()
+                bookUpdateRequest.title(),
+                bookUpdateRequest.author(),
+                bookUpdateRequest.price(),
+                bookUpdateRequest.category(),
+                bookUpdateRequest.stock(),
+                bookUpdateRequest.saleStatus(),
+                bookUpdateRequest.limitedType()
                 );
     }
 

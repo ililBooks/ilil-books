@@ -1,3 +1,14 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+    session:
+      timeout: 1800
+
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -5,17 +16,13 @@ spring:
     redis:
       host: localhost
       port: 6379
-    elasticsearch:
-      uris: http://localhost:9200
-      repositories:
-        enabled: true
   application:
     name: ilil-books
 
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${DOCKER_DB_URL}
+    username: ${DOCKER_MYSQL_USER}
+    password: ${DOCKER_MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -27,17 +34,6 @@ spring:
         format_sql: true
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQLDialect
-
-server:
-  port: 8080
-  servlet:
-    context-path: /
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
-    session:
-      timeout: 1800
 
 jwt:
   secret:
@@ -55,9 +51,3 @@ cloud:
       access-key: ${AWS_ACCESS_KEY_ID}
     s3:
       bucket: ${AWS_S3_BUCKET_NAME}
-
-client:
-   naver:
-       client-id: ${NAVER_CLIENT_ID}
-       client-secret: ${NAVER_CLIENT_SECRET}
-       redirect-uri: ${NAVER_REDIRECT_URI}

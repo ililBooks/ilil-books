@@ -1,7 +1,6 @@
 package com.example.ililbooks.domain.limitedreservation.controller;
 
 import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationCreateRequest;
-import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationStatusFilterRequest;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -10,11 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,7 +39,7 @@ public class LimitedReservationController {
 
     /*/ 행사별 전체 예약 조회 */
     @GetMapping("/events/{eventId}")
-    public Response<Page<LimitedReservationResponse>> getReservationsByEvent(
+    public Response<Page<LimitedReservationResponse>> getAllReservationsByEvent(
             @PathVariable Long eventId,
             Pageable pageable
     ) {
@@ -60,8 +56,7 @@ public class LimitedReservationController {
 //    }
 
     /*/ 예약 취소 */
-    //TODO path 순서 변경
-    @PatchMapping("/{reservationId}/cancel")
+    @PatchMapping("/cancel/{reservationId}")
     public Response<Void> cancelReservation(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reservationId

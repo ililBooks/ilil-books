@@ -6,17 +6,15 @@ import com.example.ililbooks.domain.limitedevent.enums.LimitedEventStatus;
 import com.example.ililbooks.global.entity.TimeStamped;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "limited_events")
-//TODO @SQL 로 delete 때릴때마다 delete관련 컬럼 update되게 설정
 public class LimitedEvent extends TimeStamped {
 
     @Id
@@ -30,34 +28,35 @@ public class LimitedEvent extends TimeStamped {
     private String title;
 
     @Enumerated(EnumType.STRING)
-    //TODO Column어노테이션 안에 있음 컬럼데피니션 찾아보고 varchar(50)으로 설정
+    @Column(columnDefinition = "VARCHAR(50)")
     private LimitedEventStatus status;
 
-    private LocalDateTime startTime;
+    @Column(nullable = false)
+    private Instant startTime;
 
-    private LocalDateTime endTime;
+    @Column(nullable = false)
+    private Instant endTime;
 
     private String contents;
 
     private int bookQuantity;
 
-    //TODO nullable 표시 명확히 할 것
-    //null 은 안티패턴이니, Boolean으로 관리 isDeleted = true||false
-    private LocalDateTime deletedAt;
-    //TODO LocalDateTime -> Instant 차이점 많음
+    private boolean isDeleted;
 
     /*
-     * LimitedEvent 생성자
+     * 정적 팩토리 메서드
      */
-    @Builder
-    public LimitedEvent(Book book, String title, LocalDateTime startTime, LocalDateTime endTime, String contents, int bookQuantity) {
-        this.book = book;
-        this.title = title;
-        this.status = LimitedEventStatus.INACTIVE;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.contents = contents;
-        this.bookQuantity = bookQuantity;
+    public static LimitedEvent of(Book book, String title, Instant startTime, Instant endTime, String contents, int bookQuantity) {
+        LimitedEvent event = new LimitedEvent();
+        event.book = book;
+        event.title = title;
+        event.status = LimitedEventStatus.INACTIVE;
+        event.startTime = startTime;
+        event.endTime = endTime;
+        event.contents = contents;
+        event.bookQuantity = bookQuantity;
+        event.isDeleted = false;
+        return event;
     }
 
     /*
@@ -70,7 +69,7 @@ public class LimitedEvent extends TimeStamped {
     /*
      * 행사 수정
      */
-    public void update(String title, LocalDateTime startTime, LocalDateTime endTime, String contents, int bookQuantity) {
+    public void update(String title, Instant startTime, Instant endTime, String contents, int bookQuantity) {
         this.title = title;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -82,23 +81,23 @@ public class LimitedEvent extends TimeStamped {
      * 행사 수정(행사 시작 후)
      */
     public void updateAfterStart(LimitedEventUpdateRequest request) {
-        this.endTime = request.getEndTime();
-        this.contents = request.getContents();
-        this.bookQuantity = request.getBookQuantity();
+        this.endTime = request.endTime();
+        this.contents = request.contents();
+        this.bookQuantity = request.bookQuantity();
     }
 
     /*
      * soft delete 처리 여부 확인
      */
     public boolean isDeleted() {
-        return this.deletedAt != null;
+        return this.isDeleted;
     }
 
     /*
      * soft delete 처리
      */
     public void softDelete() {
-        this.deletedAt = LocalDateTime.now();
+        this.isDeleted = true;
     }
 
     public boolean canAcceptReservation(Long reservedCount) {
