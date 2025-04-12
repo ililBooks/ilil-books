@@ -72,7 +72,7 @@ public class BookDocument {
                 .userId(String.valueOf(book.getUsers().getId()))
                 .title(book.getTitle())
                 .author(book.getAuthor())
-                .publisher(book.getUsers().getNickname())
+                .publisher(book.getPublisher())
                 .price(book.getPrice())
                 .category(book.getCategory())
                 .stock(book.getStock())

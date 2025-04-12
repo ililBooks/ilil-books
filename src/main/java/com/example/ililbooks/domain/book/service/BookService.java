@@ -14,6 +14,8 @@ import com.example.ililbooks.domain.book.repository.ImageBookRepository;
 import com.example.ililbooks.domain.review.dto.response.ReviewWithImagesResponse;
 import com.example.ililbooks.domain.review.service.ReviewDeleteService;
 import com.example.ililbooks.domain.review.service.ReviewFindService;
+import com.example.ililbooks.domain.search.entity.BookDocument;
+import com.example.ililbooks.domain.search.service.BookSearchService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -31,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -47,12 +51,13 @@ public class BookService {
     private final ReviewFindService reviewFindService;
     private final S3ImageService s3ImageService;
     private final ReviewDeleteService reviewDeleteService;
+    private final BookSearchService bookSearchService;
 
     @Transactional
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {
 
         //이미 등록된 책인 경우 (책 고유 번호로 판별)
-        if(bookRepository.existsByIsbn(bookCreateRequest.isbn())) {
+        if (bookRepository.existsByIsbn(bookCreateRequest.isbn())) {
             throw new BadRequestException(DUPLICATE_BOOK.getMessage());
         }
 
@@ -71,55 +76,86 @@ public class BookService {
 
         Book savedBook = bookRepository.save(book);
 
+        bookSearchService.saveBookDocumentFromBook(book);
+
         return BookResponse.of(savedBook);
     }
 
+    /**
+     *  대량 데이터를 저장하기 위해 keywords 배열에 키워드를 담아서 로직 마지막에 한 번에 save 하는 방식
+     *  추후 배포할 때 키워드를 하나씩 입력하는 방식으로 바꿀 예정
+     *  키워드는 슬랙에 따로 공유하겠습니다
+     */
     @Transactional
-    public void createBookByOpenApi(AuthUser authUser, Integer pageNum, Integer pageSize, String keyword) {
+    public void createBookByOpenApi(AuthUser authUser, Integer pageNum, Integer pageSize) {
 
-        //open api를 통해 책 리스트 가져오기
-        BookApiResponse[] books = bookClient.findBooks(keyword, pageNum, pageSize);
+        String[] keywords = {
+                "육아일기"
+        };
 
-        //랜덤 가격 및 재고 생성을 위한 Random객체 선언
+        //랜덤 가격 및 재고 생성을 위한 Random 객체 선언
         Random random = new Random();
         Users users = userService.findByIdOrElseThrow(authUser.getUserId());
 
-        for (BookApiResponse bookApiResponse : books) {
-            //랜덤 가격 (Min: 5000, Max: 45000)
-            long randomPrice = 5000 + random.nextLong(40000);
-            BigDecimal price = BigDecimal.valueOf(Math.round(randomPrice / 1000.0) * 1000);
+        //open api를 통해 책 리스트 가져오기
+        BookApiResponse[] books;
 
-            //랜덤 재고 (Min: 1, Max:101)
-            int randomStock = 1 +  random.nextInt(100);
+        List<Book> booksToSave = new ArrayList<>();
+        List<BookDocument> bookDocumentsToSave = new ArrayList<>();
 
-            //책 고유번호가 없는 경우
-            if (!StringUtils.hasText(bookApiResponse.isbn())) {
+        for (String kwd : keywords) {
+
+            try {
+                books = bookClient.findBooks(kwd, pageNum, pageSize);
+            }catch (Exception e) {
                 continue;
             }
 
-            //이미 등록된 책인 경우 저장하지 않음
-            if (bookRepository.existsByIsbn(bookApiResponse.isbn())) {
+            // 책 데이터가 없거나 null 인 경우 처리
+            if (books == null || books.length == 0) {
                 continue;
             }
 
-            Book book = Book.of(users, bookApiResponse, price, randomStock);
+            for (BookApiResponse bookApiResponse : books) {
 
-            bookRepository.save(book);
+                // isbn 존재하지 않음 or 이미 등록된 책 or 제목,저자,isbn 중 255bytes 가 초과 일 때 다음 루프
+                if (!isValidBookApiResponse(bookApiResponse)) continue;
+
+                //랜덤 가격 (Min: 5000, Max: 45000)
+                long randomPrice = 5000 + random.nextLong(40000);
+                BigDecimal price = BigDecimal.valueOf(Math.round(randomPrice / 1000.0) * 1000);
+
+                //랜덤 재고 (Min: 1, Max:101)
+                int randomStock = 1 + random.nextInt(100);
+
+                try {
+                    Book book = Book.of(users, bookApiResponse, price, randomStock);
+                    BookDocument document = BookDocument.toDocument(book);
+
+                    booksToSave.add(book);
+                    bookDocumentsToSave.add(document);
+                } catch (Exception e) {
+                    System.out.println("책 저장 실패 (ISBN: " + bookApiResponse.isbn() + "): " + e.getMessage());
+                }
+            }
         }
+        bookRepository.saveAll(booksToSave);
+        bookSearchService.saveAll(bookDocumentsToSave);
     }
 
     @Transactional
     public void uploadBookImage(AuthUser authUser, Long bookId, ImageRequest imageRequest) {
         Book book = findBookByIdOrElseThrow(bookId);
 
+        // publisher는 자신이 등록한 책에 대해서만 이미지 등록이 가능
         if (!book.getUsers().getId().equals(authUser.getUserId())) {
             throw new ForbiddenException(CANNOT_UPLOAD_OTHERS_BOOK_IMAGE.getMessage());
         }
 
-        BookImage bookImage = BookImage.of(book,imageRequest.imageUrl(), imageRequest.fileName(), imageRequest.extension());
+        BookImage bookImage = BookImage.of(book, imageRequest.imageUrl(), imageRequest.fileName(), imageRequest.extension());
 
         //등록된 이미지의 개수가 5개를 넘는 경우
-        if(imageBookRepository.countByBookId(bookImage.getBook().getId()) >= 5) {
+        if (imageBookRepository.countByBookId(bookImage.getBook().getId()) >= 5) {
             throw new BadRequestException(IMAGE_UPLOAD_LIMIT_OVER.getMessage());
         }
 
@@ -213,7 +249,7 @@ public class BookService {
 
     public BookImage findBookImage(Long imageId) {
         return imageBookRepository.findImageById(imageId)
-                .orElseThrow(()-> new NotFoundException(NOT_FOUND_IMAGE.getMessage()));
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_IMAGE.getMessage()));
     }
 
     public List<BookImage> getAllByBookId(Book book) {
@@ -222,5 +258,26 @@ public class BookService {
 
     public boolean existsOnSaleRegularBookById(Long bookId) {
         return bookRepository.existsOnSaleRegularBookById(bookId);
+    }
+
+    private boolean isValidBookApiResponse(BookApiResponse bookApiResponse) {
+        //책 고유번호가 없는 경우
+        if (!StringUtils.hasText(bookApiResponse.isbn())) {
+            return false;
+        }
+
+        //이미 등록된 책인 경우 저장하지 않음
+        if (bookRepository.existsByIsbn(bookApiResponse.isbn())) {
+            return false;
+        }
+
+        // 각 컬럼이 255byte 초과할 경우
+        if (bookApiResponse.isbn().getBytes(StandardCharsets.UTF_8).length > 255 ||
+                bookApiResponse.author().getBytes(StandardCharsets.UTF_8).length > 255 ||
+                bookApiResponse.title() != null && bookApiResponse.title().getBytes(StandardCharsets.UTF_8).length > 255
+        ) {
+            return false;
+        }
+        return true;
     }
 }

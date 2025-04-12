@@ -18,7 +18,7 @@ public class RefreshArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         parameter.getParameterAnnotation(RefreshToken.class);
-        boolean hasRefreshTokenAnnotation = true;
+        boolean hasRefreshTokenAnnotation = parameter.getParameterAnnotation(RefreshToken.class) != null;
         boolean isStringType = parameter.getParameterType().equals(String.class);
 
         if (hasRefreshTokenAnnotation != isStringType) {
