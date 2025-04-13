@@ -37,7 +37,7 @@ public class AuthService {
     }
 
     /* 로그인 */
-    @Transactional
+    @Transactional(readOnly = true)
     public AuthTokensResponse signIn(AuthSignInRequest request) {
         Users users = userService.findByEmailOrElseThrow(request.email());
 
@@ -53,7 +53,7 @@ public class AuthService {
     }
 
     /* Access Token, Refresh Token 재발급 */
-    @Transactional
+    @Transactional(readOnly = true)
     public AuthTokensResponse reissueToken(String refreshToken) {
         RefreshToken findRefreshToken = tokenService.findRefreshToken(refreshToken);
         Users users = userService.findByIdOrElseThrow(findRefreshToken.getUserId());

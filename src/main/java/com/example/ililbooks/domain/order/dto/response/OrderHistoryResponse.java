@@ -1,12 +1,20 @@
 package com.example.ililbooks.domain.order.dto.response;
 
 import com.example.ililbooks.domain.order.entity.OrderHistory;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.math.BigDecimal;
 
-public record OrderHistoryResponse(Long bookId, String title, String author, BigDecimal price, String limitedType,
-                                   int quantity) {
+public record OrderHistoryResponse(
+
+        Long bookId,
+        String title,
+        String author,
+        BigDecimal price,
+        String limitedType,
+        int quantity
+) {
 
     @Builder
     public OrderHistoryResponse {
