@@ -12,7 +12,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 
@@ -21,7 +23,7 @@ import static com.example.ililbooks.global.exception.ErrorMessage.*;
 @Component
 public class GoogleClient {
 
-    private final RestClient restClient;
+    private final WebClient webClient;
     private final ObjectMapper objectMapper;
 
     @Value("${client.google.client-id}")
@@ -33,8 +35,8 @@ public class GoogleClient {
     @Value("${client.google.redirect-uri}")
     private String redirectUri;
 
-    public GoogleClient(RestClient.Builder builder, ObjectMapper objectMapper) {
-        this.restClient = builder.build();
+    public GoogleClient(WebClient.Builder builder, ObjectMapper objectMapper) {
+        this.webClient = builder.build();
         this.objectMapper = objectMapper;
     }
 
@@ -55,17 +57,14 @@ public class GoogleClient {
     public GoogleApiProfileResponse findProfile(String accessToken) {
         URI uri = buildUserProfileApiUri();
 
-        ResponseEntity<String> responseEntity = restClient.get()
+        String responseBody = webClient.get()
                 .uri(uri)
-                .headers(httpHeaders -> httpHeaders.setBearerAuth(accessToken)) // 토큰 추가
+                .headers(h -> h.setBearerAuth(accessToken))
                 .retrieve()
-                .toEntity(String.class);
-
-        if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-            throw new RuntimeException(GOOGLE_API_RESPONSE_FAILED.getMessage());
-        }
-
-        String responseBody = responseEntity.getBody();
+                .onStatus(status -> !status.is2xxSuccessful(),
+                        res -> Mono.error(new RuntimeException(GOOGLE_API_RESPONSE_FAILED.getMessage())))
+                .bodyToMono(String.class)
+                .block();
 
         try {
             GoogleApiProfileResponse googleApiProfileResponse = objectMapper.readValue(responseBody, GoogleApiProfileResponse.class);
@@ -120,18 +119,16 @@ public class GoogleClient {
     }
 
     private GoogleApiResponse findResponseBody(URI uri, MultiValueMap<String, String> body) {
-        ResponseEntity<String> responseEntity = restClient.post()
+
+        String responseBody = webClient.post()
                 .uri(uri)
                 .header("Content-Type", "application/x-www-form-urlencoded")
-                .body(body)
+                .bodyValue(body)
                 .retrieve()
-                .toEntity(String.class);
-
-        if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-            throw new RuntimeException(GOOGLE_API_RESPONSE_FAILED.getMessage());
-        }
-
-        String responseBody = responseEntity.getBody();
+                .onStatus(status -> !status.is2xxSuccessful(),
+                        res -> Mono.error(new RuntimeException(GOOGLE_API_RESPONSE_FAILED.getMessage())))
+                .bodyToMono(String.class)
+                .block();
 
         try {
             return objectMapper.readValue(responseBody, GoogleApiResponse.class);
