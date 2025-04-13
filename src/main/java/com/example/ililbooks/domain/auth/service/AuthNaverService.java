@@ -3,7 +3,6 @@ package com.example.ililbooks.domain.auth.service;
 import com.example.ililbooks.client.naver.NaverClient;
 import com.example.ililbooks.client.naver.dto.NaverApiProfileResponse;
 import com.example.ililbooks.client.naver.dto.NaverApiResponse;
-import com.example.ililbooks.domain.auth.dto.request.AuthNaverRefreshTokenRequest;
 import com.example.ililbooks.domain.auth.dto.request.AuthNaverAccessTokenRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.user.entity.Users;
@@ -29,19 +28,12 @@ public class AuthNaverService {
     private final AuthService authService;
     private final UserRepository userRepository;
 
-    @Transactional(readOnly = true)
     public URI getNaverLoginRedirectUrl() {
-        return naverClient.getNaverLoginRedirectUrl();
+        return naverClient.getRedirectUrl();
     }
 
-    @Transactional
     public NaverApiResponse requestNaverToken(String code, String state) {
         return naverClient.issueToken(code, state);
-    }
-
-    @Transactional
-    public NaverApiResponse refreshNaverToken(AuthNaverRefreshTokenRequest authNaverRefreshTokenRequest) {
-        return naverClient.refreshToken(authNaverRefreshTokenRequest.refreshToken());
     }
 
     @Transactional
@@ -58,7 +50,7 @@ public class AuthNaverService {
         return authService.getTokenResponse(users);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public AuthTokensResponse signInWithNaver(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
         NaverApiProfileResponse profile = getProfile(authNaverAccessTokenRequest);
         Users users = userService.findByEmailOrElseThrow(profile.email());
