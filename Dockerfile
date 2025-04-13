@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . .
 RUN chmod +x ./gradlew
 # TODO: 테스트 용 테스트 코드 제외 설정 -> 테스트 코드 정리 후 변경
-RUN ./gradlew clean build -x test --no-daemon
+RUN ./gradlew clean build -x test
 
 # Stage 2: 이미지 생성
 FROM openjdk:17-jdk-slim
