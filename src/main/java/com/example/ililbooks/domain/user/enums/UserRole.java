@@ -4,6 +4,7 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.UnauthorizedException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Arrays;
 
@@ -12,7 +13,7 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserRole {
+public enum UserRole implements GrantedAuthority {
 
     ROLE_USER(Authority.USER),
     ROLE_PUBLISHER(Authority.PUBLISHER),
@@ -25,6 +26,11 @@ public enum UserRole {
                 .filter(r -> r.getUserRole().equalsIgnoreCase(role))
                 .findFirst()
                 .orElseThrow(() -> new UnauthorizedException("유효하지 않은 UserRole입니다."));
+    }
+
+    @Override
+    public String getAuthority() {
+        return userRole;
     }
 
     public static class Authority {

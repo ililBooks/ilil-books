@@ -110,4 +110,14 @@ public class UserService {
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
+
+    public Users findByEmailOrGet(String email, String nickname) {
+        return userRepository.findByEmail(email)
+                .orElseGet(() -> userRepository.save(
+                        Users.builder()
+                                .email(email)
+                                .nickname(nickname)
+                                .build()
+                ));
+    }
 }
