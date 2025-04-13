@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param accessToken
  * @param refreshToken
  * @param tokenType
- * @param expriesIn
+ * @param expiresIn
  */
 public record NaverApiResponse(
         @JsonProperty("access_token")
@@ -23,6 +23,6 @@ public record NaverApiResponse(
         String tokenType,
 
         @JsonProperty("expires_in")
-        Integer expriesIn
+        Integer expiresIn
 ) {
 }
