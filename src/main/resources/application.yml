@@ -5,6 +5,10 @@ spring:
     redis:
       host: localhost
       port: 6379
+    elasticsearch:
+      uris: http://localhost:9200
+      repositories:
+        enabled: true
   application:
     name: ilil-books
 

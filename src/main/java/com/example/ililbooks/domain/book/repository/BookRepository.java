@@ -23,4 +23,14 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     @Query("SELECT b FROM Book b WHERE b.isDeleted = false")
     Page<Book> findAllNotDeleted(Pageable pageable);
+
+    // DB 조회
+    @Query("SELECT b FROM Book b " +
+            "WHERE b.isDeleted = false " +
+            "AND (b.title like CONCAT('%', :keyword, '%') OR " +
+            "b.author like CONCAT('%', :keyword, '%')) OR " +
+            "b.publisher like CONCAT('%', :keyword, '%') OR " +
+            "b.category like CONCAT('%', :keyword, '%')")
+    Page<Book> findBooksByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
 }
