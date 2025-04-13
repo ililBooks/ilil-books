@@ -4,6 +4,7 @@ import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation
 import com.example.ililbooks.domain.order.enums.DeliveryStatus;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.enums.PaymentStatus;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,18 +20,21 @@ public record LimitedReservationOrderResponse(
         LocalDateTime createdAt,
         LocalDateTime modifiedAt
 ) {
+    @Builder
+    public LimitedReservationOrderResponse {
+    }
 
-    public static LimitedReservationOrderResponse from(LimitedReservationOrder order) {
-        return new LimitedReservationOrderResponse(
-                order.getId(),
-                order.getReservation().getId(),
-                order.getBook().getId(),
-                order.getTotalPrice(),
-                order.getOrderStatus(),
-                order.getDeliveryStatus(),
-                order.getPaymentStatus(),
-                order.getCreatedAt(),
-                order.getModifiedAt()
-        );
+    public static LimitedReservationOrderResponse of(LimitedReservationOrder order) {
+        return LimitedReservationOrderResponse.builder()
+                .reservationOrderId(order.getId())
+                .reservationId(order.getReservation().getId())
+                .bookId(order.getBook().getId())
+                .totalPrice(order.getTotalPrice())
+                .orderStatus(order.getOrderStatus())
+                .deliveryStatus(order.getDeliveryStatus())
+                .paymentStatus(order.getPaymentStatus())
+                .createdAt(order.getCreatedAt())
+                .modifiedAt(order.getModifiedAt())
+                .build();
     }
 }

@@ -18,7 +18,7 @@ public record LimitedEventResponse(
 
 ) {
 
-    public static LimitedEventResponse from(LimitedEvent event) {
+    public static LimitedEventResponse of(LimitedEvent event) {
         return new LimitedEventResponse(
                 event.getId(),
                 event.getBook().getId(),

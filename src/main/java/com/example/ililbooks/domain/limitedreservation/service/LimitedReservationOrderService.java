@@ -1,12 +1,13 @@
 package com.example.ililbooks.domain.limitedreservation.service;
 
-import com.example.ililbooks.domain.book.entity.Book;
+import com.example.ililbooks.domain.limitedevent.entity.LimitedEvent;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationOrderResponse;
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservationOrder;
 import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
 import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationOrderRepository;
 import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
+import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +27,17 @@ public class LimitedReservationOrderService {
 
     /*
      * 예약을 기반으로 주문 생성
+     * - 예약 상태 SUCCESS
+     * - 결제 만료 전이어야함
+     * - 한정 수량이 최소 1 이상
      */
     @Transactional
-    public LimitedReservationOrderResponse createFromReservation(Long userId, Long reservationId) {
-        LimitedReservation reservation = validateReservation(userId, reservationId);
+    public LimitedReservationOrderResponse createOrderFromReservation(AuthUser authUser, Long reservationId) {
+        LimitedReservation reservation = validateReservation(authUser, reservationId);
+        LimitedEvent limitedEvent = reservation.getLimitedEvent();
 
         // 만료된 예약은 주문 불가
-        if (reservation.getExpiredAt().isBefore(Instant.now())) {
+        if (reservation.getExpiresAt().isBefore(Instant.now())) {
             throw new BadRequestException(RESERVATION_EXPIRED.getMessage());
         }
 
@@ -41,25 +46,36 @@ public class LimitedReservationOrderService {
             throw new BadRequestException(ALREADY_ORDERED.getMessage());
         }
 
-        Book book = getBookFromReservation(reservation);
-        validateStock(book);
+        // 남은 수량 확인 및 차감
+        if (limitedEvent.getBookQuantity() < 1) {
+            throw new BadRequestException(OUT_OF_STOCK.getMessage());
+        }
+        limitedEvent.decreaseBookQuantity(1);
 
-        LimitedReservationOrder order = LimitedReservationOrder.of(reservation, book, book.getPrice(), 1);
-        book.decreaseStock(1);
+        // 주문 생성
+        LimitedReservationOrder limitedOrder = LimitedReservationOrder.of(
+                reservation,
+                limitedEvent.getBook(),
+                limitedEvent.getBook().getPrice(),
+                1
+        );
 
-        limitedReservationOrderRepository.save(order);
+        limitedReservationOrderRepository.save(limitedOrder);
 
-        return LimitedReservationOrderResponse.from(order);
+        return LimitedReservationOrderResponse.of(limitedOrder);
     }
 
     /*
      * 예약 유효성 검증 - 유저 일치, 상태 SUCCESS
+     * - 유저 일치
+     * - 상태가 SUCCESS
      */
-    private LimitedReservation validateReservation(Long userId, Long reservationId) {
-        LimitedReservation reservation = limitedReservationRepository.findByIdWithEvent(reservationId)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage()));
+    private LimitedReservation validateReservation(AuthUser authUser, Long reservationId) {
+        LimitedReservation reservation = limitedReservationRepository.findByIdWithEvent(reservationId).orElseThrow(
+                () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage())
+        );
 
-        if (!reservation.getUsers().getId().equals(userId)) {
+        if (!reservation.getUsers().getId().equals(authUser.getUserId())) {
             throw new BadRequestException(NO_PERMISSION.getMessage());
         }
 
@@ -68,21 +84,5 @@ public class LimitedReservationOrderService {
         }
 
         return reservation;
-    }
-
-    /*
-     * 예약에서 책 가져오기
-     */
-    private Book getBookFromReservation(LimitedReservation reservation) {
-        return reservation.getLimitedEvent().getBook();
-    }
-
-    /*
-     * 재고 1 이상인지 확인
-     */
-    private void validateStock(Book book) {
-        if (book.getStock() < 1) {
-            throw new BadRequestException(OUT_OF_STOCK.getMessage());
-        }
     }
 }

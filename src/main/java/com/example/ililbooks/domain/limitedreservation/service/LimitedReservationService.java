@@ -7,7 +7,6 @@ import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReser
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
 import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
 import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
-import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.repository.UserRepository;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -39,20 +38,18 @@ public class LimitedReservationService {
      */
     @Transactional
     public LimitedReservationResponse createReservation(AuthUser authUser, LimitedReservationCreateRequest request) {
-        Users user = findUser(authUser.getUserId());
         LimitedEvent limitedEvent = findEvent(request.limitedEventId());
-
-        limitedReservationRepository.findByUsersAndLimitedEvent(user, limitedEvent).ifPresent(r -> {
-            throw new BadRequestException(ALREADY_RESERVED_EVENT.getMessage());
-        });
+        validateNotAlreadyReserved(authUser.getUserId(), limitedEvent);
 
         long successCount = limitedReservationRepository.countByLimitedEventAndStatus(limitedEvent, LimitedReservationStatus.SUCCESS);
         boolean isReservable = limitedEvent.canAcceptReservation(successCount);
 
         LimitedReservationStatus status = isReservable ? LimitedReservationStatus.SUCCESS : LimitedReservationStatus.WAITING;
-        Instant expiredAt = Instant.now().plus(EXPIRATION_HOURS, ChronoUnit.HOURS);
+        Instant expiresAt = Instant.now().plus(EXPIRATION_HOURS, ChronoUnit.HOURS);
 
-        LimitedReservation reservation = LimitedReservation.of(user, limitedEvent, status, expiredAt);
+        Users user = findUser(authUser.getUserId());
+
+        LimitedReservation reservation = LimitedReservation.of(user, limitedEvent, status, expiresAt);
         limitedReservationRepository.save(reservation);
 
         return LimitedReservationResponse.of(reservation);
@@ -108,14 +105,13 @@ public class LimitedReservationService {
     }
 
     // --- 내부 메서드 ---
-    private Users findUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundException(NOT_FOUND_USER.getMessage())
-        );
+    private void validateNotAlreadyReserved(Long userId, LimitedEvent event) {
+        limitedReservationRepository.findByUsersIdAndLimitedEvent(userId, event)
+                .ifPresent(r -> { throw new BadRequestException(ALREADY_RESERVED_EVENT.getMessage()); });
     }
 
-    private LimitedEvent findEvent(Long eventId) {
-        return limitedEventRepository.findById(eventId).orElseThrow(
+    private LimitedEvent findEvent(Long limitedEventId) {
+        return limitedEventRepository.findById(limitedEventId).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_EVENT.getMessage())
         );
     }
@@ -124,5 +120,10 @@ public class LimitedReservationService {
         return limitedReservationRepository.findById(reservationId).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage())
         );
+    }
+
+    private Users findUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_USER.getMessage()));
     }
 }

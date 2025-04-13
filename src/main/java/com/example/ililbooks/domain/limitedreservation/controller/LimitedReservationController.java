@@ -29,8 +29,7 @@ public class LimitedReservationController {
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestBody LimitedReservationCreateRequest request
     ) {
-        LimitedReservationResponse response = limitedReservationService.createReservation(authUser, request);
-        return Response.of(response);
+        return Response.of(limitedReservationService.createReservation(authUser, request));
     }
 
     /*/ 예약 단건 조회 */

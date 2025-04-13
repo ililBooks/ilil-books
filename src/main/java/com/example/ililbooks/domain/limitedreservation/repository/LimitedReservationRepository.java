@@ -17,11 +17,13 @@ public interface LimitedReservationRepository extends JpaRepository<LimitedReser
 
     Optional<LimitedReservation> findByUsersAndLimitedEvent(Users user, LimitedEvent limitedEvent);
 
+    Optional<LimitedReservation> findByUsersIdAndLimitedEvent(Long userId, LimitedEvent limitedEvent);
+
     Long countByLimitedEventAndStatus(LimitedEvent limitedEvent, LimitedReservationStatus status);
 
     Page<LimitedReservation> findAllByLimitedEvent(LimitedEvent limitedEvent, Pageable pageable);
 
-    @Query("SELECT r FROM LimitedReservation r JOIN FETCH r.limitedEvent e JOIN FETCH e.book WHERE r.id = :id")
+    @Query("SELECT r FROM LimitedReservation r JOIN r.limitedEvent e WHERE r.id = :id")
     Optional<LimitedReservation> findByIdWithEvent(@Param("id") Long id);
 
 }

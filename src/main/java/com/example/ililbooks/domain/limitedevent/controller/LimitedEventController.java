@@ -31,7 +31,7 @@ public class LimitedEventController {
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestBody LimitedEventCreateRequest request
     ) {
-        return Response.of(limitedEventService.createLimitedEvent(authUser.getUserId(), request));
+        return Response.of(limitedEventService.createLimitedEvent(authUser, request));
     }
 
     /*/ 행사 단건 조회 */
@@ -54,7 +54,7 @@ public class LimitedEventController {
             @PathVariable Long limitedEventId,
             @Valid @RequestBody LimitedEventUpdateRequest request
     ) {
-        return Response.of(limitedEventService.updateLimitedEvent(authUser.getUserId(), limitedEventId, request));
+        return Response.of(limitedEventService.updateLimitedEvent(authUser, limitedEventId, request));
     }
 
     /*/ 행사 삭제 (PUBLISHER 와 ADMIN 만 가능) */
@@ -64,7 +64,7 @@ public class LimitedEventController {
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long limitedEventId
     ) {
-        limitedEventService.deleteLimitedEvent(authUser.getUserId(), limitedEventId);
+        limitedEventService.deleteLimitedEvent(authUser, limitedEventId);
         return Response.empty();
     }
 }

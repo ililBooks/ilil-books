@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "limited_reservation_order")
 public class LimitedReservationOrder extends TimeStamped {
 
     @Id
@@ -53,8 +54,7 @@ public class LimitedReservationOrder extends TimeStamped {
     }
 
     @Builder
-    private LimitedReservationOrder(LimitedReservation reservation, Book book, BigDecimal totalPrice,
-                                    OrderStatus orderStatus, DeliveryStatus deliveryStatus, PaymentStatus paymentStatus) {
+    private LimitedReservationOrder(LimitedReservation reservation, Book book, BigDecimal totalPrice, OrderStatus orderStatus, DeliveryStatus deliveryStatus, PaymentStatus paymentStatus) {
         this.reservation = reservation;
         this.book = book;
         this.totalPrice = totalPrice;

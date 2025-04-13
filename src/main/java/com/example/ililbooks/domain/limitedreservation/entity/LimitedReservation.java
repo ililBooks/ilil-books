@@ -36,8 +36,8 @@ public class LimitedReservation extends TimeStamped {
     @Column(nullable = false)
     private LimitedReservationStatus status;
 
-    @Column(nullable = false)
-    private Instant expiredAt;
+    @Column(name = "expires_at", nullable = false)
+    private Instant expiresAt;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id")
@@ -46,12 +46,12 @@ public class LimitedReservation extends TimeStamped {
     /*
      * 정적 생성 메서드
      */
-    public static LimitedReservation of(Users users, LimitedEvent limitedEvent, LimitedReservationStatus status, Instant expiredAt) {
+    public static LimitedReservation of(Users users, LimitedEvent limitedEvent, LimitedReservationStatus status, Instant expiresAt) {
         LimitedReservation reservation = new LimitedReservation();
         reservation.users = users;
         reservation.limitedEvent = limitedEvent;
         reservation.status = status;
-        reservation.expiredAt = expiredAt;
+        reservation.expiresAt = expiresAt;
         return reservation;
     }
 

@@ -4,7 +4,6 @@ import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReser
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationOrderService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,9 +26,8 @@ public class LimitedReservationOrderController {
     @PostMapping("/{reservationId}")
     public Response<LimitedReservationOrderResponse> createOrderFromReservation(
             @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable @NotNull Long reservationId
+            @PathVariable Long reservationId
     ) {
-        LimitedReservationOrderResponse response = limitedReservationOrderService.createFromReservation(authUser.getUserId(), reservationId);
-        return Response.of(response);
+        return Response.of(limitedReservationOrderService.createOrderFromReservation(authUser, reservationId));
     }
 }
