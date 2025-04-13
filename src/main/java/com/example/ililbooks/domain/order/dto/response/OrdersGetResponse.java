@@ -6,8 +6,16 @@ import lombok.Builder;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record OrdersGetResponse(Long orderId, String number, BigDecimal totalPrice, String orderStatus,
-                                String deliveryStatus, String paymentStatus, LocalDateTime createdAt) {
+public record OrdersGetResponse(
+
+        Long orderId,
+        String number,
+        BigDecimal totalPrice,
+        String orderStatus,
+        String deliveryStatus,
+        String paymentStatus,
+        LocalDateTime createdAt
+) {
 
     @Builder
     public OrdersGetResponse {
