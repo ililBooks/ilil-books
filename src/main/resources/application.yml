@@ -54,6 +54,10 @@ cloud:
 
 client:
    naver:
-       client-id: ${NAVER_CLIENT_ID}
-       client-secret: ${NAVER_CLIENT_SECRET}
-       redirect-uri: ${NAVER_REDIRECT_URI}
+      client-id: ${NAVER_CLIENT_ID}
+      client-secret: ${NAVER_CLIENT_SECRET}
+      redirect-uri: ${NAVER_REDIRECT_URI}
+   google:
+      client_id: ${GOOGLE_CLIENT_ID}
+      client_secret: ${GOOGLE_CLIENT_SECRET}
+      redirect_uri: ${GOOGLE_REDIRECT_URI}
