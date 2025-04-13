@@ -1,0 +1,37 @@
+{
+  "properties": {
+    "id": {
+      "type": "keyword"
+    },
+    "userId": {
+      "type": "keyword"
+    },
+    "title": {
+      "type": "text",
+      "analyzer": "korean_analyzer"
+    },
+    "author": {
+      "type": "text",
+      "analyzer": "korean_analyzer"
+    },
+    "price": {
+      "type": "long"
+    },
+    "category": {
+      "type": "text",
+      "analyzer": "korean_analyzer"
+    },
+    "stock": {
+      "type": "integer"
+    },
+    "isbn": {
+      "type": "keyword"
+    },
+    "saleStatus": {
+      "type": "keyword"
+    },
+    "limitedType": {
+      "type": "keyword"
+    }
+  }
+}
