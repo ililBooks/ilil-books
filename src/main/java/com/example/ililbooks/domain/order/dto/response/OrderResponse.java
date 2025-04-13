@@ -5,11 +5,20 @@ import lombok.Builder;
 import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
-public record OrderResponse(String number, Page<OrderHistoryResponse> orderHistoryResponsePage, BigDecimal totalPrice,
-                            String orderStatus, String deliveryStatus, String paymentStatus, LocalDateTime createdAt,
-                            LocalDateTime modifiedAt) {
+public record OrderResponse(
+
+        String number,
+        Page<OrderHistoryResponse> orderHistoryResponsePage,
+        BigDecimal totalPrice,
+        String orderStatus,
+        String deliveryStatus,
+        String paymentStatus,
+        Instant createdAt,
+        Instant modifiedAt
+) {
 
     @Builder
     public OrderResponse {

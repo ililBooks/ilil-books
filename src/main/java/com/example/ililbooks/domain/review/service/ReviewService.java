@@ -54,7 +54,7 @@ public class ReviewService {
 
         return ReviewResponse.of(savedReview);
     }
-    
+
     @Transactional
     public void uploadReviewImage(AuthUser authUser, Long reviewId, ImageRequest imageRequest) {
         Review review = findReviewByIdOrElseThrow(reviewId);
