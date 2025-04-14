@@ -39,7 +39,7 @@ public class KakaoClient {
 
     public String getKakaoSignupUri() {
         return UriComponentsBuilder
-                .fromUriString("https://kauth.kakao.com/oauth/authorize")
+                .fromUriString("https://kauth.kakao.com/oauth/authorize") // 인가 코드 받기
                 .queryParam("client_id", clientId)
                 .queryParam("redirect_uri", redirectUri)
                 .queryParam("response_type", "code")
@@ -50,7 +50,7 @@ public class KakaoClient {
 
     public AuthKakaoTokenResponse requestToken(String code) {
         return webClient.post()
-                .uri("/oauth/token")
+                .uri("/oauth/token") // 토큰 받기
                 .body(BodyInserters.fromFormData("grant_type", "authorization_code")
                         .with("client_id", clientId)
                         .with("redirect_uri", redirectUri)

@@ -57,19 +57,15 @@ cloud:
       bucket: ${AWS_S3_BUCKET_NAME}
 
 client:
-   naver:
-      client-id: ${NAVER_CLIENT_ID}
-      client-secret: ${NAVER_CLIENT_SECRET}
-      redirect-uri: ${NAVER_REDIRECT_URI}
-   google:
-      client_id: ${GOOGLE_CLIENT_ID}
-      client_secret: ${GOOGLE_CLIENT_SECRET}
-      redirect_uri: ${GOOGLE_REDIRECT_URI}
   naver:
-      client-id: ${NAVER_CLIENT_ID}
-      client-secret: ${NAVER_CLIENT_SECRET}
-      redirect-uri: ${NAVER_REDIRECT_URI}
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET}
+    redirect-uri: ${NAVER_REDIRECT_URI}
+  google:
+    client_id: ${GOOGLE_CLIENT_ID}
+    client_secret: ${GOOGLE_CLIENT_SECRET}
+    redirect_uri: ${GOOGLE_REDIRECT_URI}
   kakao:
-      client-id: ${KAKAO_CLIENT_ID}
-      client-secret: ${KAKAO_CLIENT_SECRET}
-      redirect-uri: ${KAKAO_REDIRECT_URI}
+    client-id: ${KAKAO_CLIENT_ID}
+    client-secret: ${KAKAO_CLIENT_SECRET}
+    redirect-uri: ${KAKAO_REDIRECT_URI}
