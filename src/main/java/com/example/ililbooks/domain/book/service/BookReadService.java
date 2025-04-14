@@ -20,6 +20,7 @@ import static com.example.ililbooks.global.image.dto.response.ImageListResponse.
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookReadService {
 
     private final BookRepository bookRepository;
@@ -27,7 +28,6 @@ public class BookReadService {
     private final ReviewFindService reviewFindService;
     private final BookService bookService;
 
-    @Transactional(readOnly = true)
     public BookWithImagesResponse findBookResponse(Long bookId, Pageable pageable) {
         Book book = bookService.findBookByIdOrElseThrow(bookId);
 
@@ -37,7 +37,6 @@ public class BookReadService {
         return BookWithImagesResponse.of(book, reviews, ofBookImageList(bookImage));
     }
 
-    @Transactional(readOnly = true)
     public Page<BookListResponse> getBooks(Pageable pageable) {
         Page<Book> books = bookRepository.findAllNotDeleted(pageable);
 
@@ -52,5 +51,4 @@ public class BookReadService {
                     return BookListResponse.of(book, bookImages.get(0).getImageUrl());
                 });
     }
-
 }

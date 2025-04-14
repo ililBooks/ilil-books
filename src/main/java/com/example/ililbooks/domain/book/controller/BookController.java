@@ -5,6 +5,7 @@ import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
 import com.example.ililbooks.domain.book.dto.response.BookWithImagesResponse;
 import com.example.ililbooks.domain.book.dto.response.BookListResponse;
+import com.example.ililbooks.domain.book.service.BookOpenApiService;
 import com.example.ililbooks.domain.book.service.BookReadService;
 import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -31,6 +32,7 @@ public class BookController {
 
     private final BookService bookService;
     private final BookReadService bookReadService;
+    private final BookOpenApiService bookOpenApiService;
 
     /**
      * 직접 입력하여 책을 단건 저장하는 API
@@ -55,7 +57,7 @@ public class BookController {
             @AuthenticationPrincipal AuthUser authUser,
             @PageableDefault(size = 100) Pageable pagealbe
     ) {
-        bookService.createBookByOpenApi(authUser,pagealbe);
+        bookOpenApiService.createBookByOpenApi(authUser,pagealbe);
         return Response.empty();
     }
 
