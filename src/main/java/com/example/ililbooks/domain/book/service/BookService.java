@@ -4,16 +4,12 @@ import com.example.ililbooks.client.book.BookClient;
 import com.example.ililbooks.client.book.dto.BookApiResponse;
 import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
-import com.example.ililbooks.domain.book.dto.response.BookListResponse;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
-import com.example.ililbooks.domain.book.dto.response.BookWithImagesResponse;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.entity.BookImage;
 import com.example.ililbooks.domain.book.repository.BookRepository;
 import com.example.ililbooks.domain.book.repository.ImageBookRepository;
-import com.example.ililbooks.domain.review.dto.response.ReviewWithImagesResponse;
 import com.example.ililbooks.domain.review.service.ReviewDeleteService;
-import com.example.ililbooks.domain.review.service.ReviewFindService;
 import com.example.ililbooks.domain.search.entity.BookDocument;
 import com.example.ililbooks.domain.search.service.BookSearchService;
 import com.example.ililbooks.domain.user.entity.Users;
@@ -25,8 +21,6 @@ import com.example.ililbooks.global.exception.NotFoundException;
 import com.example.ililbooks.global.image.dto.request.ImageRequest;
 import com.example.ililbooks.global.image.service.S3ImageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,19 +34,18 @@ import java.util.List;
 import java.util.Random;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
-import static com.example.ililbooks.global.image.dto.response.ImageListResponse.ofBookImageList;
 
 @Service
 @RequiredArgsConstructor
 public class BookService {
     private final BookRepository bookRepository;
-    private final ImageBookRepository imageBookRepository;
     private final UserService userService;
-    private final BookClient bookClient;
-    private final ReviewFindService reviewFindService;
-    private final S3ImageService s3ImageService;
     private final ReviewDeleteService reviewDeleteService;
+    private final BookClient bookClient;
     private final BookSearchService bookSearchService;
+    private final ImageBookRepository imageBookRepository;
+    private final S3ImageService s3ImageService;
+
 
     @Transactional
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {
@@ -88,10 +81,10 @@ public class BookService {
      *  키워드는 슬랙에 따로 공유하겠습니다
      */
     @Transactional
-    public void createBookByOpenApi(AuthUser authUser, Integer pageNum, Integer pageSize) {
+    public void createBookByOpenApi(AuthUser authUser, Pageable pageable) {
 
         String[] keywords = {
-                "육아일기"
+                "다산북스"
         };
 
         //랜덤 가격 및 재고 생성을 위한 Random 객체 선언
@@ -107,7 +100,7 @@ public class BookService {
         for (String kwd : keywords) {
 
             try {
-                books = bookClient.findBooks(kwd, pageNum, pageSize);
+                books = bookClient.findBooks(kwd, pageable);
             }catch (Exception e) {
                 continue;
             }
@@ -181,34 +174,6 @@ public class BookService {
 
         s3ImageService.deleteImage(bookImage.getFileName());
         imageBookRepository.delete(bookImage);
-    }
-
-    @Transactional(readOnly = true)
-    public BookWithImagesResponse findBookResponse(Long bookId, int pageNum, int pageSize) {
-        Book book = findBookByIdOrElseThrow(bookId);
-
-        Page<ReviewWithImagesResponse> reviews = reviewFindService.getReviews(book.getId(), pageNum, pageSize);
-        List<BookImage> bookImage = getAllByBookId(book);
-
-        return BookWithImagesResponse.of(book, reviews, ofBookImageList(bookImage));
-    }
-
-    @Transactional(readOnly = true)
-    public Page<BookListResponse> getBooks(int pageNum, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
-
-        Page<Book> books = bookRepository.findAllNotDeleted(pageable);
-
-        return books
-                .map(book ->
-                {
-                    List<BookImage> bookImages = imageBookRepository.findAllByBookId(book.getId());
-                    //대표 이미지 하나를 뽑아서 응답
-                    if (bookImages.isEmpty()) {
-                        return BookListResponse.of(book);
-                    }
-                    return BookListResponse.of(book, bookImages.get(0).getImageUrl());
-                });
     }
 
     @Transactional

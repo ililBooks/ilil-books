@@ -5,12 +5,15 @@ import com.example.ililbooks.client.book.dto.BookApiWrapper;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.client.RestClient;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 
@@ -19,32 +22,29 @@ import static com.example.ililbooks.global.exception.ErrorMessage.*;
 @Component
 public class BookClient {
 
-    private final RestClient restClient;
+    private final WebClient webClient;
     private final ObjectMapper objectMapper;
 
     //발급 키
     @Value("${book.api.key}")
     private String apiKey;
 
-    public BookClient(RestClient.Builder builder, ObjectMapper objectMapper) {
-        this.restClient = builder.build();
+    public BookClient(WebClient.Builder builder, ObjectMapper objectMapper) {
+        this.webClient = builder.build();
         this.objectMapper = objectMapper;
     }
 
-    public BookApiResponse[] findBooks(String keyword, Integer pageNum, Integer pageSize) {
-        URI uri = buildBookApiUri(keyword, pageNum, pageSize);
+    public BookApiResponse[] findBooks(String keyword, Pageable pageable) {
+        URI uri = buildBookApiUri(keyword, pageable);
 
-        ResponseEntity<String> responseEntity = restClient.get()
+        String responseBody = webClient.get()
                 .uri(uri)
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .toEntity(String.class);
-
-        if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-            throw new RuntimeException(BOOK_API_RESPONSE_FAILED.getMessage());
-        }
-
-        // 응답 내부 데이터 가져오기
-        String responseBody = responseEntity.getBody();
+                .onStatus(status -> !status.is2xxSuccessful(),
+                        res -> Mono.error(new RuntimeException(BOOK_API_RESPONSE_FAILED.getMessage())))
+                .bodyToMono(String.class)
+                .block();
 
         try {
 
@@ -71,7 +71,7 @@ public class BookClient {
      * pageNum: 현재 페이지
      * pageSize: 페이지 크기 (default 10건)
      */
-    private URI buildBookApiUri(String keyword, Integer pageNum, Integer pageSize) {
+    private URI buildBookApiUri(String keyword, Pageable pageable) {
         return UriComponentsBuilder
                 .fromUriString("https://www.nl.go.kr/NL/search/openApi/search.do")
                 .queryParam("key", apiKey)
@@ -79,8 +79,8 @@ public class BookClient {
                 .queryParam("kwd", keyword)
                 .queryParam("srchTarget", "total")
                 .queryParam("category", "도서")
-                .queryParam("pageNum", pageNum)
-                .queryParam("pageSize", pageSize)
+                .queryParam("pageNum", pageable.getPageNumber())
+                .queryParam("pageSize", pageable.getPageSize())
                 .encode()
                 .build()
                 .toUri();
