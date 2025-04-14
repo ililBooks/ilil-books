@@ -5,6 +5,7 @@ import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
 import com.example.ililbooks.domain.book.dto.response.BookWithImagesResponse;
 import com.example.ililbooks.domain.book.dto.response.BookListResponse;
+import com.example.ililbooks.domain.book.service.BookReadService;
 import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
@@ -14,6 +15,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +30,7 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.ADMIN;
 public class BookController {
 
     private final BookService bookService;
+    private final BookReadService bookReadService;
 
     /**
      * 직접 입력하여 책을 단건 저장하는 API
@@ -49,10 +53,9 @@ public class BookController {
     @PostMapping("/open-api")
     public Response<Void> createBooksByOpenApi(
             @AuthenticationPrincipal AuthUser authUser,
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "100") int pageSize
+            @PageableDefault(size = 100) Pageable pagealbe
     ) {
-        bookService.createBookByOpenApi(authUser, pageNum, pageSize);
+        bookService.createBookByOpenApi(authUser,pagealbe);
         return Response.empty();
     }
 
@@ -78,10 +81,9 @@ public class BookController {
     @GetMapping("/{bookId}")
     public Response<BookWithImagesResponse> findBook(
             @PathVariable Long bookId,
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize
+            Pageable pageable
     ) {
-        return Response.of(bookService.findBookResponse(bookId, pageNum, pageSize));
+        return Response.of(bookReadService.findBookResponse(bookId, pageable));
     }
 
     /**
@@ -90,10 +92,9 @@ public class BookController {
     @Operation(summary = "책 목록 조회", description = "등록된 모든 책을 페이징 처리하여 조회하는 API입니다.")
     @GetMapping("/all")
     public Response<Page<BookListResponse>> getBooks(
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize
+           Pageable pageable
     ) {
-        return Response.of(bookService.getBooks(pageNum, pageSize));
+        return Response.of(bookReadService.getBooks(pageable));
     }
 
     /**
