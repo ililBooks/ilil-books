@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +31,9 @@ public class OrderGetController {
     public Response<OrderResponse> findOrder(
             @PathVariable Long orderId,
             @AuthenticationPrincipal AuthUser authUser,
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize
+            Pageable pageable
     ) {
-        return Response.of(orderGetService.findOrder(authUser, orderId, pageNum, pageSize));
+        return Response.of(orderGetService.findOrder(authUser, orderId, pageable));
     }
 
     /* 주문 다건 조회 */
@@ -42,10 +42,9 @@ public class OrderGetController {
     @Operation(summary = "주문 다건 조회", description = "주문에 대한 정보를 다건으로 조회한다.")
     public Response<Page<OrdersGetResponse>> getOrders(
             @AuthenticationPrincipal AuthUser authUser,
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize
+            Pageable pageable
     ) {
-        return Response.of(orderGetService.getOrders(authUser, pageNum, pageSize));
+        return Response.of(orderGetService.getOrders(authUser, pageable));
     }
 
 }
