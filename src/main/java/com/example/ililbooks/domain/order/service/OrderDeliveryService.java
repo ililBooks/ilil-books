@@ -6,6 +6,7 @@ import com.example.ililbooks.domain.order.enums.DeliveryStatus;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +21,7 @@ public class OrderDeliveryService {
 
     /* 배송 상태 변경 (대기 -> 배송중 -> 배송완료) */
     @Transactional
-    public OrderResponse updateDeliveryStatus(Long orderId, int pageNum, int pageSize) {
+    public OrderResponse updateDeliveryStatus(Long orderId, Pageable pageable) {
         Order order = orderService.findByIdOrElseThrow(orderId);
 
         if (order.getOrderStatus() == OrderStatus.CANCELLED) {
@@ -33,6 +34,6 @@ public class OrderDeliveryService {
         if (deliveryStatus == DELIVERED) {
             order.updateOrder(OrderStatus.COMPLETE);
         }
-        return orderService.getOrderResponse(order, pageNum, pageSize);
+        return orderService.getOrderResponse(order, pageable);
     }
 }

@@ -50,8 +50,7 @@ public class BookController {
     public Response<Void> createBooksByOpenApi(
             @AuthenticationPrincipal AuthUser authUser,
             @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "100") int pageSize,
-            @RequestParam String keyword
+            @RequestParam(defaultValue = "100") int pageSize
     ) {
         bookService.createBookByOpenApi(authUser, pageNum, pageSize);
         return Response.empty();
