@@ -53,6 +53,7 @@ public class TokenServiceTest {
                 .build();
     }
 
+    /* createAccessToken */
     @Test
     void 토큰발급_AccessToken_발급_성공() {
         // given
@@ -83,6 +84,7 @@ public class TokenServiceTest {
         verify(refreshTokenRepository, times(1)).save(any(RefreshToken.class));
     }
 
+    /* findRefreshToken */
     @Test
     void 리플래시_토큰_찾기_토큰이_없어_실패() {
         //given
