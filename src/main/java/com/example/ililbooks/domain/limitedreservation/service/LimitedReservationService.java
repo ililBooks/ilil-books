@@ -8,7 +8,7 @@ import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation
 import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
 import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
 import com.example.ililbooks.domain.user.entity.Users;
-import com.example.ililbooks.domain.user.repository.UserRepository;
+import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
@@ -19,9 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
@@ -31,7 +29,7 @@ public class LimitedReservationService {
 
     private final LimitedReservationRepository limitedReservationRepository;
     private final LimitedEventRepository limitedEventRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     private static final int EXPIRATION_HOURS = 24;
 
@@ -40,22 +38,21 @@ public class LimitedReservationService {
      */
     @Transactional
     public LimitedReservationResponse createReservation(AuthUser authUser, LimitedReservationCreateRequest request) {
-        Users user = findUser(authUser.getUserId());
         LimitedEvent limitedEvent = findEvent(request.limitedEventId());
+        validateNotAlreadyReserved(authUser.getUserId(), limitedEvent);
 
-        // 중복 예약 체크
-        limitedReservationRepository.findByUsersAndLimitedEvent(user, limitedEvent).ifPresent(reservation -> {
-            throw new BadRequestException(ALREADY_RESERVED_EVENT.getMessage());
-        });
-
-        // 예약 수량 체크
-        long successCount = limitedReservationRepository.countByLimitedEventAndStatus(limitedEvent, LimitedReservationStatus.SUCCESS);
+        long successCount = limitedReservationRepository.countByLimitedEventAndStatus(
+                limitedEvent, LimitedReservationStatus.SUCCESS);
         boolean isReservable = limitedEvent.canAcceptReservation(successCount);
 
-        LimitedReservationStatus status = isReservable ? LimitedReservationStatus.SUCCESS : LimitedReservationStatus.WAITING;
-        Instant expiredAt = Instant.now().plus(EXPIRATION_HOURS, ChronoUnit.HOURS);
+        LimitedReservationStatus status = isReservable
+                ? LimitedReservationStatus.SUCCESS
+                : LimitedReservationStatus.WAITING;
 
-        LimitedReservation reservation = LimitedReservation.createFrom(user, limitedEvent, status, expiredAt);
+        Instant expiresAt = Instant.now().plus(EXPIRATION_HOURS, ChronoUnit.HOURS);
+        Users user = userService.findByIdOrElseThrow(authUser.getUserId());
+
+        LimitedReservation reservation = LimitedReservation.of(user, limitedEvent, status, expiresAt);
         limitedReservationRepository.save(reservation);
 
         return LimitedReservationResponse.of(reservation);
@@ -111,14 +108,15 @@ public class LimitedReservationService {
     }
 
     // --- 내부 메서드 ---
-    private Users findUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundException(NOT_FOUND_USER.getMessage())
-        );
+    private void validateNotAlreadyReserved(Long userId, LimitedEvent event) {
+        limitedReservationRepository.findByUsersIdAndLimitedEvent(userId, event)
+                .ifPresent(r -> {
+                    throw new BadRequestException(ALREADY_RESERVED_EVENT.getMessage());
+                });
     }
 
-    private LimitedEvent findEvent(Long eventId) {
-        return limitedEventRepository.findById(eventId).orElseThrow(
+    private LimitedEvent findEvent(Long limitedEventId) {
+        return limitedEventRepository.findById(limitedEventId).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_EVENT.getMessage())
         );
     }

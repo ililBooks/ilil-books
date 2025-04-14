@@ -6,12 +6,15 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
+import static com.example.ililbooks.global.dto.ValidationMessage.NOT_EMPTY_RESERVATION_STATUS;
+import static com.example.ililbooks.global.dto.ValidationMessage.NOT_NULL_EVENT_ID;
+
 public record LimitedReservationStatusFilterRequest(
 
-        @NotNull
+        @NotNull(message = NOT_NULL_EVENT_ID)
         Long eventId,
 
-        @NotEmpty
+        @NotEmpty(message = NOT_EMPTY_RESERVATION_STATUS)
         List<LimitedReservationStatus> statuses
 
 ) {}

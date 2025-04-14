@@ -2,7 +2,7 @@ package com.example.ililbooks.domain.order.service;
 
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.service.BookService;
-import com.example.ililbooks.domain.book.service.BookStokeService;
+import com.example.ililbooks.domain.book.service.BookStockService;
 import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
 import com.example.ililbooks.domain.cart.service.CartService;
@@ -37,7 +37,7 @@ public class OrderService {
     private final CartService cartService;
     private final OrderHistoryService orderHistoryService;
     private final BookService bookService;
-    private final BookStokeService bookStokeService;
+    private final BookStockService bookStockService;
 
     /* 주문 생성 */
     @Transactional
@@ -117,7 +117,7 @@ public class OrderService {
     private void decreaseStocks(Map<Long, Book> bookMap, Cart cart) {
         for (Book book : bookMap.values()) {
             CartItem cartItem = cart.getItems().get(book.getId());
-            bookStokeService.decreaseStock(book, cartItem.getQuantity());
+            bookStockService.decreaseStock(book, cartItem.getQuantity());
         }
     }
 
@@ -127,7 +127,7 @@ public class OrderService {
 
         for (CartItem cartItem : cartItemList) {
             Book book = bookService.findBookByIdOrElseThrow(cartItem.getBookId());
-            bookStokeService.rollbackStock(book, cartItem.getQuantity());
+            bookStockService.rollbackStock(book, cartItem.getQuantity());
         }
     }
 

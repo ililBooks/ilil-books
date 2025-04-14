@@ -9,7 +9,7 @@ import static com.example.ililbooks.global.exception.ErrorMessage.OUT_OF_STOCK;
 
 @Service
 @RequiredArgsConstructor
-public class BookStokeService {
+public class BookStockService {
 
     public void decreaseStock(Book book, int quantity) {
         int remainingStock = book.decreaseStock(quantity);

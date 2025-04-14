@@ -25,7 +25,7 @@ public class LimitedEventController {
     private final LimitedEventService limitedEventService;
 
     /*/ 행사 등록 (PUBLISHER 만 가능) */
-    @Secured(PUBLISHER) // 향후 AuthPermission 으로 수정 여부 체크
+    @Secured(PUBLISHER)
     @PostMapping
     public Response<LimitedEventResponse> createLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,
