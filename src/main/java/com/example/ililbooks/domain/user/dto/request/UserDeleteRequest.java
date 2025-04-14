@@ -2,6 +2,7 @@ package com.example.ililbooks.domain.user.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 
 import static com.example.ililbooks.global.dto.ValidationMessage.NOT_BLANK_PASSWORD;
 
@@ -12,4 +13,7 @@ public record UserDeleteRequest(
         @NotBlank(message = NOT_BLANK_PASSWORD)
         String password
 ) {
+        @Builder
+        public UserDeleteRequest {
+        }
 }
