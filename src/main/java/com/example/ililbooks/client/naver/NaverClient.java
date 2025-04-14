@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.UUID;
@@ -21,7 +23,7 @@ import static com.example.ililbooks.global.exception.ErrorMessage.*;
 @Component
 public class NaverClient {
 
-    private final RestClient restClient;
+    private final WebClient webClient;
     private final ObjectMapper objectMapper;
 
     @Value("${client.naver.client-id}")
@@ -33,8 +35,8 @@ public class NaverClient {
     @Value("${client.naver.client-secret}")
     private String clientSecret;
 
-    public NaverClient(RestClient.Builder builder, ObjectMapper objectMapper) {
-        this.restClient = builder.build();
+    public NaverClient(WebClient.Builder builder, ObjectMapper objectMapper) {
+        this.webClient = builder.build();
         this.objectMapper = objectMapper;
     }
 
@@ -51,17 +53,14 @@ public class NaverClient {
     public NaverApiProfileResponse findProfile(String accessToken) {
         URI uri = buildNaverUserProfileApiUri();
 
-        ResponseEntity<String> responseEntity = restClient.get()
+        String responseBody = webClient.get()
                 .uri(uri)
-                .headers(httpHeaders -> httpHeaders.setBearerAuth(accessToken)) // 토큰 추가
+                .headers(h -> h.setBearerAuth(accessToken))
                 .retrieve()
-                .toEntity(String.class);
-
-        if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-            throw new RuntimeException(NAVER_API_RESPONSE_FAILED.getMessage());
-        }
-
-        String responseBody = responseEntity.getBody();
+                .onStatus(status -> !status.is2xxSuccessful(),
+                        res -> Mono.error(new RuntimeException(NAVER_API_RESPONSE_FAILED.getMessage())))
+                .bodyToMono(String.class)
+                .block();
 
         try {
 
@@ -133,16 +132,13 @@ public class NaverClient {
     }
 
     private NaverApiResponse findResponseBody(URI uri) {
-        ResponseEntity<String> responseEntity = restClient.get()
+        String responseBody = webClient.get()
                 .uri(uri)
                 .retrieve()
-                .toEntity(String.class);
-
-        if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-            throw new RuntimeException(NAVER_API_RESPONSE_FAILED.getMessage());
-        }
-
-        String responseBody = responseEntity.getBody();
+                .onStatus(status -> !status.is2xxSuccessful(),
+                        res -> Mono.error(new RuntimeException(NAVER_API_RESPONSE_FAILED.getMessage())))
+                .bodyToMono(String.class)
+                .block();
 
         try {
             return objectMapper.readValue(responseBody, NaverApiResponse.class);
