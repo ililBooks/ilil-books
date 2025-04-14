@@ -3,6 +3,7 @@ package com.example.ililbooks.domain.limitedreservation.controller;
 import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationCreateRequest;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
+import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.validation.Valid;
@@ -70,5 +71,15 @@ public class LimitedReservationController {
     ) {
         limitedReservationService.cancelReservation(authUser, reservationId);
         return Response.empty();
+    }
+
+    /*/ 주문 생성 */
+    @Secured(USER)
+    @PostMapping("/order/{reservationId}")
+    public Response<OrdersGetResponse> createOrderForReservation(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long reservationId
+    ) {
+        return Response.of(limitedReservationService.createOrderForReservation(authUser, reservationId));
     }
 }
