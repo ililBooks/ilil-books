@@ -7,7 +7,7 @@ import com.example.ililbooks.domain.order.enums.PaymentStatus;
 import lombok.Builder;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record LimitedReservationOrderResponse(
         Long reservationOrderId,
@@ -17,8 +17,8 @@ public record LimitedReservationOrderResponse(
         OrderStatus orderStatus,
         DeliveryStatus deliveryStatus,
         PaymentStatus paymentStatus,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt
+        Instant createdAt,
+        Instant modifiedAt
 ) {
     @Builder
     public LimitedReservationOrderResponse {
