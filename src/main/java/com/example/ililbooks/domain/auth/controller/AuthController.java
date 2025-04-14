@@ -21,7 +21,7 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1/auth/email")
 @Tag(name = "Auth", description = "이메일 회원가입 및 로그인과 관련된 API")
 public class AuthController {
 

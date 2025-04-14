@@ -4,6 +4,7 @@ import com.example.ililbooks.domain.order.entity.Order;
 import lombok.Builder;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 public record OrdersGetResponse(
@@ -14,7 +15,7 @@ public record OrdersGetResponse(
         String orderStatus,
         String deliveryStatus,
         String paymentStatus,
-        LocalDateTime createdAt
+        Instant createdAt
 ) {
 
     @Builder
