@@ -133,6 +133,12 @@ public class BookService {
                     Book book = Book.of(users, bookApiResponse, price, randomStock);
                     BookDocument document = BookDocument.toDocument(book);
 
+                    for (Book bookToSave : booksToSave) {
+                        if (bookToSave.getIsbn().equals(book.getIsbn())) {
+                            throw new BadRequestException(DUPLICATE_BOOK.getMessage());
+                        }
+                    }
+
                     booksToSave.add(book);
                     bookDocumentsToSave.add(document);
                 } catch (Exception e) {
