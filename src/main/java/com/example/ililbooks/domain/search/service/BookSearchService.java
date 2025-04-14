@@ -27,17 +27,13 @@ public class BookSearchService {
 
     public void saveAll(List<BookDocument> bookDocuments) { bookSearchRepository.saveAll(bookDocuments);}
 
-    public Page<BookSearchResponse> searchBooksV2(String keyword, int page, int size){
-        Pageable pageable = PageRequest.of(page - 1, size);
-
+    public Page<BookSearchResponse> searchBooksV2(String keyword, Pageable pageable) {
         Page<BookDocument> bookDocuments = bookSearchRepository.findByMultiMatch(pageable, keyword);
 
         return bookDocuments.map(BookSearchResponse::of);
     }
 
-    public Page<BookSearchResponse> searchBooksV1(String keyword, int page, int size){
-        Pageable pageable = PageRequest.of(page - 1, size);
-
+    public Page<BookSearchResponse> searchBooksV1(String keyword, Pageable pageable) {
         Page<Book> books = bookRepository.findBooksByKeyword(keyword, pageable);
 
         return books.map(BookSearchResponse::of);
