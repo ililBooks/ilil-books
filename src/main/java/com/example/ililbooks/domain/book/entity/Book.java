@@ -54,7 +54,7 @@ public class Book extends TimeStamped {
     @Column(columnDefinition = "varchar(50)")
     private LimitedType limitedType;
 
-    private Boolean isDeleted;
+    private boolean isDeleted;
 
     @Builder
     private Book(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher) {
