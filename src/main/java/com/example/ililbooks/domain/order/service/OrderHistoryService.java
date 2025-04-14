@@ -30,8 +30,7 @@ public class OrderHistoryService {
         }
     }
 
-    public Page<OrderHistoryResponse> getOrderHistories(Long orderId, int pageNum, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
+    public Page<OrderHistoryResponse> getOrderHistories(Long orderId, Pageable pageable) {
         Page<OrderHistory> findOrderHistories = orderHistoryRepository.findAllByOrderId(orderId, pageable);
 
         return findOrderHistories.map(OrderHistoryResponse::of);
