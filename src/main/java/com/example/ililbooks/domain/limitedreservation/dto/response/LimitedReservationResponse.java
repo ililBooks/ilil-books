@@ -2,6 +2,7 @@ package com.example.ililbooks.domain.limitedreservation.dto.response;
 
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
 import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
+import lombok.Builder;
 
 import java.time.Instant;
 
@@ -10,15 +11,20 @@ public record LimitedReservationResponse(
         Long limitedEventId,
         Long userId,
         LimitedReservationStatus status,
-        Instant expiredAt
+        Instant expiresAt,
+        Long orderId
 ) {
+    @Builder
+    public LimitedReservationResponse {}
+
     public static LimitedReservationResponse of(LimitedReservation reservation) {
-        return new LimitedReservationResponse(
-                reservation.getId(),
-                reservation.getLimitedEvent().getId(),
-                reservation.getUsers().getId(),
-                reservation.getStatus(),
-                reservation.getExpiredAt()
-        );
+        return LimitedReservationResponse.builder()
+                .reservationId(reservation.getId())
+                .limitedEventId(reservation.getLimitedEvent().getId())
+                .userId(reservation.getUsers().getId())
+                .status(reservation.getStatus())
+                .expiresAt(reservation.getExpiresAt())
+                .orderId(reservation.hasOrder() ? reservation.getOrder().getId() : null)
+                .build();
     }
 }
