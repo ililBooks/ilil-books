@@ -51,4 +51,5 @@ public class BookReadService {
                     return BookListResponse.of(book, bookImages.get(0).getImageUrl());
                 });
     }
+
 }

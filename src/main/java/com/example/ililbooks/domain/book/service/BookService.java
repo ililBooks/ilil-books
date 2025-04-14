@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.book.service;
 
+import com.example.ililbooks.client.book.BookClient;
 import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
@@ -29,11 +30,11 @@ import static com.example.ililbooks.global.exception.ErrorMessage.*;
 @RequiredArgsConstructor
 public class BookService {
     private final BookRepository bookRepository;
-    private final ImageBookRepository imageBookRepository;
     private final UserService userService;
     private final ReviewDeleteService reviewDeleteService;
-    private final S3ImageService s3ImageService;
     private final BookSearchService bookSearchService;
+    private final ImageBookRepository imageBookRepository;
+    private final S3ImageService s3ImageService;
 
     @Transactional
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {

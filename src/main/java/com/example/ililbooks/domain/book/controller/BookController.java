@@ -2,9 +2,9 @@ package com.example.ililbooks.domain.book.controller;
 
 import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
+import com.example.ililbooks.domain.book.dto.response.BookListResponse;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
 import com.example.ililbooks.domain.book.dto.response.BookWithImagesResponse;
-import com.example.ililbooks.domain.book.dto.response.BookListResponse;
 import com.example.ililbooks.domain.book.service.BookOpenApiService;
 import com.example.ililbooks.domain.book.service.BookReadService;
 import com.example.ililbooks.domain.book.service.BookService;
