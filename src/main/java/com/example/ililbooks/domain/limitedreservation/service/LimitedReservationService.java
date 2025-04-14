@@ -7,10 +7,8 @@ import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReser
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
 import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
 import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
-import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
-import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.user.entity.Users;
-import com.example.ililbooks.domain.user.repository.UserRepository;
+import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
@@ -31,7 +29,7 @@ public class LimitedReservationService {
 
     private final LimitedReservationRepository limitedReservationRepository;
     private final LimitedEventRepository limitedEventRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     private static final int EXPIRATION_HOURS = 24;
 
@@ -43,13 +41,16 @@ public class LimitedReservationService {
         LimitedEvent limitedEvent = findEvent(request.limitedEventId());
         validateNotAlreadyReserved(authUser.getUserId(), limitedEvent);
 
-        long successCount = limitedReservationRepository.countByLimitedEventAndStatus(limitedEvent, LimitedReservationStatus.SUCCESS);
+        long successCount = limitedReservationRepository.countByLimitedEventAndStatus(
+                limitedEvent, LimitedReservationStatus.SUCCESS);
         boolean isReservable = limitedEvent.canAcceptReservation(successCount);
 
-        LimitedReservationStatus status = isReservable ? LimitedReservationStatus.SUCCESS : LimitedReservationStatus.WAITING;
-        Instant expiresAt = Instant.now().plus(EXPIRATION_HOURS, ChronoUnit.HOURS);
+        LimitedReservationStatus status = isReservable
+                ? LimitedReservationStatus.SUCCESS
+                : LimitedReservationStatus.WAITING;
 
-        Users user = findUser(authUser.getUserId());
+        Instant expiresAt = Instant.now().plus(EXPIRATION_HOURS, ChronoUnit.HOURS);
+        Users user = userService.findByIdOrElseThrow(authUser.getUserId());
 
         LimitedReservation reservation = LimitedReservation.of(user, limitedEvent, status, expiresAt);
         limitedReservationRepository.save(reservation);
@@ -106,55 +107,12 @@ public class LimitedReservationService {
         reservation.markCanceled();
     }
 
-    /*
-     * 성공한 예약 기반 주문 생성
-     */
-    @Transactional
-    public OrdersGetResponse createOrderForReservation(AuthUser authUser, Long reservationId) {
-        LimitedReservation reservation = validateReservation(authUser, reservationId);
-        LimitedEvent limitedEvent = reservation.getLimitedEvent();
-
-        if (reservation.getExpiresAt().isBefore(Instant.now())) {
-            throw new BadRequestException(RESERVATION_EXPIRED.getMessage());
-        }
-
-        if (reservation.hasOrder()) {
-            throw new BadRequestException(ALREADY_ORDERED.getMessage());
-        }
-
-        if (limitedEvent.getBookQuantity() < 1) {
-            throw new BadRequestException(OUT_OF_STOCK.getMessage());
-        }
-
-        limitedEvent.decreaseBookQuantity(1);
-
-        Users user = findUser(authUser.getUserId());
-        Order order = Order.of(user, limitedEvent.getBook().getPrice());
-        reservation.linkOrder(order);
-
-        return OrdersGetResponse.of(order);
-    }
-
     // --- 내부 메서드 ---
     private void validateNotAlreadyReserved(Long userId, LimitedEvent event) {
         limitedReservationRepository.findByUsersIdAndLimitedEvent(userId, event)
                 .ifPresent(r -> {
                     throw new BadRequestException(ALREADY_RESERVED_EVENT.getMessage());
                 });
-    }
-
-    private LimitedReservation validateReservation(AuthUser authUser, Long reservationId) {
-        LimitedReservation reservation = findReservation(reservationId);
-
-        if (!reservation.getUsers().getId().equals(authUser.getUserId())) {
-            throw new BadRequestException(NO_PERMISSION.getMessage());
-        }
-
-        if (reservation.getStatus() != LimitedReservationStatus.SUCCESS) {
-            throw new BadRequestException(RESERVATION_NOT_SUCCESS.getMessage());
-        }
-
-        return reservation;
     }
 
     private LimitedEvent findEvent(Long limitedEventId) {
@@ -167,10 +125,5 @@ public class LimitedReservationService {
         return limitedReservationRepository.findById(reservationId).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage())
         );
-    }
-
-    private Users findUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_USER.getMessage()));
     }
 }

@@ -2,6 +2,7 @@ package com.example.ililbooks.domain.limitedreservation.controller;
 
 import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationCreateRequest;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationOrderService;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
 import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -22,6 +23,7 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.*;
 public class LimitedReservationController {
 
     private final LimitedReservationService limitedReservationService;
+    private final LimitedReservationOrderService limitedReservationOrderService;
 
     /*/ 예약 생성 */
     @Secured(USER)
@@ -80,6 +82,6 @@ public class LimitedReservationController {
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reservationId
     ) {
-        return Response.of(limitedReservationService.createOrderForReservation(authUser, reservationId));
+        return Response.of(limitedReservationOrderService.createOrderFroReservation(authUser, reservationId));
     }
 }
