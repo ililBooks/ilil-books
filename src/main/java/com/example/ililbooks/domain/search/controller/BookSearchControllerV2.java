@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,9 +25,8 @@ public class BookSearchControllerV2 {
     @GetMapping
     public Response<Page<BookSearchResponse>> searchBooks(
             @RequestParam String q,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "100") int size
+            Pageable pageable
     ) {
-        return Response.of(bookSearchService.searchBooksV2(q, page, size));
+        return Response.of(bookSearchService.searchBooksV2(q, pageable));
     }
 }
