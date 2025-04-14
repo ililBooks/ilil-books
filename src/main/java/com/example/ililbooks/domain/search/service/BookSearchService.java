@@ -5,13 +5,15 @@ import com.example.ililbooks.domain.book.repository.BookRepository;
 import com.example.ililbooks.domain.search.dto.BookSearchResponse;
 import com.example.ililbooks.domain.search.entity.BookDocument;
 import com.example.ililbooks.domain.search.repository.BookSearchRepository;
+import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_BOOK_DOCUMENT;
 
 @Service
 @RequiredArgsConstructor
@@ -38,4 +40,17 @@ public class BookSearchService {
 
         return books.map(BookSearchResponse::of);
     }
+
+    public void updateBookDocument(Book book) {
+        BookDocument bookDocument = bookSearchRepository.findByIsbnOnSale(book.getIsbn())
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_BOOK_DOCUMENT.getMessage()));
+        bookDocument.updateBookDocument(book);
+    }
+
+    public void deleteBookDocument(Book book) {
+        BookDocument bookDocument = bookSearchRepository.findByIsbnOnSale(book.getIsbn())
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_BOOK_DOCUMENT.getMessage()));
+        bookDocument.deleteBookDocument(book.isDeleted());
+    }
+
 }

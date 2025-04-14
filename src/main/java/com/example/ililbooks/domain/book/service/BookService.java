@@ -1,6 +1,5 @@
 package com.example.ililbooks.domain.book.service;
 
-import com.example.ililbooks.client.book.BookClient;
 import com.example.ililbooks.domain.book.dto.request.BookCreateRequest;
 import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
@@ -114,6 +113,8 @@ public class BookService {
                 bookUpdateRequest.saleStatus(),
                 bookUpdateRequest.limitedType()
                 );
+        // BookDocument 수정
+        bookSearchService.updateBookDocument(book);
     }
 
     @Transactional
@@ -133,6 +134,9 @@ public class BookService {
 
         imageBookRepository.deleteAllByBookId(bookId);
         reviewDeleteService.deleteAllReviewByBookId(bookId);
+
+        // BookDocument 삭제
+        bookSearchService.deleteBookDocument(book);
     }
 
     public Book findBookByIdOrElseThrow(Long bookId) {
