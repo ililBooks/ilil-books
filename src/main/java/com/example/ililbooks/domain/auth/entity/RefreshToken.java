@@ -23,9 +23,16 @@ public class RefreshToken{
     private Long userId;
 
     @Builder
-    public RefreshToken(Long userId) {
+    public RefreshToken(String token, Long userId) {
+        this.token = token;
         this.userId = userId;
-        this.token = UUID.randomUUID().toString();
+    }
+
+    public static RefreshToken of(Long userId) {
+        return RefreshToken.builder()
+                .token(UUID.randomUUID().toString())
+                .userId(userId)
+                .build();
     }
 
     public String updateToken() {
