@@ -6,6 +6,7 @@ import com.example.ililbooks.global.dto.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,9 +26,8 @@ public class OrderDeliveryController {
     @PatchMapping("/delivery/{orderId}")
     public Response<OrderResponse> updateDeliveryStatus(
             @PathVariable Long orderId,
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize
+            Pageable pageable
     ) {
-        return Response.of(orderDeliveryService.updateDeliveryStatus(orderId, pageNum, pageSize));
+        return Response.of(orderDeliveryService.updateDeliveryStatus(orderId, pageable));
     }
 }
