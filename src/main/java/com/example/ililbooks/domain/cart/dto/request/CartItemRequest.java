@@ -3,6 +3,7 @@ package com.example.ililbooks.domain.cart.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
 import static com.example.ililbooks.global.dto.ValidationMessage.*;
 
@@ -17,5 +18,7 @@ public record CartItemRequest(
         @Min(value = 1, message = INVALID_BOOK_QUANTITY)
         int quantity
 ) {
-
+        @Builder
+        public CartItemRequest {
+        }
 }
