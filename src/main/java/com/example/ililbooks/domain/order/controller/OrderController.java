@@ -7,6 +7,7 @@ import com.example.ililbooks.global.dto.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -27,10 +28,9 @@ public class OrderController {
     @PostMapping
     public Response<OrderResponse> createOrder(
             @AuthenticationPrincipal AuthUser authUser,
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize
+            Pageable pageable
     ) {
-        return Response.of(orderService.createOrder(authUser, pageNum, pageSize));
+        return Response.of(orderService.createOrder(authUser, pageable));
     }
 
     /* 주문 취소 */
@@ -40,10 +40,9 @@ public class OrderController {
     public Response<OrderResponse> cancelOrder(
             @PathVariable Long orderId,
             @AuthenticationPrincipal AuthUser authUser,
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize
+            Pageable pageable
     ) {
-        return Response.of(orderService.cancelOrder(authUser, orderId, pageNum, pageSize));
+        return Response.of(orderService.cancelOrder(authUser, orderId, pageable));
     }
 
     /* 주문 상태 변경 (주문 대기 -> 주문 완료)
@@ -53,9 +52,8 @@ public class OrderController {
     public Response<OrderResponse> updateOrderStatus(
             @PathVariable Long orderId,
             @AuthenticationPrincipal AuthUser authUser,
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize
+            Pageable pageable
     ) {
-        return Response.of(orderService.updateOrderStatus(authUser, orderId, pageNum, pageSize));
+        return Response.of(orderService.updateOrderStatus(authUser, orderId, pageable));
     }
 }

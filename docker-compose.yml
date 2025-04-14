@@ -60,6 +60,7 @@ services:
     ports:
       - "6379:6379"
     command: redis-server --requirepass ${REDIS_PASSWORD}
+      - "6379:6379"  # 로컬 포트 매핑
     networks:
       - esnet
     healthcheck:

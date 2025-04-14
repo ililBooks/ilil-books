@@ -1,3 +1,14 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+    session:
+      timeout: 1800
+
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -27,17 +38,6 @@ spring:
         format_sql: true
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQLDialect
-
-server:
-  port: 8080
-  servlet:
-    context-path: /
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
-    session:
-      timeout: 1800
 
 jwt:
   secret:

@@ -22,8 +22,7 @@ public class ReviewFindService {
     private final ReviewRepository reviewRepository;
     private final ImageReviewRepository imageReviewRepository;
 
-    public Page<ReviewWithImagesResponse> getReviews(Long bookId, int pageNum, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
+    public Page<ReviewWithImagesResponse> getReviews(Long bookId, Pageable pageable) {
         Page<Review> reviews = reviewRepository.findAllByBookId(bookId, pageable);
 
          return reviews

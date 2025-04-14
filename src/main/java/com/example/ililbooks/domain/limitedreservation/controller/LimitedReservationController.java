@@ -2,48 +2,57 @@ package com.example.ililbooks.domain.limitedreservation.controller;
 
 import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationCreateRequest;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationOrderService;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
+import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import static com.example.ililbooks.domain.user.enums.UserRole.Authority.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/limited-reservations")
 public class LimitedReservationController {
 
-    private final LimitedReservationService reservationService;
+    private final LimitedReservationService limitedReservationService;
+    private final LimitedReservationOrderService limitedReservationOrderService;
 
     /*/ 예약 생성 */
+    @Secured(USER)
     @PostMapping
     public Response<LimitedReservationResponse> createReservation(
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestBody LimitedReservationCreateRequest request
-            ) {
-        return Response.of(reservationService.createReservation(authUser, request));
+    ) {
+        return Response.of(limitedReservationService.createReservation(authUser, request));
     }
 
     /*/ 예약 단건 조회 */
+    @Secured(USER)
     @GetMapping("/{reservationId}")
     public Response<LimitedReservationResponse> getMyReservation(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reservationId
     ) {
-        return Response.of(reservationService.getReservationByUser(authUser, reservationId));
+        return Response.of(limitedReservationService.getReservationByUser(authUser, reservationId));
     }
 
     /*/ 행사별 전체 예약 조회 */
+    @Secured({PUBLISHER, ADMIN})
     @GetMapping("/events/{eventId}")
     public Response<Page<LimitedReservationResponse>> getAllReservationsByEvent(
             @PathVariable Long eventId,
             Pageable pageable
     ) {
-        return Response.of(reservationService.getReservationsByEvent(eventId, pageable));
+        return Response.of(limitedReservationService.getReservationsByEvent(eventId, pageable));
     }
 
      // V2 - 관리자 조회용
@@ -56,12 +65,23 @@ public class LimitedReservationController {
 //    }
 
     /*/ 예약 취소 */
+    @Secured(USER)
     @PatchMapping("/cancel/{reservationId}")
     public Response<Void> cancelReservation(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reservationId
     ) {
-        reservationService.cancelReservation(authUser, reservationId);
+        limitedReservationService.cancelReservation(authUser, reservationId);
         return Response.empty();
+    }
+
+    /*/ 주문 생성 */
+    @Secured(USER)
+    @PostMapping("/order/{reservationId}")
+    public Response<OrdersGetResponse> createOrderForReservation(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long reservationId
+    ) {
+        return Response.of(limitedReservationOrderService.createOrderFroReservation(authUser, reservationId));
     }
 }
