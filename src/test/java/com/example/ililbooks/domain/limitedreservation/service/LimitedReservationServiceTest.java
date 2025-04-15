@@ -13,17 +13,14 @@ import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.redis.RedisClient;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -105,12 +102,12 @@ class LimitedReservationServiceTest {
         Long userId = 3L;
         Long eventId = 30L;
         Users user = createTestUserWithId(userId);
-        LimitedEvent event = createTestEventWithId(eventId, 10);
+        LimitedEvent limitedEvent = createTestEventWithId(eventId, 10);
         AuthUser authUser = createAuthUser(userId);
         LimitedReservationCreateRequest request = new LimitedReservationCreateRequest(eventId);
 
-        given(limitedEventRepository.findById(eventId)).willReturn(Optional.of(event));
-        given(limitedReservationRepository.findByUsersIdAndLimitedEvent(userId, event)).willReturn(Optional.of(mock(LimitedReservation.class)));
+        given(limitedEventRepository.findById(eventId)).willReturn(Optional.of(limitedEvent));
+        given(limitedReservationRepository.findByUsersIdAndLimitedEvent(userId, limitedEvent)).willReturn(Optional.of(mock(LimitedReservation.class)));
 
         // When & Then
         assertThatThrownBy(() -> limitedReservationService.createReservation(authUser, request))
