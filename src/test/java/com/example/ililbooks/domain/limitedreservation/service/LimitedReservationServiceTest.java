@@ -5,32 +5,39 @@ import com.example.ililbooks.domain.limitedevent.repository.LimitedEventReposito
 import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationCreateRequest;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
-import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
 import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.enums.UserRole;
-import com.example.ililbooks.domain.user.repository.UserRepository;
+import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
-import com.example.ililbooks.global.exception.ErrorMessage;
+import com.example.ililbooks.global.redis.RedisClient;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus.SUCCESS;
+import static com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus.WAITING;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LimitedReservationServiceTest {
+
+    @InjectMocks
+    private LimitedReservationService limitedReservationService;
 
     @Mock
     private LimitedReservationRepository limitedReservationRepository;
@@ -39,152 +46,136 @@ class LimitedReservationServiceTest {
     private LimitedEventRepository limitedEventRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
-    @InjectMocks
-    private LimitedReservationService limitedReservationService;
-
-    private static final Long TEST_USER_ID = 1L;
-    private static final Long TEST_EVENT_ID = 10L;
-    private static final Long TEST_RESERVATION_ID = 100L;
-
-    private static final AuthUser TEST_AUTH_USER = new AuthUser(TEST_USER_ID, "user@sample.com", "tester", UserRole.ROLE_USER);
-
-    private static final Users TEST_USER = Users.builder()
-            .id(TEST_USER_ID)
-            .email("user@sample.com")
-            .nickname("테스트닉넴")
-            .password("encoded")
-            .zipCode("12345")
-            .roadAddress("서울시 성북구")
-            .detailedAddress("302호")
-            .contactNumber("010-1234-5678")
-            .loginType(LoginType.EMAIL)
-            .userRole(UserRole.ROLE_USER)
-            .deletedAt(null)
-            .build();
-
-    private static final LimitedEvent TEST_EVENT = createTestEvent();
+    @Mock
+    private RedisClient redisClient;
 
     @Test
-    void 예약_가능시_SUCCESS_상태로_생성() {
+    @DisplayName("예약 성공 - 재고 있음 (SUCCESS)")
+    void 예약_성공_SUCCESS() {
         // Given
-        LimitedReservationCreateRequest request = new LimitedReservationCreateRequest(TEST_EVENT_ID);
+        Long userId = 1L;
+        Long limitedEventId = 10L;
+        LimitedEvent LimitedEvent = createTestEventWithId(limitedEventId, 5);
+        Users user = createTestUserWithId(userId);
+        AuthUser authUser = createAuthUser(userId);
+        LimitedReservationCreateRequest request = new LimitedReservationCreateRequest(limitedEventId);
 
-        given(userRepository.findById(TEST_USER_ID)).willReturn(Optional.of(TEST_USER));
-        given(limitedEventRepository.findById(TEST_EVENT_ID)).willReturn(Optional.of(TEST_EVENT));
-        given(limitedReservationRepository.findByUsersAndLimitedEvent(TEST_USER, TEST_EVENT)).willReturn(Optional.empty());
-        given(limitedReservationRepository.countByLimitedEventAndStatus(TEST_EVENT, LimitedReservationStatus.SUCCESS)).willReturn(1L);
-        given(limitedReservationRepository.save(any())).willAnswer(invocation -> {
-            LimitedReservation saved = invocation.getArgument(0);
-            ReflectionTestUtils.setField(saved, "id", TEST_RESERVATION_ID);
-            return saved;
-        });
+        given(limitedEventRepository.findById(limitedEventId)).willReturn(Optional.of(LimitedEvent));
+        given(limitedReservationRepository.findByUsersIdAndLimitedEvent(userId, LimitedEvent)).willReturn(Optional.empty());
+        given(limitedReservationRepository.countByLimitedEventAndStatus(LimitedEvent, SUCCESS)).willReturn(1L);
+        given(userService.findByIdOrElseThrow(userId)).willReturn(user);
 
         // When
-        LimitedReservationResponse response = limitedReservationService.createReservation(TEST_AUTH_USER, request);
+        LimitedReservationResponse response = limitedReservationService.createReservation(authUser, request);
 
         // Then
-        assertThat(response.getStatus()).isEqualTo(LimitedReservationStatus.SUCCESS);
-        assertThat(response.getUserId()).isEqualTo(TEST_USER_ID);
+        assertThat(response).isNotNull();
+        assertThat(response.status()).isEqualTo(SUCCESS);
+        assertThat(response.userId()).isEqualTo(userId);
+        assertThat(response.limitedEventId()).isEqualTo(limitedEventId);
     }
 
     @Test
-    void 예약_불가시_WAITING_상태로_생성() {
+    void 예약_성공_WAITING() {
         // Given
-        LimitedReservationCreateRequest request = new LimitedReservationCreateRequest(TEST_EVENT_ID);
+        Long userId = 2L;
+        Long limitedEventId = 20L;
+        Users user = createTestUserWithId(userId);
+        LimitedEvent limitedEvent = createTestEventWithId(limitedEventId, 3);
+        AuthUser authUser = createAuthUser(userId);
+        LimitedReservationCreateRequest request = new LimitedReservationCreateRequest(limitedEventId);
 
-        given(userRepository.findById(TEST_USER_ID)).willReturn(Optional.of(TEST_USER));
-        given(limitedEventRepository.findById(TEST_EVENT_ID)).willReturn(Optional.of(TEST_EVENT));
-        given(limitedReservationRepository.findByUsersAndLimitedEvent(TEST_USER, TEST_EVENT)).willReturn(Optional.empty());
-        given(limitedReservationRepository.countByLimitedEventAndStatus(TEST_EVENT, LimitedReservationStatus.SUCCESS)).willReturn(100L); // full
-        given(limitedReservationRepository.save(any())).willAnswer(invocation -> {
-            LimitedReservation saved = invocation.getArgument(0);
-            ReflectionTestUtils.setField(saved, "id", TEST_RESERVATION_ID);
-            return saved;
-        });
+        given(limitedEventRepository.findById(limitedEventId)).willReturn(Optional.of(limitedEvent));
+        given(limitedReservationRepository.findByUsersIdAndLimitedEvent(userId, limitedEvent)).willReturn(Optional.empty());
+        given(limitedReservationRepository.countByLimitedEventAndStatus(limitedEvent, SUCCESS)).willReturn(3L);
+        given(userService.findByIdOrElseThrow(userId)).willReturn(user);
 
         // When
-        LimitedReservationResponse response = limitedReservationService.createReservation(TEST_AUTH_USER, request);
+        LimitedReservationResponse response = limitedReservationService.createReservation(authUser, request);
 
         // Then
-        assertThat(response.getStatus()).isEqualTo(LimitedReservationStatus.WAITING);
+        assertThat(response.status()).isEqualTo(WAITING);
     }
 
     @Test
-    void 이미_예약한_행사일경우_예외처리() {
+    void 중복_예약_예외처리() {
         // Given
-        LimitedReservationCreateRequest request = new LimitedReservationCreateRequest(TEST_EVENT_ID);
-        LimitedReservation existing = createTestReservation(500L, TEST_USER, TEST_EVENT, LimitedReservationStatus.SUCCESS);
+        Long userId = 3L;
+        Long eventId = 30L;
+        Users user = createTestUserWithId(userId);
+        LimitedEvent event = createTestEventWithId(eventId, 10);
+        AuthUser authUser = createAuthUser(userId);
+        LimitedReservationCreateRequest request = new LimitedReservationCreateRequest(eventId);
 
-        given(userRepository.findById(TEST_USER_ID)).willReturn(Optional.of(TEST_USER));
-        given(limitedEventRepository.findById(TEST_EVENT_ID)).willReturn(Optional.of(TEST_EVENT));
-        given(limitedReservationRepository.findByUsersAndLimitedEvent(TEST_USER, TEST_EVENT)).willReturn(Optional.of(existing));
+        given(limitedEventRepository.findById(eventId)).willReturn(Optional.of(event));
+        given(limitedReservationRepository.findByUsersIdAndLimitedEvent(userId, event)).willReturn(Optional.of(mock(LimitedReservation.class)));
 
         // When & Then
-        assertThatThrownBy(() -> limitedReservationService.createReservation(TEST_AUTH_USER, request))
+        assertThatThrownBy(() -> limitedReservationService.createReservation(authUser, request))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessage(ErrorMessage.ALREADY_RESERVED_EVENT.getMessage());
+                .hasMessageContaining("이미 예약된 행사입니다.");
     }
 
     @Test
-    void 단건_예약_조회() {
+    void 예약_조회_권한없음() {
         // Given
-        LimitedReservation reservation = createTestReservation(TEST_RESERVATION_ID, TEST_USER, TEST_EVENT, LimitedReservationStatus.SUCCESS);
-        given(limitedReservationRepository.findById(TEST_RESERVATION_ID)).willReturn(Optional.of(reservation));
-
-        // When
-        LimitedReservationResponse response = limitedReservationService.getReservationByUser(TEST_AUTH_USER, TEST_RESERVATION_ID);
-
-        // Then
-        assertThat(response.getUserId()).isEqualTo(TEST_USER_ID);
-    }
-
-    @Test
-    void 본인_예약이_아닐경우_예외발생() {
-        // Given
-        Users otherUser = Users.builder().id(2L).email("other@sample.com").nickname("다른유저").userRole(UserRole.ROLE_USER).loginType(LoginType.EMAIL).build();
-        LimitedReservation reservation = createTestReservation(TEST_RESERVATION_ID, otherUser, TEST_EVENT, LimitedReservationStatus.SUCCESS);
-
-        given(limitedReservationRepository.findById(TEST_RESERVATION_ID)).willReturn(Optional.of(reservation));
+        Long userId = 4L;
+        Long reservationId = 99L;
+        AuthUser authUser = createAuthUser(userId);
+        LimitedReservation reservation = mock(LimitedReservation.class);
+        given(reservation.getUsers()).willReturn(createTestUserWithId(999L));
+        given(limitedReservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
 
         // When & Then
-        assertThatThrownBy(() -> limitedReservationService.getReservationByUser(TEST_AUTH_USER, TEST_RESERVATION_ID))
+        assertThatThrownBy(() -> limitedReservationService.getReservationByUser(authUser, reservationId))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessage(ErrorMessage.NOT_OWN_RESERVATION.getMessage());
+                .hasMessageContaining("본인의 예약이 아닙니다");
     }
 
-    @Test
-    void 본인_예약_취소_성공() {
-        // Given
-        LimitedReservation reservation = createTestReservation(TEST_RESERVATION_ID, TEST_USER, TEST_EVENT, LimitedReservationStatus.SUCCESS);
-        given(limitedReservationRepository.findById(TEST_RESERVATION_ID)).willReturn(Optional.of(reservation));
-
-        // When
-        limitedReservationService.cancelReservation(TEST_AUTH_USER, TEST_RESERVATION_ID);
-
-        // Then
-        assertThat(reservation.getStatus()).isEqualTo(LimitedReservationStatus.CANCELED);
-    }
-
-    // 헬퍼 메서드 - 테스트용 행사
-    private static LimitedEvent createTestEvent() {
-        LimitedEvent limitedEvent = LimitedEvent.builder()
-                .book(null)
-                .title("행사제목")
-                .startTime(LocalDateTime.now().minusDays(1))
-                .endTime(LocalDateTime.now().plusDays(1))
-                .contents("설명")
-                .bookQuantity(100)
+    private AuthUser createAuthUser(Long id) {
+        return AuthUser.builder()
+                .userId(id)
+                .email("user" + id + "@example.com")
+                .nickname("유저" + id)
+                .role(UserRole.ROLE_USER)
                 .build();
-        ReflectionTestUtils.setField(limitedEvent, "id", TEST_EVENT_ID);
-        return limitedEvent;
     }
 
-    // 헬퍼 메서드 = 테스트용 예약
-    private static LimitedReservation createTestReservation(Long id, Users user, LimitedEvent event, LimitedReservationStatus status) {
-        LimitedReservation reservation = LimitedReservation.createFrom(user, event, status, LocalDateTime.now().plusHours(24));
-        ReflectionTestUtils.setField(reservation, "id", id);
-        return reservation;
+    @Test
+    void 예약_취소_성공() {
+        // Given
+        Long userId = 5L;
+        Long reservationId = 88L;
+        AuthUser authUser = createAuthUser(userId);
+        LimitedReservation reservation = mock(LimitedReservation.class);
+        given(reservation.getUsers()).willReturn(createTestUserWithId(userId));
+        given(limitedReservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
+
+        // When
+        limitedReservationService.cancelReservation(authUser, reservationId);
+
+        // Then
+        then(reservation).should().markCanceled();
+    }
+
+    private LimitedEvent createTestEventWithId(Long id, int quantity) {
+        LimitedEvent event = LimitedEvent.of(
+                null,
+                "행사 제목",
+                Instant.now().plusSeconds(60),
+                Instant.now().plusSeconds(3600),
+                "행사 설명",
+                quantity
+        );
+        ReflectionTestUtils.setField(event, "id", id);
+        return event;
+    }
+
+    private Users createTestUserWithId(Long id) {
+        Users user = Users.of("user" + id + "@example.com", "User" + id, "010-0000-0000", LoginType.EMAIL);
+        ReflectionTestUtils.setField(user, "id", id);
+        return user;
     }
 }

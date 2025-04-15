@@ -46,7 +46,7 @@ public enum ErrorMessage {
     ALREADY_RESERVED_EVENT("이미 예약된 행사입니다."),
     NOT_FOUND_USER("유저 확인 불가"),
     NOT_FOUND_EVENT("행사 확인 불가"),
-    NOT_OWN_RESERVATION("본인 예약 외 조회 불가"),
+    NOT_OWN_RESERVATION("본인의 예약이 아닙니다."),
     NOT_FOUND_RESERVATION("예약 확인 불가"),
     CANNOT_DELETE_OTHERS_IMAGE("다른 사람의 이미지를 삭제할 수 없습니다."),
     NOT_FOUND_IMAGE("이미지가 존재하지 않습니다."),
