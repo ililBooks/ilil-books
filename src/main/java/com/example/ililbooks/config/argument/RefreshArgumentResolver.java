@@ -13,11 +13,9 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import static com.example.ililbooks.global.exception.ErrorMessage.REFRESH_TOKEN_MUST_BE_STRING;
 import static com.example.ililbooks.global.exception.ErrorMessage.REFRESH_TOKEN_NOT_FOUND;
 
-
 public class RefreshArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        parameter.getParameterAnnotation(RefreshToken.class);
         boolean hasRefreshTokenAnnotation = parameter.getParameterAnnotation(RefreshToken.class) != null;
         boolean isStringType = parameter.getParameterType().equals(String.class);
 

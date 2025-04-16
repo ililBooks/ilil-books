@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 import static com.example.ililbooks.config.util.JwtUtil.REFRESH_TOKEN_TIME;
