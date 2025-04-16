@@ -1,6 +1,5 @@
 package com.example.ililbooks.domain.cart.service;
 
-import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.domain.cart.dto.response.CartResponse;
 import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
