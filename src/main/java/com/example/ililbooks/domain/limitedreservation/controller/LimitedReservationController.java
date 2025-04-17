@@ -1,6 +1,7 @@
 package com.example.ililbooks.domain.limitedreservation.controller;
 
 import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationCreateRequest;
+import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationStatusFilterRequest;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationOrderService;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
@@ -14,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.*;
 
@@ -56,13 +59,13 @@ public class LimitedReservationController {
     }
 
      // V2 - 관리자 조회용
-//    @Secured({PUBLISHER, ADMIN})
-//    @GetMapping("/events/status")
-//    public Response<List<LimitedReservationResponse>> getReservationsByEventAndStatus(
-//            @RequestBody LimitedReservationStatusFilterRequest request
-//    ) {
-//        return Response.of(reservationService.getReservationsByEventAndStatus(request.getEventId(), request.getStatuses()));
-//    }
+    @Secured({PUBLISHER, ADMIN})
+    @GetMapping("/events/status")
+    public Response<List<LimitedReservationResponse>> getReservationsByEventAndStatus(
+            @RequestBody LimitedReservationStatusFilterRequest request
+    ) {
+        return Response.of(limitedReservationService.getReservationsByEventAndStatus(request.eventId(), request.statuses()));
+    }
 
     /*/ 예약 취소 */
     @Secured(USER)

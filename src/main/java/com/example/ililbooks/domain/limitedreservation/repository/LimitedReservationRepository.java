@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 public interface LimitedReservationRepository extends JpaRepository<LimitedReservation, Long> {
@@ -22,7 +24,10 @@ public interface LimitedReservationRepository extends JpaRepository<LimitedReser
 
     Page<LimitedReservation> findAllByLimitedEvent(LimitedEvent limitedEvent, Pageable pageable);
 
+    List<LimitedReservation> findAllByLimitedEventAndStatusIn(LimitedEvent limitedEvent, List<LimitedReservationStatus> statuses);
+
     @Query("SELECT r FROM LimitedReservation r JOIN r.limitedEvent e WHERE r.id = :id")
     Optional<LimitedReservation> findByIdWithEvent(@Param("id") Long id);
 
+    List<LimitedReservation> findAllByStatusAndExpiredAtBefore(LimitedReservationStatus status, Instant expiredAt);
 }

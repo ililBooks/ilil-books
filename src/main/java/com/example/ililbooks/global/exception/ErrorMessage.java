@@ -83,7 +83,16 @@ public enum ErrorMessage {
     GOOGLE_PASING_FAILED("구글 파싱 실패"),
 
     REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
-    REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패");
+    REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패"),
+
+    REDISSON_LOCK_FAILED("락 획득에 실패했습니다."),
+    REDISSON_LOCK_INTERRUPTED("Redisson 락 처리 중 인터럽트 발생"),
+    RESERVATION_ALREADY_EXISTS("이미 예약된 사용자입니다."),
+    RESERVATION_ALREADY_CANCELED("이미 취소된 예약입니다."),
+    EVENT_ALREADY_ENDED("이미 종료된 행사입니다."),
+    EVENT_DELETED("삭제된 행사입니다."),
+    ORDER_CREATION_FAILED("주문 생성에 실패했습니다."),
+    ORDER_ALREADY_EXISTS("이미 주문이 생성된 예약입니다.");
 
     private final String message;
 
