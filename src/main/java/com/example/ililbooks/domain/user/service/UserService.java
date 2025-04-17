@@ -111,6 +111,11 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
+    /*
+    * 로컬 db 에서 email 로 사용자 조회
+    * 있는 경우 Users 객체 반환
+    * 없을 경우 email, nickname 값의 유저 생성 후 저장
+    *  */
     public Users findByEmailOrGet(String email, String nickname) {
         return userRepository.findByEmail(email)
                 .orElseGet(() -> userRepository.save(

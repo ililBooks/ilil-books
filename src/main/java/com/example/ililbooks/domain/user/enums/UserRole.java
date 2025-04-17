@@ -8,7 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Arrays;
 
-import static com.example.ililbooks.domain.user.enums.UserRole.Authority.PUBLISHER;
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
 
 @Getter
@@ -37,11 +36,6 @@ public enum UserRole implements GrantedAuthority {
         public static final String USER = "ROLE_USER";
         public static final String PUBLISHER = "ROLE_PUBLISHER";
         public static final String ADMIN = "ROLE_ADMIN";
-    }
-
-    public static boolean isPublisher(AuthUser authUser) {
-        return authUser.getAuthorities().stream()
-                .anyMatch(auth -> PUBLISHER.equals(auth.getAuthority()));
     }
 
     public static boolean isUser(AuthUser authUser) {

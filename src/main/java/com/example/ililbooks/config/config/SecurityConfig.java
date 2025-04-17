@@ -1,7 +1,6 @@
 package com.example.ililbooks.config.config;
 
 import com.example.ililbooks.config.filter.JwtAuthenticationFilter;
-import com.example.ililbooks.config.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +29,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtUtil jwtUtil) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         String[] SWAGGER_URI = {
                 "/v3/api-docs/**",
