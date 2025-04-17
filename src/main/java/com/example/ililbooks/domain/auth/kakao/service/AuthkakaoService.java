@@ -23,6 +23,7 @@ public class AuthkakaoService {
     public ResponseEntity<?> signinWithKakao(String code) {
         // 인가 토큰 받기
         AuthKakaoTokenResponse tokenResponse = kakaoClient.requestToken(code);
+        System.out.println(tokenResponse.toString() + tokenResponse.accessToken());
         // 사용자 정보 조회
         AuthKakaoResponse userInfo = kakaoClient.requestUserInfo(tokenResponse.accessToken());
 

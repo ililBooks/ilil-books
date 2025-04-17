@@ -1,4 +1,12 @@
 package com.example.ililbooks.domain.auth.kakao.dto.response;
 
-public record AuthKakaoTokenResponse(String accessToken, String refreshToken) {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record AuthKakaoTokenResponse(
+        @JsonProperty("access_token")
+        String accessToken,
+
+        @JsonProperty("refresh_token")
+        String refreshToken
+) {
 }

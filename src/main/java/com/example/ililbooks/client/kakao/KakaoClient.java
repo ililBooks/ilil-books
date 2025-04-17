@@ -4,12 +4,13 @@ import com.example.ililbooks.domain.auth.kakao.dto.response.AuthKakaoResponse;
 import com.example.ililbooks.domain.auth.kakao.dto.response.AuthKakaoTokenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
 @Component
 public class KakaoClient {
@@ -28,11 +29,7 @@ public class KakaoClient {
         this.redirectUri = redirectUri;
         this.clientSecret = clientSecret;
 
-        DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory("https://kauth.kakao.com");
-        uriBuilderFactory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.VALUES_ONLY);
-
         this.webClient = WebClient.builder()
-                .uriBuilderFactory(uriBuilderFactory)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .build();
     }
@@ -50,23 +47,35 @@ public class KakaoClient {
 
     public AuthKakaoTokenResponse requestToken(String code) {
         return webClient.post()
-                .uri("/oauth/token") // 토큰 받기
+                .uri("https://kauth.kakao.com/oauth/token") // 토큰 받기
                 .body(BodyInserters.fromFormData("grant_type", "authorization_code")
                         .with("client_id", clientId)
                         .with("redirect_uri", redirectUri)
                         .with("client_secret", clientSecret)
                         .with("code", code))
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response ->
+                        response.bodyToMono(String.class).flatMap(errorBody ->
+                                Mono.error(new RuntimeException("Kakao API ACCESS 토큰 응답: " + errorBody))
+                        )
+                )
                 .bodyToMono(AuthKakaoTokenResponse.class)
                 .block(); // 동기 처리
     }
 
     public AuthKakaoResponse requestUserInfo(String accessToken) {
-        return WebClient.create("https://kapi.kakao.com")
+        return webClient.mutate()
+                .baseUrl("https://kapi.kakao.com")
+                .build()
                 .get()
                 .uri("/v2/user/me") // 사용자 정보 조회 uri
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response ->
+                        response.bodyToMono(String.class).flatMap(errorBody ->
+                                Mono.error(new RuntimeException("Kakao API 사용자 정보 조회 응답: " + errorBody))
+                        )
+                )
                 .bodyToMono(AuthKakaoResponse.class)
                 .block(); // 동기 처리
     }
