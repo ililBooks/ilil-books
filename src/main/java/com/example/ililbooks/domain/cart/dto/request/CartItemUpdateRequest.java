@@ -2,6 +2,7 @@ package com.example.ililbooks.domain.cart.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Builder;
 
 import java.util.List;
 
@@ -17,5 +18,7 @@ public record CartItemUpdateRequest(
         @NotEmpty(message = NOT_EMPTY_SHOPPING_CART_ITEM)
         List<CartItemRequest> cartItemList
 ) {
-
+        @Builder
+        public CartItemUpdateRequest {
+        }
 }

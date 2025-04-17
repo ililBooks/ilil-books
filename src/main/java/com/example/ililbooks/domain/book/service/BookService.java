@@ -39,7 +39,7 @@ public class BookService {
     public BookResponse createBook(AuthUser authUser, BookCreateRequest bookCreateRequest) {
 
         //이미 등록된 책인 경우 (책 고유 번호로 판별)
-        if (bookRepository.existsByIsbn(bookCreateRequest.isbn())) {
+        if(bookRepository.existsByIsbn(bookCreateRequest.isbn())) {
             throw new BadRequestException(DUPLICATE_BOOK.getMessage());
         }
 
