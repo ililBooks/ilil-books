@@ -8,6 +8,7 @@ import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.repository.UserRepository;
 import com.example.ililbooks.domain.user.service.UserService;
+import com.example.ililbooks.domain.user.service.UserSocialService;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class AuthNaverService {
     private final NaverClient naverClient;
     private final UserService userService;
     private final AuthService authService;
-    private final UserRepository userRepository;
+    private final UserSocialService userSocialService;
 
     public URI getNaverLoginRedirectUrl() {
         return naverClient.getRedirectUrl();
@@ -46,7 +47,7 @@ public class AuthNaverService {
 
         Users users = Users.of(profile.email(), profile.nickname(), profile.mobile(), NAVER);
 
-        userRepository.save(users);
+        userSocialService.saveUser(users);
         return authService.getTokenResponse(users);
     }
 

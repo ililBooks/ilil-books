@@ -22,6 +22,7 @@ public class OrderHistoryService {
 
     private final OrderHistoryRepository orderHistoryRepository;
 
+    /* 주문 내역 저장 */
     public void saveOrderHistory(Map<Long, Book> bookMap, Cart cart, Order order) {
         for (Book book : bookMap.values()) {
             CartItem cartItem = cart.getItems().get(book.getId());
@@ -30,12 +31,14 @@ public class OrderHistoryService {
         }
     }
 
+    /* 주문 내역 조회 */
     public Page<OrderHistoryResponse> getOrderHistories(Long orderId, Pageable pageable) {
         Page<OrderHistory> findOrderHistories = orderHistoryRepository.findAllByOrderId(orderId, pageable);
 
         return findOrderHistories.map(OrderHistoryResponse::of);
     }
 
+    /* 주문 내역 책 조회 */
     public List<CartItem> getCartItemListByOrderId(Long orderId) {
         List<OrderHistory> orderHistoryList = orderHistoryRepository.findAllByOrderId(orderId);
 
