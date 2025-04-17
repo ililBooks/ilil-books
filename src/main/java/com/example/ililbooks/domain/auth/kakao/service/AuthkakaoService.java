@@ -1,8 +1,8 @@
 package com.example.ililbooks.domain.auth.kakao.service;
 
 import com.example.ililbooks.client.kakao.KakaoClient;
-import com.example.ililbooks.domain.auth.kakao.dto.response.AuthKakaoResponse.KakaoAccount;
-import com.example.ililbooks.domain.auth.kakao.dto.response.AuthKakaoTokenResponse;
+import com.example.ililbooks.client.kakao.dto.AuthKakaoResponse.KakaoAccount;
+import com.example.ililbooks.client.kakao.dto.AuthKakaoTokenResponse;
 import com.example.ililbooks.domain.auth.service.TokenService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
@@ -24,7 +24,7 @@ public class AuthkakaoService {
     public AuthKakaoTokenResponse signinWithKakao(String code) {
         // 인가 토큰 받기
         AuthKakaoTokenResponse tokenResponse = kakaoClient.requestToken(code);
-        System.out.println(tokenResponse.toString() + tokenResponse.accessToken());
+
         // 사용자 정보 조회
         KakaoAccount kakaoAccount = kakaoClient.requestUserInfo(tokenResponse.accessToken()).kakaoAccount();
 

@@ -1,7 +1,7 @@
 package com.example.ililbooks.client.kakao;
 
-import com.example.ililbooks.domain.auth.kakao.dto.response.AuthKakaoResponse;
-import com.example.ililbooks.domain.auth.kakao.dto.response.AuthKakaoTokenResponse;
+import com.example.ililbooks.client.kakao.dto.AuthKakaoResponse;
+import com.example.ililbooks.client.kakao.dto.AuthKakaoTokenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

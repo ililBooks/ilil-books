@@ -1,4 +1,4 @@
-package com.example.ililbooks.domain.auth.kakao.dto.response;
+package com.example.ililbooks.client.kakao.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

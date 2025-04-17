@@ -1,6 +1,6 @@
 package com.example.ililbooks.domain.auth.kakao.controller;
 
-import com.example.ililbooks.domain.auth.kakao.dto.response.AuthKakaoTokenResponse;
+import com.example.ililbooks.client.kakao.dto.AuthKakaoTokenResponse;
 import com.example.ililbooks.domain.auth.kakao.service.AuthkakaoService;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.servlet.http.Cookie;
