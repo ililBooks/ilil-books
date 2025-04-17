@@ -42,7 +42,7 @@ public class BookOpenApiService {
     public void createBookByOpenApi(AuthUser authUser, Pageable pageable) {
 
         String[] keywords = {
-                "다산북스"
+                "육아일기"
         };
 
         //랜덤 가격 및 재고 생성을 위한 Random 객체 선언
