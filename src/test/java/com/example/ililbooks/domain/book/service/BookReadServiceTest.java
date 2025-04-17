@@ -4,6 +4,8 @@ import com.example.ililbooks.domain.book.dto.response.BookListResponse;
 import com.example.ililbooks.domain.book.dto.response.BookWithImagesResponse;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.entity.BookImage;
+import com.example.ililbooks.domain.book.enums.LimitedType;
+import com.example.ililbooks.domain.book.enums.SaleStatus;
 import com.example.ililbooks.domain.book.repository.BookRepository;
 import com.example.ililbooks.domain.book.repository.ImageBookRepository;
 import com.example.ililbooks.domain.review.dto.response.ReviewWithImagesResponse;
@@ -84,6 +86,8 @@ public class BookReadServiceTest {
             .stock(100)
             .isbn("9788912345670")
             .publisher("예제출판사")
+            .saleStatus(SaleStatus.ON_SALE)
+            .limitedType(LimitedType.REGULAR)
             .build();
 
     public static final List<BookImage> TEST_LIST_BOOK_IMAGE = List.of(
