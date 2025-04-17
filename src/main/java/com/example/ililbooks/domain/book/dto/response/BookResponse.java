@@ -53,21 +53,4 @@ public record BookResponse(
                 book.getLimitedType().name()
         );
     }
-
-    public BookResponse withReviews(Page<ReviewResponse> reviews) {
-        return new BookResponse(
-                this.id,
-                this.userId,
-                this.title,
-                this.author,
-                this.price,
-                this.category,
-                this.stock,
-                this.publisher,
-                reviews,
-                this.imageUrl,
-                this.saleStatus,
-                this.limitedType
-        );
-    }
 }

@@ -54,10 +54,11 @@ public class Book extends TimeStamped {
     @Column(columnDefinition = "varchar(50)")
     private LimitedType limitedType;
 
-    private Boolean isDeleted;
+    private boolean isDeleted;
 
     @Builder
-    private Book(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher) {
+    private Book(Long id, Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher, SaleStatus saleStatus, LimitedType limitedType) {
+        this.id = id;
         this.users = users;
         this.title = title;
         this.author = author;
@@ -66,8 +67,8 @@ public class Book extends TimeStamped {
         this.stock = stock;
         this.isbn = isbn;
         this.publisher = publisher;
-        this.saleStatus = ON_SALE;
-        this.limitedType = REGULAR;
+        this.saleStatus = saleStatus;
+        this.limitedType = limitedType;
         this.isDeleted = false;
     }
 
@@ -81,6 +82,8 @@ public class Book extends TimeStamped {
                 .stock(stock)
                 .isbn(isbn)
                 .publisher(publisher)
+                .saleStatus(ON_SALE)
+                .limitedType(REGULAR)
                 .build();
     }
 
@@ -94,6 +97,8 @@ public class Book extends TimeStamped {
                 .stock(stock)
                 .isbn(book.isbn())
                 .publisher(book.publisher().replaceAll("<[^>]*>", ""))
+                .saleStatus(ON_SALE)
+                .limitedType(REGULAR)
                 .build();
     }
 

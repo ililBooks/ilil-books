@@ -55,9 +55,9 @@ public class BookController {
     @PostMapping("/open-api")
     public Response<Void> createBooksByOpenApi(
             @AuthenticationPrincipal AuthUser authUser,
-            @PageableDefault(size = 100) Pageable pagealbe
+            @PageableDefault(size = 500, page = 1) Pageable pageable
     ) {
-        bookOpenApiService.createBookByOpenApi(authUser,pagealbe);
+        bookOpenApiService.createBookByOpenApi(authUser,pageable);
         return Response.empty();
     }
 
