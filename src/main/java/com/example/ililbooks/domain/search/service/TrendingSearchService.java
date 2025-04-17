@@ -33,7 +33,7 @@ public class TrendingSearchService {
                 .reverseRange(currentHourKey, 0, 9);
 
         // 현재 시간의 인기 검색어 키워드가 10개 이상이면 현재 시간의 키워드 반환
-        if (currentHourKeywords != null && currentHourKeywords.size() >= 10) {
+        if (currentHourKeywords.size() >= 10) {
             return new ArrayList<>(currentHourKeywords);
         }
 
