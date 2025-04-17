@@ -59,11 +59,11 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+#    command: redis-server --requirepass ${REDIS_PASSWORD}
     networks:
       - esnet
     healthcheck:
-      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
+      test: [ "CMD", "redis-cli", "-a", "ping" ] # ${REDIS_PASSWORD}"
       interval: 10s
       timeout: 5s
       retries: 5
