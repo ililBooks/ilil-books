@@ -99,5 +99,5 @@ public class BookDocument {
     }
 
 
-    public void deleteBookDocument(boolean isDeleted) { this.isDeleted = isDeleted; }
+    public void deleteBookDocument() { this.isDeleted = true; }
 }
