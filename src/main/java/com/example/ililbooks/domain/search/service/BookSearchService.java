@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_BOOK
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BookSearchService {
 
     private final BookSearchRepository bookSearchRepository;
