@@ -1,10 +1,10 @@
-package com.example.ililbooks.domain.auth.controller;
+package com.example.ililbooks.domain.auth.google.controller;
 
 import com.example.ililbooks.client.google.dto.GoogleApiResponse;
-import com.example.ililbooks.domain.auth.dto.request.AuthGoogleAccessTokenRequest;
+import com.example.ililbooks.domain.auth.google.dto.request.AuthGoogleAccessTokenRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
-import com.example.ililbooks.domain.auth.service.AuthGoogleService;
+import com.example.ililbooks.domain.auth.google.service.AuthGoogleService;
 import com.example.ililbooks.global.dto.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
