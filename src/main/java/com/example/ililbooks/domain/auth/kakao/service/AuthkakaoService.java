@@ -1,0 +1,50 @@
+package com.example.ililbooks.domain.auth.kakao.service;
+
+import com.example.ililbooks.client.kakao.KakaoClient;
+import com.example.ililbooks.domain.auth.kakao.dto.response.AuthKakaoResponse.KakaoAccount;
+import com.example.ililbooks.domain.auth.kakao.dto.response.AuthKakaoTokenResponse;
+import com.example.ililbooks.domain.auth.service.TokenService;
+import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.service.UserService;
+import com.example.ililbooks.global.exception.NotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import static com.example.ililbooks.domain.user.enums.LoginType.KAKAO;
+import static com.example.ililbooks.global.exception.ErrorMessage.DEACTIVATED_USER_EMAIL;
+
+@Service
+@RequiredArgsConstructor
+public class AuthkakaoService {
+
+    private final UserService userService;
+    private final TokenService tokenService;
+    private final KakaoClient kakaoClient;
+
+    public AuthKakaoTokenResponse signinWithKakao(String code) {
+        // 인가 토큰 받기
+        AuthKakaoTokenResponse tokenResponse = kakaoClient.requestToken(code);
+        System.out.println(tokenResponse.toString() + tokenResponse.accessToken());
+        // 사용자 정보 조회
+        KakaoAccount kakaoAccount = kakaoClient.requestUserInfo(tokenResponse.accessToken()).kakaoAccount();
+
+        // 사용자 검증 후 커카오 회원 가입 redirect
+        if (kakaoAccount.email().isBlank() || kakaoAccount.profile().nickname().isBlank()) {
+            return new AuthKakaoTokenResponse(kakaoClient.getSignupUri(), tokenResponse.accessToken(), tokenResponse.refreshToken());
+        }
+
+        // 사용자 정보 프로젝트에 저장 또는 있을 경우 반환
+        Users user = userService.findByEmailOrGet(kakaoAccount.email(), kakaoAccount.profile().nickname(), KAKAO);
+
+        // 삭제된 유저일 경우 예외 처리
+        if (user.isDeleted()) {
+            throw new NotFoundException(DEACTIVATED_USER_EMAIL.getMessage());
+        }
+
+        // 토큰 발급
+        String accessToken = tokenService.createAccessToken(user);
+        String refreshToken = tokenService.createRefreshToken(user);
+
+        return new AuthKakaoTokenResponse("Logged In Already", accessToken, refreshToken);
+    }
+}

@@ -50,9 +50,12 @@ public class BookDocument {
     @Field(type = FieldType.Keyword)
     private String limitedType;
 
+    @Field(type = FieldType.Boolean)
+    private boolean isDeleted;
+
 
     @Builder
-    public BookDocument(String id, String userId, String title, String author, String publisher, BigDecimal price, String category, int stock, String isbn, String saleStatus, String limitedType) {
+    public BookDocument(String id, String userId, String title, String author, String publisher, BigDecimal price, String category, int stock, String isbn, String saleStatus, String limitedType, boolean isDeleted) {
         this.id = id;
         this.userId = userId;
         this.title = title;
@@ -64,6 +67,7 @@ public class BookDocument {
         this.isbn = isbn;
         this.saleStatus = saleStatus;
         this.limitedType = limitedType;
+        this.isDeleted = isDeleted;
     }
 
     public static BookDocument toDocument(Book book) {
@@ -79,8 +83,21 @@ public class BookDocument {
                 .isbn(book.getIsbn())
                 .saleStatus(book.getSaleStatus().name())
                 .limitedType(book.getLimitedType().name())
+                .isDeleted(book.isDeleted())
                 .build();
     }
 
+    public void updateBookDocument(Book book) {
+        this.title = book.getTitle();
+        this.author = book.getAuthor();
+        this.price = book.getPrice();
+        this.category = book.getCategory();
+        this.stock = book.getStock();
+        this.saleStatus = book.getSaleStatus().name();
+        this.limitedType = book.getLimitedType().name();
+        this.isDeleted = book.isDeleted();
+    }
 
+
+    public void deleteBookDocument() { this.isDeleted = true; }
 }

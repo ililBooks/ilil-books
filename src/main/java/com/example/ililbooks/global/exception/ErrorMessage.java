@@ -36,6 +36,8 @@ public enum ErrorMessage {
     BOOK_API_RESPONSE_FAILED("도서 API 응답 실패"),
     BOOK_ISBN_MISSING("도서의 ISBN이 존재하지 않거나 비어 있습니다."),
 
+    NOT_FOUND_BOOK_DOCUMENT("Book document 를 찾을 수 없습니다."),
+
     DUPLICATE_REVIEW("하나의 책에 하나의 리뷰만 등록할 수 있습니다."),
     NOT_FOUND_REVIEW("리뷰를 찾을 수 없습니다."),
     CANNOT_UPDATE_OTHERS_REVIEW("다른 사람의 리뷰를 수정할 수 없습니다."),
@@ -55,6 +57,10 @@ public enum ErrorMessage {
     IMAGE_ALREADY_EXISTS("해당 책에는 이미 업로드된 이미지가 있습니다."),
     FAILED_DELETE_IMAGE("이미지 삭제에 실패하였습니다."),
     IMAGE_UPLOAD_LIMIT_OVER("등록 가능한 이미지 개수를 초과하였습니다."),
+    NO_PERMISSION("권한이 없습니다."),
+    RESERVATION_NOT_SUCCESS("예약이 성공하지 못했습니다."),
+    RESERVATION_EXPIRED("예약시간이 만료되었습니다."),
+    ALREADY_ORDERED("이미 예약되었습니다."),
 
     NOT_EXIST_SHOPPING_CART("장바구니가 존재하지 않습니다."),
     CANNOT_ADD_BOOK_TO_CART("장바구니에 담을 수 없는 책입니다."),

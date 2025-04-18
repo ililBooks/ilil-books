@@ -4,12 +4,15 @@ import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventUpdateRequest;
 import com.example.ililbooks.domain.limitedevent.enums.LimitedEventStatus;
 import com.example.ililbooks.global.entity.TimeStamped;
+import com.example.ililbooks.global.exception.BadRequestException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+
+import static com.example.ililbooks.global.exception.ErrorMessage.OUT_OF_STOCK;
 
 @Getter
 @Entity
@@ -100,7 +103,20 @@ public class LimitedEvent extends TimeStamped {
         this.isDeleted = true;
     }
 
+    /*
+     * 예약 가능 여부 확인
+     */
     public boolean canAcceptReservation(Long reservedCount) {
         return reservedCount < this.bookQuantity;
+    }
+
+    /*
+     * 한정 수량 차감 메서드
+     */
+    public void decreaseBookQuantity(int quantity) {
+        if (this.bookQuantity < quantity) {
+            throw new BadRequestException(OUT_OF_STOCK.getMessage());
+        }
+        this.bookQuantity -= quantity;
     }
 }

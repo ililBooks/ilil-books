@@ -1,6 +1,5 @@
 package com.example.ililbooks.domain.user.service;
 
-import com.example.ililbooks.domain.auth.dto.request.AuthSignUpRequest;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

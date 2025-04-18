@@ -24,7 +24,7 @@ public class TokenService {
 
     /* Refresh Token 생성 */
     public String createRefreshToken(Users users) {
-        RefreshToken refreshToken = refreshTokenRepository.save(new RefreshToken(users.getId()));
+        RefreshToken refreshToken = refreshTokenRepository.save(RefreshToken.of(users.getId()));
         return refreshToken.getToken();
     }
 

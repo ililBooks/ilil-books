@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/search")
 @Tag(name = "Search", description = "DB 검색 API")
-public class BookSearchControllerV1 {
+public class SearchControllerV1 {
 
     private final BookSearchService bookSearchService;
 
@@ -24,9 +26,8 @@ public class BookSearchControllerV1 {
     @GetMapping
     public Response<Page<BookSearchResponse>> searchBooksInDB(
             @RequestParam String q,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "100") int size
+            @PageableDefault(size = 500, page = 1) Pageable pageable
     ) {
-        return Response.of(bookSearchService.searchBooksV1(q, page, size));
+        return Response.of(bookSearchService.searchBooksV1(q, pageable));
     }
 }
