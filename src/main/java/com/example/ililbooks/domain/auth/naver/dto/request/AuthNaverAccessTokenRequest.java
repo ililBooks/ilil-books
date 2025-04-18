@@ -1,4 +1,4 @@
-package com.example.ililbooks.domain.auth.dto.request;
+package com.example.ililbooks.domain.auth.naver.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
