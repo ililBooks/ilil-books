@@ -28,6 +28,13 @@ public class TokenService {
         return refreshToken.getToken();
     }
 
+    /* Refresh Token 갱신 */
+    public String updateRefreshToken(RefreshToken refreshToken) {
+        refreshToken.updateToken();
+        RefreshToken updatedToken = refreshTokenRepository.save(refreshToken);
+        return updatedToken.getToken();
+    }
+
     public RefreshToken findRefreshToken(String token) {
         return refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException(REFRESH_TOKEN_NOT_FOUND.getMessage()));
