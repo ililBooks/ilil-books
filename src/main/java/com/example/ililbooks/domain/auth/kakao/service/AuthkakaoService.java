@@ -5,6 +5,7 @@ import com.example.ililbooks.client.kakao.dto.AuthKakaoResponse.KakaoAccount;
 import com.example.ililbooks.client.kakao.dto.AuthKakaoTokenResponse;
 import com.example.ililbooks.domain.auth.service.TokenService;
 import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -28,13 +29,13 @@ public class AuthkakaoService {
         // 사용자 정보 조회
         KakaoAccount kakaoAccount = kakaoClient.requestUserInfo(tokenResponse.accessToken()).kakaoAccount();
 
-        // 사용자 검증 후 커카오 회원 가입 redirect
+        // 사용자 검증 후 카카오 회원 가입 redirect
         if (kakaoAccount.email().isBlank() || kakaoAccount.profile().nickname().isBlank()) {
             return new AuthKakaoTokenResponse(kakaoClient.getSignupUri(), tokenResponse.accessToken(), tokenResponse.refreshToken());
         }
 
         // 사용자 정보 프로젝트에 저장 또는 있을 경우 반환
-        Users user = userService.findByEmailOrGet(kakaoAccount.email(), kakaoAccount.profile().nickname(), KAKAO);
+        Users user = userService.findByEmailOrGet(kakaoAccount.email(), kakaoAccount.profile().nickname(), KAKAO, UserRole.ROLE_USER);
 
         // 삭제된 유저일 경우 예외 처리
         if (user.isDeleted()) {
