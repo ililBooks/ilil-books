@@ -56,6 +56,10 @@ public class Book extends TimeStamped {
 
     private boolean isDeleted;
 
+    // 주문 - 낙관락
+    @Version
+    private Long version;
+
     @Builder
     private Book(Long id, Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher, SaleStatus saleStatus, LimitedType limitedType) {
         this.id = id;

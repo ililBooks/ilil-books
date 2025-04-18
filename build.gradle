@@ -58,6 +58,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 //    implementation 'org.redisson:redisson:3.23.5'
 
+    // retry
+    implementation 'org.springframework.retry:spring-retry'
+
+    // aop
+    implementation 'org.springframework:spring-aspects'
+
     //s3
 //    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.3.0'
     implementation platform('software.amazon.awssdk:bom:2.27.21')
