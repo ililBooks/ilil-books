@@ -1,10 +1,10 @@
-package com.example.ililbooks.domain.auth.controller;
+package com.example.ililbooks.domain.auth.naver.controller;
 
 import com.example.ililbooks.client.naver.dto.NaverApiResponse;
-import com.example.ililbooks.domain.auth.dto.request.AuthNaverAccessTokenRequest;
+import com.example.ililbooks.domain.auth.naver.dto.request.AuthNaverAccessTokenRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
-import com.example.ililbooks.domain.auth.service.AuthNaverService;
+import com.example.ililbooks.domain.auth.naver.service.AuthNaverService;
 import com.example.ililbooks.global.dto.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

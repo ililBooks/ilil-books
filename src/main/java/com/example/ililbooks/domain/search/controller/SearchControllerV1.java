@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/search")
 @Tag(name = "Search", description = "DB 검색 API")
-public class BookSearchControllerV1 {
+public class SearchControllerV1 {
 
     private final BookSearchService bookSearchService;
 

@@ -1,12 +1,12 @@
-package com.example.ililbooks.domain.auth.service;
+package com.example.ililbooks.domain.auth.naver.service;
 
 import com.example.ililbooks.client.naver.NaverClient;
 import com.example.ililbooks.client.naver.dto.NaverApiProfileResponse;
 import com.example.ililbooks.client.naver.dto.NaverApiResponse;
-import com.example.ililbooks.domain.auth.dto.request.AuthNaverAccessTokenRequest;
+import com.example.ililbooks.domain.auth.naver.dto.request.AuthNaverAccessTokenRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
+import com.example.ililbooks.domain.auth.service.AuthService;
 import com.example.ililbooks.domain.user.entity.Users;
-import com.example.ililbooks.domain.user.repository.UserRepository;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.domain.user.service.UserSocialService;
 import com.example.ililbooks.global.exception.BadRequestException;
