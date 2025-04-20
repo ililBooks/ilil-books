@@ -8,7 +8,7 @@ on:
 
   pull_request:
     branches:
-        - dev
+      - dev
     types:
       - closed
 
@@ -51,7 +51,7 @@ jobs:
     steps:
       - name: Notify via Slack
         uses: rtCamp/action-slack-notify@v2
-    env:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-      SLACK_MESSAGE: "build and run test 완료하였습니다"
-      if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_MESSAGE: "build and run test 완료하였습니다"
+        if: always()
