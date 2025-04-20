@@ -162,11 +162,11 @@ public class AuthServiceTest {
         String reissuedRefreshToken = "reissued-refreshToken";
 
         RefreshToken mokeRefreshToken = spy(RefreshToken.builder().userId(users.getId()).build());
-        doReturn(reissuedRefreshToken).when(mokeRefreshToken).updateToken();
 
         given(tokenService.findRefreshToken(any(String.class))).willReturn(mokeRefreshToken);
         given(userService.findByIdOrElseThrow(anyLong())).willReturn(users);
         given(tokenService.createAccessToken(any(Users.class))).willReturn(reissuedAccessToken);
+        given(tokenService.updateRefreshToken(any(RefreshToken.class))).willReturn(reissuedRefreshToken);
 
         // when
         AuthTokensResponse result = authService.reissueToken(requestRefreshToken);
