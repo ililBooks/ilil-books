@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - feat/ci_cd # 테스트 용
 
   pull_request:
     branches:
