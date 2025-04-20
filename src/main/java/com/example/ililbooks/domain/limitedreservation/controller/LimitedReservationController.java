@@ -6,6 +6,7 @@ import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReser
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationStatusHistoryResponse;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationStatusResponse;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationOrderService;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationQueryService;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
 import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -27,8 +28,9 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.*;
 @RequestMapping("/api/v1/limited-reservations")
 public class LimitedReservationController {
 
-    private final LimitedReservationService limitedReservationService;
-    private final LimitedReservationOrderService limitedReservationOrderService;
+    private final LimitedReservationService reservationService;
+    private final LimitedReservationQueryService queryService;
+    private final LimitedReservationOrderService orderService;
 
     /*/ 예약 생성 */
     @Secured(USER)
@@ -37,7 +39,7 @@ public class LimitedReservationController {
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestBody LimitedReservationCreateRequest request
     ) {
-        return Response.of(limitedReservationService.createReservation(authUser, request));
+        return Response.of(reservationService.createReservation(authUser, request));
     }
 
     /*/ 예약 단건 조회 */
@@ -47,7 +49,7 @@ public class LimitedReservationController {
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reservationId
     ) {
-        return Response.of(limitedReservationService.getReservationByUser(authUser, reservationId));
+        return Response.of(queryService.getReservationByUser(authUser, reservationId));
     }
 
     /*/ 행사별 전체 예약 조회 */
@@ -57,7 +59,7 @@ public class LimitedReservationController {
             @PathVariable Long eventId,
             Pageable pageable
     ) {
-        return Response.of(limitedReservationService.getReservationsByEvent(eventId, pageable));
+        return Response.of(queryService.getReservationsByEvent(eventId, pageable));
     }
 
      /*/ 예약 상태별 조회 */
@@ -66,7 +68,7 @@ public class LimitedReservationController {
     public Response<List<LimitedReservationResponse>> getReservationsByEventAndStatus(
             @RequestBody LimitedReservationStatusFilterRequest request
     ) {
-        return Response.of(limitedReservationService.getReservationsByEventAndStatus(request.eventId(), request.statuses()));
+        return Response.of(queryService.getReservationsByEventAndStatus(request.eventId(), request.statuses()));
     }
 
     /*/ 예약 취소 */
@@ -76,7 +78,7 @@ public class LimitedReservationController {
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reservationId
     ) {
-        limitedReservationService.cancelReservation(authUser, reservationId);
+        reservationService.cancelReservation(authUser, reservationId);
         return Response.empty();
     }
 
@@ -87,7 +89,7 @@ public class LimitedReservationController {
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reservationId
     ) {
-        return Response.of(limitedReservationOrderService.createOrderFroReservation(authUser, reservationId));
+        return Response.of(orderService.createOrderFroReservation(authUser, reservationId));
     }
 
     /*/ 실시간 예약 상태 조회 */
@@ -97,7 +99,7 @@ public class LimitedReservationController {
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reservationId
     ) {
-        return Response.of(limitedReservationService.getReservationStatus(authUser, reservationId));
+        return Response.of(queryService.getReservationStatus(authUser, reservationId));
     }
 
     /*/ 예약 상태 변경 이력 조회 */
@@ -106,7 +108,7 @@ public class LimitedReservationController {
     public Response<List<LimitedReservationStatusHistoryResponse>> getReservationStatusHistory(
             @PathVariable Long reservationId
     ) {
-        return Response.of(limitedReservationService.getReservationStatusHistory(reservationId));
+        return Response.of(queryService.getReservationStatusHistory(reservationId));
     }
 
     @Secured({PUBLISHER, ADMIN})
@@ -114,6 +116,6 @@ public class LimitedReservationController {
     public Response<List<LimitedReservationResponse>> getReservationsByEventAndStatusWithFilter(
             @RequestBody LimitedReservationStatusFilterRequest request
     ) {
-        return Response.of(limitedReservationService.getReservationsByFilter(request));
+        return Response.of(queryService.getReservationsByFilter(request));
     }
 }

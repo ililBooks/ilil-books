@@ -5,7 +5,6 @@ import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventUpdateR
 import com.example.ililbooks.domain.limitedevent.dto.response.LimitedEventResponse;
 import com.example.ililbooks.domain.limitedevent.service.LimitedEventService;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationSummaryResponse;
-import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.validation.Valid;

@@ -1,6 +1,5 @@
 package com.example.ililbooks.domain.limitedreservation.processor;
 
-import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;

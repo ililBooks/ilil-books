@@ -5,6 +5,7 @@ import com.example.ililbooks.domain.limitedevent.enums.LimitedEventStatus;
 import com.example.ililbooks.domain.limitedevent.repository.LimitedEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,19 +26,19 @@ public class LimitedEventStatusUpdater {
     @Transactional
     @Scheduled(fixedDelay = 60_000)
     public void updateEventStatuses() {
-        List<LimitedEvent> events = limitedEventRepository.findAllByIsDeletedFalse();
+        List<LimitedEvent> limitedEvents = limitedEventRepository.findAllByIsDeletedFalse(Pageable.unpaged()).getContent();
 
         Instant now = Instant.now();
 
-        for (LimitedEvent event : events) {
-            if (event.getStatus() == LimitedEventStatus.ENDED) continue;
+        for (LimitedEvent limitedEvent : limitedEvents) {
+            if (limitedEvent.getStatus() == LimitedEventStatus.ENDED) continue;
 
-            if (now.isAfter(event.getEndTime())) {
-                event.updateStatus(LimitedEventStatus.ENDED);
-                log.info("[이벤트 상태 변경] {} → ENDED (id={})", event.getStatus(), event.getId());
-            } else if (now.isAfter(event.getStartTime()) && event.getStatus() == LimitedEventStatus.INACTIVE) {
-                event.updateStatus(LimitedEventStatus.ACTIVE);
-                log.info("[이벤트 상태 변경] INACTIVE → ACTIVE (id={})", event.getId());
+            if (now.isAfter(limitedEvent.getEndTime())) {
+                limitedEvent.updateStatus(LimitedEventStatus.ENDED);
+                log.info("[이벤트 상태 변경] {} → ENDED (id={})", limitedEvent.getStatus(), limitedEvent.getId());
+            } else if (now.isAfter(limitedEvent.getStartTime()) && limitedEvent.getStatus() == LimitedEventStatus.INACTIVE) {
+                limitedEvent.updateStatus(LimitedEventStatus.ACTIVE);
+                log.info("[이벤트 상태 변경] INACTIVE → ACTIVE (id={})", limitedEvent.getId());
             }
         }
     }
