@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.4'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.example'
@@ -21,6 +22,10 @@ configurations {
 
 repositories {
     mavenCentral()
+}
+
+jacoco {
+    toolVersion = "0.8.10"
 }
 
 dependencies {
@@ -77,4 +82,57 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }
+
+tasks.register('testCoverage', Test) {
+    group 'verification'
+    description 'Runs the unit tests with coverage'
+
+    dependsOn(':test',
+            ':jacocoTestReport',
+            ':jacocoTestCoverageVerification')
+
+    tasks['jacocoTestReport'].mustRunAfter(tasks['test'])
+    tasks['jacocoTestCoverageVerification'].mustRunAfter(tasks['jacocoTestReport'])
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'SOURCEFILE'
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.30
+            }
+            // 커버리지 체크를 제외할 클래스들
+            classDirectories.setFrom(
+                    files([
+                            fileTree(dir: "$buildDir/classes/java/main",
+                                    excludes: [
+                                            '**/config/**',
+                                            '**/dto/**',
+                                            '**/entity/**',
+                                            '**/exception/**',
+                                            '**/enums/**',
+                                            '**/constants/**',
+                                            '**/Application*',
+                                            '**/*Request*',
+                                            '**/*Response*'
+                                    ])
+                    ])
+            )
+        }
+    }
+}
+

@@ -15,14 +15,18 @@ import static com.example.ililbooks.domain.user.enums.UserRole.ROLE_USER;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "users")
+@Table(
+        name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_email_login_type", columnNames = {"email", "login_type"})
+        }
+)
 public class Users extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String email;
 
     private String nickname;
