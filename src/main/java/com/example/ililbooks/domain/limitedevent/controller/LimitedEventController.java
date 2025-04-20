@@ -4,6 +4,8 @@ import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventCreateR
 import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventUpdateRequest;
 import com.example.ililbooks.domain.limitedevent.dto.response.LimitedEventResponse;
 import com.example.ililbooks.domain.limitedevent.service.LimitedEventService;
+import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationSummaryResponse;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.validation.Valid;
@@ -23,6 +25,7 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.PUBLISH
 public class LimitedEventController {
 
     private final LimitedEventService limitedEventService;
+    private final LimitedReservationService limitedReservationService;
 
     /*/ 행사 등록 (PUBLISHER 만 가능) */
     @Secured(PUBLISHER)
@@ -44,6 +47,15 @@ public class LimitedEventController {
     @GetMapping
     public Response<Page<LimitedEventResponse>> getAllLimitedEventList(Pageable pageable) {
         return Response.of(limitedEventService.getAllLimitedEvents(pageable));
+    }
+
+    /*/ 예약 통계 요약 조회 */
+    @Secured({PUBLISHER, ADMIN})
+    @GetMapping("/summary/{limitedEventId}")
+    public Response<LimitedReservationSummaryResponse> getReservationSummary(
+            @PathVariable Long limitedEventId
+    ) {
+        return Response.of(limitedReservationService.getReservationSummary(limitedEventId));
     }
 
     /*/ 행사 수정 (PUBLISHER 와 ADMIN 만 가능) */

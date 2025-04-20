@@ -3,6 +3,8 @@ package com.example.ililbooks.domain.limitedreservation.controller;
 import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationCreateRequest;
 import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationStatusFilterRequest;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
+import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationStatusHistoryResponse;
+import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationStatusResponse;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationOrderService;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
 import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
@@ -58,7 +60,7 @@ public class LimitedReservationController {
         return Response.of(limitedReservationService.getReservationsByEvent(eventId, pageable));
     }
 
-     // V2 - 관리자 조회용
+     /*/ 예약 상태별 조회 */
     @Secured({PUBLISHER, ADMIN})
     @GetMapping("/events/status")
     public Response<List<LimitedReservationResponse>> getReservationsByEventAndStatus(
@@ -86,5 +88,32 @@ public class LimitedReservationController {
             @PathVariable Long reservationId
     ) {
         return Response.of(limitedReservationOrderService.createOrderFroReservation(authUser, reservationId));
+    }
+
+    /*/ 실시간 예약 상태 조회 */
+    @Secured(USER)
+    @GetMapping("/status/{reservationId}")
+    public Response<LimitedReservationStatusResponse> getReservationStatus(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long reservationId
+    ) {
+        return Response.of(limitedReservationService.getReservationStatus(authUser, reservationId));
+    }
+
+    /*/ 예약 상태 변경 이력 조회 */
+    @Secured({PUBLISHER, ADMIN})
+    @GetMapping("/history/{reservationId}")
+    public Response<List<LimitedReservationStatusHistoryResponse>> getReservationStatusHistory(
+            @PathVariable Long reservationId
+    ) {
+        return Response.of(limitedReservationService.getReservationStatusHistory(reservationId));
+    }
+
+    @Secured({PUBLISHER, ADMIN})
+    @PostMapping("/status/limitedEvents")
+    public Response<List<LimitedReservationResponse>> getReservationsByEventAndStatusWithFilter(
+            @RequestBody LimitedReservationStatusFilterRequest request
+    ) {
+        return Response.of(limitedReservationService.getReservationsByFilter(request));
     }
 }

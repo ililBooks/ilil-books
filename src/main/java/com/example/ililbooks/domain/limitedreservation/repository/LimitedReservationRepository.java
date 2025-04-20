@@ -30,4 +30,21 @@ public interface LimitedReservationRepository extends JpaRepository<LimitedReser
     Optional<LimitedReservation> findByIdWithEvent(@Param("id") Long id);
 
     List<LimitedReservation> findAllByStatusAndExpiredAtBefore(LimitedReservationStatus status, Instant expiredAt);
+
+    /*/ 상태 + 유저 + 생성일 조건 기반 예약 조회 */
+    @Query("""
+        SELECT r FROM LimitedReservation r
+        WHERE r.limitedEvent.id = :eventId
+        AND r.status IN :statuses
+        AND (:userId IS NULL OR r.users.id = :userId)
+        AND (:startDate IS NULL OR r.createdAt >= :startDate)
+        AND (:endDate IS NULL OR r.createdAt <= :endDate)
+        """) // 텍스트 블럭
+    List<LimitedReservation> findByFilter(
+            Long eventId,
+            List<LimitedReservationStatus> statuses,
+            Long userId,
+            Instant startDate,
+            Instant endDate
+    );
 }
