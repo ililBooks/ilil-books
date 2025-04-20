@@ -34,8 +34,7 @@ public class RefreshToken{
                 .build();
     }
 
-    public String updateToken() {
+    public void updateToken() {
         this.token = UUID.randomUUID().toString();
-        return token;
     }
 }

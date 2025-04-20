@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,26 +18,35 @@ import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_BOOK
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BookSearchService {
 
     private final BookSearchRepository bookSearchRepository;
     private final BookRepository bookRepository;
+    private final TrendingSearchService trendingSearchService;
 
     public void saveBookDocumentFromBook(Book book) {
         BookDocument document = BookDocument.toDocument(book);
         bookSearchRepository.save(document);
     }
 
-    public void saveAll(List<BookDocument> bookDocuments) { bookSearchRepository.saveAll(bookDocuments);}
+    public void saveAll(List<BookDocument> bookDocuments) {
+        if (bookDocuments == null) throw new NullPointerException();
+        bookSearchRepository.saveAll(bookDocuments);
+    }
 
     public Page<BookSearchResponse> searchBooksV2(String keyword, Pageable pageable) {
         Page<BookDocument> bookDocuments = bookSearchRepository.findByMultiMatch(pageable, keyword);
+
+        trendingSearchService.increaseTrendingCount(keyword);
 
         return bookDocuments.map(BookSearchResponse::of);
     }
 
     public Page<BookSearchResponse> searchBooksV1(String keyword, Pageable pageable) {
         Page<Book> books = bookRepository.findBooksByKeyword(keyword, pageable);
+
+        trendingSearchService.increaseTrendingCount(keyword);
 
         return books.map(BookSearchResponse::of);
     }
@@ -50,7 +60,7 @@ public class BookSearchService {
     public void deleteBookDocument(Book book) {
         BookDocument bookDocument = bookSearchRepository.findByIsbnOnSale(book.getIsbn())
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_BOOK_DOCUMENT.getMessage()));
-        bookDocument.deleteBookDocument(book.isDeleted());
+        bookDocument.deleteBookDocument();
     }
 
 }

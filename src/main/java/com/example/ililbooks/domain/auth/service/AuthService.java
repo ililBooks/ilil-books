@@ -59,7 +59,7 @@ public class AuthService {
         Users users = userService.findByIdOrElseThrow(findRefreshToken.getUserId());
 
         String reissuedAccessToken = tokenService.createAccessToken(users);
-        String reissuedRefreshToken = findRefreshToken.updateToken();
+        String reissuedRefreshToken = tokenService.updateRefreshToken(findRefreshToken);
 
         return AuthTokensResponse.of(reissuedAccessToken, reissuedRefreshToken);
     }

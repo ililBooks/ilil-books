@@ -1,10 +1,11 @@
-package com.example.ililbooks.domain.auth.service;
+package com.example.ililbooks.domain.auth.google.service;
 
 import com.example.ililbooks.client.google.GoogleClient;
 import com.example.ililbooks.client.google.dto.GoogleApiProfileResponse;
 import com.example.ililbooks.client.google.dto.GoogleApiResponse;
-import com.example.ililbooks.domain.auth.dto.request.AuthGoogleAccessTokenRequest;
+import com.example.ililbooks.domain.auth.google.dto.request.AuthGoogleAccessTokenRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
+import com.example.ililbooks.domain.auth.service.AuthService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.domain.user.service.UserSocialService;
