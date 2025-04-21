@@ -36,7 +36,6 @@ public class LimitedReservationController {
     }
 
     /*/ 예약 단건 조회 */
-    @Secured(USER)
     @GetMapping("/{reservationId}")
     public Response<LimitedReservationResponse> getMyReservation(
             @AuthenticationPrincipal AuthUser authUser,
@@ -46,7 +45,7 @@ public class LimitedReservationController {
     }
 
     /*/ 행사별 전체 예약 조회 */
-    @Secured({PUBLISHER, ADMIN})
+    @Secured({ADMIN})
     @GetMapping("/events/{eventId}")
     public Response<Page<LimitedReservationResponse>> getAllReservationsByEvent(
             @PathVariable Long eventId,
