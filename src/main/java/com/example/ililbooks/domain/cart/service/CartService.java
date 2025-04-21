@@ -63,15 +63,7 @@ public class CartService {
 
             } else {
                 Book book = bookService.findBookByIdOrElseThrow(item.bookId());
-                cart.getItems().put(item.bookId(),
-                        CartItem.of(
-                                item.bookId(),
-                                item.quantity(),
-                                book.getTitle(),
-                                book.getAuthor(),
-                                book.getPrice(),
-                                book.getLimitedType()
-                ));
+                cart.getItems().put(item.bookId(), CartItem.of(book, item.quantity()));
             }
         }
 

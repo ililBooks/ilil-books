@@ -40,9 +40,9 @@ public class OrderController {
     }
 
     /* 주문 단건 조회 */
+    @Operation(summary = "주문 단건 조회", description = "주문 내역을 포함한 주문에 대한 정보를 단건으로 조회한다.")
     @Secured(USER)
     @GetMapping("/{orderId}")
-    @Operation(summary = "주문 단건 조회", description = "주문 내역을 포함한 주문에 대한 정보를 단건으로 조회한다.")
     public Response<OrderResponse> findOrder(
             @PathVariable Long orderId,
             @AuthenticationPrincipal AuthUser authUser,
@@ -52,9 +52,9 @@ public class OrderController {
     }
 
     /* 주문 다건 조회 */
+    @Operation(summary = "주문 다건 조회", description = "주문에 대한 정보를 다건으로 조회한다.")
     @Secured(USER)
     @GetMapping("/all")
-    @Operation(summary = "주문 다건 조회", description = "주문에 대한 정보를 다건으로 조회한다.")
     public Response<Page<OrdersGetResponse>> getOrders(
             @AuthenticationPrincipal AuthUser authUser,
             Pageable pageable

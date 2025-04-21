@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.cart.entity;
 
+import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.enums.LimitedType;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +18,7 @@ public class CartItem {
     private LimitedType limitedType;
 
     @Builder
-    public CartItem(Long bookId, int quantity, String title, String author, BigDecimal price, LimitedType limitedType) {
+    private CartItem(Long bookId, int quantity, String title, String author, BigDecimal price, LimitedType limitedType) {
         this.bookId = bookId;
         this.quantity = quantity;
         this.title = title;
@@ -26,14 +27,14 @@ public class CartItem {
         this.limitedType = limitedType;
     }
 
-    public static CartItem of(Long bookId, int quantity, String title, String author, BigDecimal price, LimitedType limitedType) {
+    public static CartItem of(Book book, int quantity) {
         return CartItem.builder()
-                .bookId(bookId)
+                .bookId(book.getId())
                 .quantity(quantity)
-                .title(title)
-                .author(author)
-                .price(price)
-                .limitedType(limitedType)
+                .title(book.getTitle())
+                .author(book.getAuthor())
+                .price(book.getPrice())
+                .limitedType(book.getLimitedType())
                 .build();
     }
 
