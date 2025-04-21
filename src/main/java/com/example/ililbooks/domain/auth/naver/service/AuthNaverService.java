@@ -61,10 +61,6 @@ public class AuthNaverService {
             throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());
         }
 
-        if (!NAVER.equals(users.getLoginType())) {
-            throw new UnauthorizedException(NOT_NAVER_USER.getMessage());
-        }
-
         return authService.getTokenResponse(users);
     }
 
