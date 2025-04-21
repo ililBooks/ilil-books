@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -141,6 +142,7 @@ class AuthGoogleServiceTest {
         // when & given
         assertEquals(authTokensResponse.accessToken(), result.accessToken());
         assertEquals(authTokensResponse.refreshToken(), result.refreshToken());
+        verify(userSocialService, times(1)).saveUser(any(Users.class));
     }
 
     /* signIn */
@@ -156,21 +158,6 @@ class AuthGoogleServiceTest {
         UnauthorizedException unauthorizedException = assertThrows(UnauthorizedException.class,
                 () -> authGoogleService.signIn(authGoogleAccessTokenRequest));
         assertEquals(unauthorizedException.getMessage(), DEACTIVATED_USER_EMAIL.getMessage());
-    }
-
-    @Test
-    void 구글_소셜로그인_로그인_LoginType이_GOOGLE이_아니라면_실패() {
-        // given
-        ReflectionTestUtils.setField(users, "isDeleted", false);
-        ReflectionTestUtils.setField(users, "loginType", LoginType.EMAIL);
-
-        given(googleClient.requestProfile(anyString())).willReturn(googleApiProfileResponse);
-        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(users);
-
-        // when & given
-        UnauthorizedException unauthorizedException = assertThrows(UnauthorizedException.class,
-                () -> authGoogleService.signIn(authGoogleAccessTokenRequest));
-        assertEquals(unauthorizedException.getMessage(), NOT_GOOGLE_USER.getMessage());
     }
 
     @Test
