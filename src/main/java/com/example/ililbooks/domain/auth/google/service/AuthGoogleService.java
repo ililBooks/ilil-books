@@ -59,7 +59,7 @@ public class AuthGoogleService {
     @Transactional(readOnly = true)
     public AuthTokensResponse signIn(AuthGoogleAccessTokenRequest authGoogleAccessTokenRequest) {
         GoogleApiProfileResponse profile = getProfile(authGoogleAccessTokenRequest);
-        Users users = userService.findByEmailOrElseThrow(profile.email());
+        Users users = userService.findByEmailAndLoginTypeOrElseThrow(profile.email(), GOOGLE);
 
         if (users.isDeleted()) {
             throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());

@@ -255,11 +255,11 @@ class UserServiceTest {
     void 이메일로_유저_조회_실패() {
         // when
         String email = "email@email.com";
-        given(userRepository.findByEmail(anyString())).willReturn(Optional.empty());
+        given(userRepository.findByEmailAndLoginType(anyString(), any(LoginType.class))).willReturn(Optional.empty());
 
         // when & then
         UnauthorizedException unauthorizedException = assertThrows(UnauthorizedException.class,
-                () -> userService.findByEmailOrElseThrow(email));
+                () -> userService.findByEmailAndLoginTypeOrElseThrow(email, LoginType.EMAIL));
         assertEquals(unauthorizedException.getMessage(), USER_EMAIL_NOT_FOUND.getMessage());
     }
 
@@ -267,16 +267,16 @@ class UserServiceTest {
     void 이메일로_유저_조회_성공() {
         // when
         String email = "email@email.com";
-        given(userRepository.findByEmail(anyString())).willReturn(Optional.of(users));
+        given(userRepository.findByEmailAndLoginType(anyString(), any(LoginType.class))).willReturn(Optional.of(users));
 
         // when
-        Users result = userService.findByEmailOrElseThrow(email);
+        Users result = userService.findByEmailAndLoginTypeOrElseThrow(email, LoginType.EMAIL);
 
         // given
         assertEquals(users.getEmail(), result.getEmail());
         assertEquals(users.getNickname(), result.getNickname());
         assertEquals(users.getUserRole(), result.getUserRole());
-        verify(userRepository, times(1)).findByEmail(email);
+        verify(userRepository, times(1)).findByEmailAndLoginType(anyString(), any(LoginType.class));
     }
 
     /* findByIdOrElseThrow */

@@ -95,8 +95,8 @@ public class UserService {
         users.deleteUser();
     }
 
-    public Users findByEmailOrElseThrow(String email) {
-        return userRepository.findByEmail(email).orElseThrow(
+    public Users findByEmailAndLoginTypeOrElseThrow(String email, LoginType loginType) {
+        return userRepository.findByEmailAndLoginType(email, loginType).orElseThrow(
                 () -> new UnauthorizedException(USER_EMAIL_NOT_FOUND.getMessage())
         );
     }
@@ -117,7 +117,7 @@ public class UserService {
     * 없을 경우 email, nickname 값의 유저 생성 후 저장
     *  */
     public Users findByEmailOrGet(String email, String nickname, LoginType loginType) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndLoginType(email, loginType)
                 .orElseGet(() -> userRepository.save(
                         Users.builder()
                                 .email(email)
