@@ -1,7 +1,7 @@
 package com.example.ililbooks.domain.auth.kakao.controller;
 
 import com.example.ililbooks.client.kakao.dto.AuthKakaoTokenResponse;
-import com.example.ililbooks.domain.auth.kakao.service.AuthkakaoService;
+import com.example.ililbooks.domain.auth.kakao.service.AuthKakaoService;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import static com.example.ililbooks.config.util.CookieUtil.addRefreshTokenCookie
 @RequestMapping("/api/v1/auth/kakao")
 public class AuthKakaoController {
 
-    private final AuthkakaoService authkakaoService;
+    private final AuthKakaoService authkakaoService;
 
     @GetMapping("/token")
     public Response<AuthKakaoTokenResponse> signInWithKakao(@RequestParam String code,

@@ -17,6 +17,7 @@ public enum ErrorMessage {
     REFRESH_TOKEN_MUST_BE_STRING("@RefreshToken과 String 타입은 함께 사용되어야 합니다."),
     NOT_NAVER_USER("네이버로 가입된 사용자가 아닙니다."),
     NOT_GOOGLE_USER("구글로 가입된 사용자가 아닙니다."),
+    INVALID_USER_INFORMATION("유저 정보가 유효하지 않습니다. 어플리케이션으로 회원가입해주세요."),
 
     DEFAULT_UNAUTHORIZED("인증이 필요합니다."),
     DEFAULT_BAD_REQUEST("잘못된 요청입니다."),

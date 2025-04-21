@@ -7,16 +7,18 @@ import com.example.ililbooks.domain.auth.service.TokenService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.service.UserService;
+import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import static com.example.ililbooks.domain.user.enums.LoginType.KAKAO;
 import static com.example.ililbooks.global.exception.ErrorMessage.DEACTIVATED_USER_EMAIL;
+import static com.example.ililbooks.global.exception.ErrorMessage.INVALID_USER_INFORMATION;
 
 @Service
 @RequiredArgsConstructor
-public class AuthkakaoService {
+public class AuthKakaoService {
 
     private final UserService userService;
     private final TokenService tokenService;
@@ -29,9 +31,9 @@ public class AuthkakaoService {
         // 사용자 정보 조회
         KakaoAccount kakaoAccount = kakaoClient.requestUserInfo(tokenResponse.accessToken()).kakaoAccount();
 
-        // 사용자 검증 후 카카오 회원 가입 redirect
+        // 사용자 검증 후 부족한 값 있을 경우 검증
         if (kakaoAccount.email().isBlank() || kakaoAccount.profile().nickname().isBlank()) {
-            return new AuthKakaoTokenResponse(kakaoClient.getSignupUri(), tokenResponse.accessToken(), tokenResponse.refreshToken());
+            throw new BadRequestException(INVALID_USER_INFORMATION.getMessage());
         }
 
         // 사용자 정보 프로젝트에 저장 또는 있을 경우 반환
