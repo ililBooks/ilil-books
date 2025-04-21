@@ -7,6 +7,7 @@ import com.example.ililbooks.domain.auth.naver.dto.request.AuthNaverAccessTokenR
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.auth.service.AuthService;
 import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.domain.user.service.UserSocialService;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -41,7 +42,7 @@ public class AuthNaverService {
     public AuthTokensResponse signUpWithNaver(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
         NaverApiProfileResponse profile = getProfile(authNaverAccessTokenRequest);
 
-        if (userService.existsByEmail(profile.email())) {
+        if (userService.existsByEmailAndLoginType(profile.email(), NAVER)) {
             throw new BadRequestException(DUPLICATE_EMAIL.getMessage());
         }
 
@@ -54,7 +55,7 @@ public class AuthNaverService {
     @Transactional(readOnly = true)
     public AuthTokensResponse signInWithNaver(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
         NaverApiProfileResponse profile = getProfile(authNaverAccessTokenRequest);
-        Users users = userService.findByEmailOrElseThrow(profile.email());
+        Users users = userService.findByEmailAndLoginTypeOrElseThrow(profile.email(), NAVER);
 
         if (users.isDeleted()) {
             throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());

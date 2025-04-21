@@ -21,7 +21,7 @@ public class AuthkakaoService {
     private final TokenService tokenService;
     private final KakaoClient kakaoClient;
 
-    public AuthKakaoTokenResponse signinWithKakao(String code) {
+    public AuthKakaoTokenResponse signInWithKakao(String code) {
         // 인가 토큰 받기
         AuthKakaoTokenResponse tokenResponse = kakaoClient.requestToken(code);
         System.out.println(tokenResponse.toString() + tokenResponse.accessToken());
