@@ -22,7 +22,7 @@ public class CartItem {
                 .build();
     }
 
-    public void updateQuantity(int quantity) {
+    public void changeQuantity(int quantity) {
         this.quantity += quantity;
     }
 }

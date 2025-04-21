@@ -51,7 +51,7 @@ public class CartService {
                     cart.getItems().remove(item.bookId());
                 }
 
-                existingItem.updateQuantity(item.quantity());
+                existingItem.changeQuantity(item.quantity());
             } else {
                 if (item.quantity() <= 0) {
                     throw new BadRequestException(CART_QUANTITY_INVALID.getMessage());

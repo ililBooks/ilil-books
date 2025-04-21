@@ -127,7 +127,7 @@ public class OrderService {
 
         for (CartItem cartItem : cartItemList) {
             Book book = bookService.findBookByIdOrElseThrow(cartItem.getBookId());
-            bookStockService.rollbackStock(book, cartItem.getQuantity());
+            bookStockService.rollbackStock(book.getId(), cartItem.getQuantity());
         }
     }
 

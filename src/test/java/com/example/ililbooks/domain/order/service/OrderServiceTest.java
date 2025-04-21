@@ -266,7 +266,7 @@ class OrderServiceTest {
 
         // Then
         assertEquals(OrderStatus.CANCELLED.name(), result.orderStatus());
-        verify(bookStockService, times(2)).rollbackStock(any(Book.class), anyInt());
+        verify(bookStockService, times(2)).rollbackStock(anyLong(), anyInt());
         verify(orderHistoryService, times(1)).getOrderHistories(orderId, pageable);
     }
 
