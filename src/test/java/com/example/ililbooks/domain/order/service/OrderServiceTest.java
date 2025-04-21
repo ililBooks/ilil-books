@@ -125,17 +125,13 @@ class OrderServiceTest {
     @Test
     void 주문_생성_성공() {
         // Given
-        Long book1Id = 1L;
-        Long book2Id = 2L;
         int book1originalQuantity = 2;
         int book2originalQuantity = 3;
 
-        cart.getItems().put(book1Id, CartItem.of(book1Id, book1originalQuantity));
-        cart.getItems().put(book2Id, CartItem.of(book2Id, book2originalQuantity));
+        cart.getItems().put(book1.getId(), CartItem.of(book1, book1originalQuantity));
+        cart.getItems().put(book2.getId(), CartItem.of(book2, book2originalQuantity));
 
         given(cartService.findByUserIdOrElseNewCart(anyLong())).willReturn(cart);
-        given(bookService.findBookByIdOrElseThrow(book1Id)).willReturn(book1);
-        given(bookService.findBookByIdOrElseThrow(book2Id)).willReturn(book2);
 
         // When
         OrderResponse result = orderService.createOrder(authUser, pageable);
@@ -246,20 +242,15 @@ class OrderServiceTest {
         ReflectionTestUtils.setField(order, "deliveryStatus", DeliveryStatus.READY);
         ReflectionTestUtils.setField(order, "paymentStatus", PaymentStatus.PAID);
 
-        Long book1Id = 1L;
-        Long book2Id = 2L;
         int book1originalQuantity = 2;
         int book2originalQuantity = 3;
         List<CartItem> cartItemList = Arrays.asList(
-                CartItem.of(book1Id, book1originalQuantity),
-                CartItem.of(book2Id, book2originalQuantity)
+                CartItem.of(book1, book1originalQuantity),
+                CartItem.of(book2, book2originalQuantity)
         );
 
         given(orderRepository.findById(anyLong())).willReturn(Optional.of(order));
-
         given(orderHistoryService.getCartItemListByOrderId(orderId)).willReturn(cartItemList);
-        given(bookService.findBookByIdOrElseThrow(book1Id)).willReturn(book1);
-        given(bookService.findBookByIdOrElseThrow(book2Id)).willReturn(book2);
 
         // When
         OrderResponse result = orderService.cancelOrder(authUser, orderId, pageable);
