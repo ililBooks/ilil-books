@@ -156,4 +156,10 @@ public class BookService {
     public boolean existsOnSaleRegularBookById(Long bookId) {
         return bookRepository.existsOnSaleRegularBookById(bookId);
     }
+
+    public List<Long> findInvalidBookIds(List<Long> ids) {
+        return ids.stream()
+                .filter(id -> !existsOnSaleRegularBookById(id))
+                .toList();
+    }
 }

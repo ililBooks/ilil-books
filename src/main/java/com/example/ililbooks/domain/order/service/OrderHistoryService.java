@@ -43,7 +43,14 @@ public class OrderHistoryService {
         List<OrderHistory> orderHistoryList = orderHistoryRepository.findAllByOrderId(orderId);
 
         return orderHistoryList.stream()
-                .map(orderHistory -> CartItem.of(orderHistory.getBook().getId(), orderHistory.getQuantity()))
+                .map(orderHistory -> CartItem.of(
+                        orderHistory.getBook().getId(),
+                        orderHistory.getQuantity(),
+                        orderHistory.getTitle(),
+                        orderHistory.getAuthor(),
+                        orderHistory.getPrice(),
+                        orderHistory.getLimitedType()
+                ))
                 .toList();
     }
 }

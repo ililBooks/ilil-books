@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.cart.service;
 
+import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.domain.cart.dto.request.CartItemUpdateRequest;
 import com.example.ililbooks.domain.cart.dto.request.CartItemRequest;
@@ -12,6 +13,7 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,15 +30,21 @@ public class CartService {
     private final BookService bookService;
 
     /* 장바구니 추가 및 삭제 */
+    @Transactional(readOnly = true)
     public CartResponse updateCart(AuthUser authUser, CartItemUpdateRequest cartItemUpdateRequest) {
 
         Cart cart = findByUserIdOrElseNewCart(authUser.getUserId());
 
-        for (CartItemRequest item : cartItemUpdateRequest.cartItemList()) {
+        List<Long> bookIds = cartItemUpdateRequest.cartItemList().stream()
+                .map(CartItemRequest::bookId)
+                .toList();
 
-            if (!bookService.existsOnSaleRegularBookById(item.bookId())) {
-                throw new BadRequestException(CANNOT_ADD_BOOK_TO_CART.getMessage());
-            }
+        List<Long> invalidBookIds = bookService.findInvalidBookIds(bookIds);
+        if (!invalidBookIds.isEmpty()) {
+            throw new BadRequestException(CANNOT_ADD_BOOK_TO_CART.getMessage());
+        }
+
+        for (CartItemRequest item : cartItemUpdateRequest.cartItemList()) {
 
             CartItem existingItem = cart.getItems().get(item.bookId());
 
@@ -52,11 +60,18 @@ public class CartService {
                 }
 
                 existingItem.changeQuantity(item.quantity());
+
             } else {
-                if (item.quantity() <= 0) {
-                    throw new BadRequestException(CART_QUANTITY_INVALID.getMessage());
-                }
-                cart.getItems().put(item.bookId(), CartItem.of(item.bookId(), item.quantity()));
+                Book book = bookService.findBookByIdOrElseThrow(item.bookId());
+                cart.getItems().put(item.bookId(),
+                        CartItem.of(
+                                item.bookId(),
+                                item.quantity(),
+                                book.getTitle(),
+                                book.getAuthor(),
+                                book.getPrice(),
+                                book.getLimitedType()
+                ));
             }
         }
 
@@ -86,7 +101,6 @@ public class CartService {
         List<CartItemResponse> itemResponses = cart.getItems().values().stream()
                 .map(CartItemResponse::of)
                 .collect(Collectors.toList());
-        //빈배열 -> 에러 안던져줌
         return CartResponse.of(authUser.getUserId(), itemResponses);
     }
 }
