@@ -18,6 +18,8 @@ import static com.example.ililbooks.global.exception.ErrorMessage.STOCK_UPDATE_C
 @RequiredArgsConstructor
 public class BookStockService {
 
+    private final BookService bookService;
+
     @Retryable(
             retryFor = {
                     OptimisticLockException.class,
@@ -26,7 +28,8 @@ public class BookStockService {
             backoff = @Backoff(delay = 100)
     )
     @Transactional
-    public void decreaseStock(Book book, int quantity) {
+    public void decreaseStock(Long bookId, int quantity) {
+        Book book = bookService.findBookByIdOrElseThrow(bookId);
         int remainingStock = book.decreaseStock(quantity);
 
         if (remainingStock < 0) {
@@ -46,8 +49,8 @@ public class BookStockService {
         book.rollbackStock(quantity);
     }
 
-    @Recover
-    public void recover(OptimisticLockException e, Book book, int quantity) {
-        throw new BadRequestException(STOCK_UPDATE_CONFLICT.getMessage());
-    }
+//    @Recover
+//    public void recover(OptimisticLockException e, Book book, int quantity) {
+//        throw new BadRequestException(STOCK_UPDATE_CONFLICT.getMessage());
+//    }
 }

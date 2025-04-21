@@ -117,7 +117,7 @@ public class OrderService {
     private void decreaseStocks(Map<Long, Book> bookMap, Cart cart) {
         for (Book book : bookMap.values()) {
             CartItem cartItem = cart.getItems().get(book.getId());
-            bookStockService.decreaseStock(book, cartItem.getQuantity());
+            bookStockService.decreaseStock(book.getId(), cartItem.getQuantity());
         }
     }
 

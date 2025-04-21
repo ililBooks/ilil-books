@@ -142,7 +142,7 @@ class OrderServiceTest {
 
         // Then
         assertThat(result.totalPrice()).isEqualTo(new BigDecimal("130000")); // (20000*2 + 30000*3)
-        verify(bookStockService, times(2)).decreaseStock(any(Book.class), anyInt());
+        verify(bookStockService, times(2)).decreaseStock(anyLong(), anyInt());
         verify(orderRepository).save(any(Order.class));
         verify(cartService).clearCart(authUser);
     }

@@ -5,6 +5,7 @@ import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.enums.SaleStatus;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.global.entity.TimeStamped;
+import com.example.ililbooks.global.exception.BadRequestException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 
 import static com.example.ililbooks.domain.book.enums.LimitedType.REGULAR;
 import static com.example.ililbooks.domain.book.enums.SaleStatus.ON_SALE;
+import static com.example.ililbooks.global.exception.ErrorMessage.OUT_OF_STOCK;
 
 @Getter
 @Entity
@@ -61,7 +63,7 @@ public class Book extends TimeStamped {
     private Long version;
 
     @Builder
-    private Book(Long id, Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher, SaleStatus saleStatus, LimitedType limitedType) {
+    private Book(Long id, Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher, SaleStatus saleStatus, LimitedType limitedType, boolean isDeleted, Long version) {
         this.id = id;
         this.users = users;
         this.title = title;
@@ -73,7 +75,8 @@ public class Book extends TimeStamped {
         this.publisher = publisher;
         this.saleStatus = saleStatus;
         this.limitedType = limitedType;
-        this.isDeleted = false;
+        this.isDeleted = isDeleted;
+        this.version = version;
     }
 
     public static Book of(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher ) {
@@ -117,8 +120,12 @@ public class Book extends TimeStamped {
     }
 
     public int decreaseStock(int quantity) {
+        if (stock < quantity) {
+            throw new BadRequestException(OUT_OF_STOCK.getMessage());
+        }
         this.stock -= quantity;
-        return stock;
+        this.version++;
+        return this.stock;
     }
 
     public void deleteBook() {
