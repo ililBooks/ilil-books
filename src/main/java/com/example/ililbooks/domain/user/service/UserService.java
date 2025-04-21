@@ -9,6 +9,7 @@ import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.dto.response.UserResponse;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.LoginType;
+import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.repository.UserRepository;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -88,7 +89,8 @@ public class UserService {
     public void deleteUser(AuthUser authUser, UserDeleteRequest userDeleteRequest) {
         Users users = findByIdOrElseThrow(authUser.getUserId());
 
-        if (!passwordEncoder.matches(userDeleteRequest.password(), users.getPassword())) {
+        if (users.getLoginType() == LoginType.EMAIL
+                && !passwordEncoder.matches(userDeleteRequest.password(), users.getPassword())) {
             throw new BadRequestException(INVALID_PASSWORD.getMessage());
         }
 
@@ -114,15 +116,16 @@ public class UserService {
     /*
     * 로컬 db 에서 email 로 사용자 조회
     * 있는 경우 Users 객체 반환
-    * 없을 경우 email, nickname 값의 유저 생성 후 저장
+    * 없을 경우 email, nickname, loginType, userRole 값의 유저 생성 후 저장
     *  */
-    public Users findByEmailOrGet(String email, String nickname, LoginType loginType) {
+    public Users findByEmailOrGet(String email, String nickname, LoginType loginType, UserRole userRole) {
         return userRepository.findByEmailAndLoginType(email, loginType)
                 .orElseGet(() -> userRepository.save(
                         Users.builder()
                                 .email(email)
                                 .nickname(nickname)
                                 .loginType(loginType)
+                                .userRole(userRole)
                                 .build()
                 ));
     }
