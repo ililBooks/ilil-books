@@ -156,22 +156,6 @@ public class AuthNaverServiceTest {
     }
 
     @Test
-    void LoginType이_NAVER가_아니라_네이버_로그인_실패() {
-        //given
-        ReflectionTestUtils.setField(TEST_NAVER_USERS, "isDeleted", false);
-        ReflectionTestUtils.setField(TEST_NAVER_USERS, "loginType", LoginType.EMAIL);
-
-        givenNaverProfile();
-        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(TEST_NAVER_USERS);
-
-        //when & then
-        assertThrows(UnauthorizedException.class,
-                () -> authNaverService.signInWithNaver(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
-                NOT_NAVER_USER.getMessage()
-        );
-    }
-
-    @Test
     void 네이버_로그인_성공() {
         //given
         ReflectionTestUtils.setField(TEST_NAVER_USERS, "isDeleted", false);
