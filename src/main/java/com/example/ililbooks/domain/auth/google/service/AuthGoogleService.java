@@ -7,6 +7,7 @@ import com.example.ililbooks.domain.auth.google.dto.request.AuthGoogleAccessToke
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.auth.service.AuthService;
 import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.domain.user.service.UserSocialService;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -44,7 +45,7 @@ public class AuthGoogleService {
     public AuthTokensResponse signUp(AuthGoogleAccessTokenRequest authGoogleAccessTokenRequest) {
         GoogleApiProfileResponse profile = getProfile(authGoogleAccessTokenRequest);
 
-        if (userService.existsByEmail(profile.email())) {
+        if (userService.existsByEmailAndLoginType(profile.email(), GOOGLE)) {
             throw new BadRequestException(DUPLICATE_EMAIL.getMessage());
         }
 
@@ -58,7 +59,7 @@ public class AuthGoogleService {
     @Transactional(readOnly = true)
     public AuthTokensResponse signIn(AuthGoogleAccessTokenRequest authGoogleAccessTokenRequest) {
         GoogleApiProfileResponse profile = getProfile(authGoogleAccessTokenRequest);
-        Users users = userService.findByEmailOrElseThrow(profile.email());
+        Users users = userService.findByEmailAndLoginTypeOrElseThrow(profile.email(), GOOGLE);
 
         if (users.isDeleted()) {
             throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());
