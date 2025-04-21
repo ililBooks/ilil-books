@@ -25,20 +25,24 @@ public class ReviewImage {
 
     private String extension;
 
+    private int positionIndex;
+
     @Builder
-    private ReviewImage(Review review, String imageUrl, String fileName, String extension) {
+    private ReviewImage(Review review, String imageUrl, String fileName, String extension, int positionIndex) {
         this.review = review;
         this.imageUrl = imageUrl;
         this.fileName = fileName;
         this.extension = extension;
+        this.positionIndex = positionIndex;
     }
 
-    public static ReviewImage of(Review review, String imageUrl, String fileName, String extension) {
+    public static ReviewImage of(Review review, String imageUrl, String fileName, String extension, int positionIndex) {
         return ReviewImage.builder()
                 .review(review)
                 .imageUrl(imageUrl)
                 .fileName(fileName)
                 .extension(extension)
+                .positionIndex(positionIndex)
                 .build();
     }
 }

@@ -5,16 +5,10 @@ import com.example.ililbooks.domain.review.entity.Review;
 import com.example.ililbooks.domain.review.entity.ReviewImage;
 import com.example.ililbooks.domain.review.repository.ImageReviewRepository;
 import com.example.ililbooks.domain.review.repository.ReviewRepository;
-import com.example.ililbooks.global.image.dto.response.ImageListResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-
-import static com.example.ililbooks.global.image.dto.response.ImageListResponse.ofReviewImageList;
 
 @Service
 @RequiredArgsConstructor
@@ -29,11 +23,13 @@ public class ReviewFindService {
                 .map(review ->
                 {
                     //리뷰에 저장되어 있는 이미지 리스트 출력
-                    List<ReviewImage> reviewImage = imageReviewRepository.findAllByReviewId(review.getId());
+                    ReviewImage reviewImage = imageReviewRepository.findFirstByReviewId(review.getId()).orElse(null);
 
-                    //ImageResponse로 감싸서 반환
-                    List<ImageListResponse> imageResponses = ofReviewImageList(reviewImage);
-                    return ReviewWithImagesResponse.of(review, imageResponses);
+                    if(reviewImage == null) {
+                        return ReviewWithImagesResponse.of(review);
+                    }
+
+                    return ReviewWithImagesResponse.of(review, reviewImage.getImageUrl());
                 });
     }
 }

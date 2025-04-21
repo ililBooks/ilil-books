@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ImageReviewRepository extends JpaRepository<ReviewImage, Long> {
-    List<ReviewImage> findAllByReviewId(Long id);
 
     Optional<ReviewImage> findReviewImageById(Long imageId);
 
@@ -23,4 +22,16 @@ public interface ImageReviewRepository extends JpaRepository<ReviewImage, Long> 
     void deleteByFileName(String fileName);
 
     List<ReviewImage> findAllReviewImageById(Long reviewId);
+
+    boolean existsByReviewIdAndPositionIndex(Long reviewId, int postionIndex);
+
+    @Query(value = "SELECT * FROM ililbooks.review_images WHERE review_id = :reviewId ORDER BY position_index  LIMIT 1", nativeQuery = true)
+    Optional<ReviewImage> findFirstByReviewId(@Param("reviewId") Long reviewId);
+
+    @Query("SELECT r.users.id FROM ReviewImage ri " +
+            "JOIN ri.review r " +
+            "WHERE ri.id = :id")
+    Long findUserIdByReviewImageId(@Param("id") Long reviewImageId);
+
+
 }

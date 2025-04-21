@@ -4,7 +4,7 @@ import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.domain.review.dto.request.ReviewCreateRequest;
 import com.example.ililbooks.domain.review.dto.request.ReviewUpdateRequest;
-import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
+import com.example.ililbooks.domain.review.dto.response.ReviewCreateResponse;
 import com.example.ililbooks.domain.review.entity.Review;
 import com.example.ililbooks.domain.review.entity.ReviewImage;
 import com.example.ililbooks.domain.review.repository.ImageReviewRepository;
@@ -34,7 +34,7 @@ public class ReviewService {
     private final S3ImageService s3ImageService;
 
     @Transactional
-    public ReviewResponse createReview(AuthUser authUser, ReviewCreateRequest reviewCreateRequest) {
+    public ReviewCreateResponse createReview(AuthUser authUser, ReviewCreateRequest reviewCreateRequest) {
 
         Users users = userService.findByIdOrElseThrow(authUser.getUserId());
         Book book = bookService.findBookByIdOrElseThrow(reviewCreateRequest.bookId());
@@ -52,7 +52,7 @@ public class ReviewService {
         );
         Review savedReview = reviewRepository.save(review);
 
-        return ReviewResponse.of(savedReview);
+        return ReviewCreateResponse.of(savedReview);
     }
 
     @Transactional
@@ -63,28 +63,19 @@ public class ReviewService {
             throw new ForbiddenException(CANNOT_UPDATE_OTHERS_REVIEW_IMAGE.getMessage());
         }
 
-        ReviewImage reviewImage = ReviewImage.of(review, imageRequest.imageUrl(), imageRequest.fileName(),imageRequest.extension());
+        //해당 순서의 이미지가 이미 존재하는 경우
+        if (imageReviewRepository.existsByReviewIdAndPositionIndex(review.getId(), imageRequest.positionIndex())) {
+            throw new BadRequestException(DUPLICATE_POSITION_INDEX.getMessage());
+        }
 
-        //등록 개수 초과 
+        ReviewImage reviewImage = ReviewImage.of(review, imageRequest.imageUrl(), imageRequest.fileName(),imageRequest.extension(), imageRequest.positionIndex());
+
+        //등록 개수 초과
         if ( imageReviewRepository.countByReviewId(reviewImage.getReview().getId()) >= 5) {
             throw new BadRequestException(IMAGE_UPLOAD_LIMIT_OVER.getMessage());
         }
 
         imageReviewRepository.save(reviewImage);
-    }
-
-    @Transactional
-    public void deleteReviewImage(AuthUser authUser, Long imageId) {
-
-        ReviewImage reviewImage  = findReviewImage(imageId);
-
-        //사용자가 다른 사람의 이미지를 삭제하려는 경우
-        if (!authUser.getUserId().equals(reviewImage.getReview().getUsers().getId()) && isUser(authUser)) {
-            throw new ForbiddenException(CANNOT_DELETE_OTHERS_REVIEW.getMessage());
-        }
-
-        s3ImageService.deleteImage(reviewImage.getFileName());
-        imageReviewRepository.delete(reviewImage);
     }
 
     @Transactional
@@ -102,10 +93,5 @@ public class ReviewService {
 
     public Review findReviewByIdOrElseThrow(Long reviewId) {
         return reviewRepository.findById(reviewId).orElseThrow(()-> new NotFoundException(NOT_FOUND_REVIEW.getMessage()));
-    }
-
-    public ReviewImage findReviewImage(Long imageId) {
-        return imageReviewRepository.findReviewImageById(imageId)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_REVIEW.getMessage()));
     }
 }

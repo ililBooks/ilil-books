@@ -2,7 +2,7 @@ package com.example.ililbooks.domain.review.controller;
 
 import com.example.ililbooks.domain.review.dto.request.ReviewUpdateRequest;
 import com.example.ililbooks.domain.review.dto.request.ReviewCreateRequest;
-import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
+import com.example.ililbooks.domain.review.dto.response.ReviewCreateResponse;
 import com.example.ililbooks.domain.review.service.ReviewDeleteService;
 import com.example.ililbooks.domain.review.service.ReviewService;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -33,7 +33,7 @@ public class ReviewController {
     @Operation(summary = "리뷰 등록", description = "사용자가 도서에 대해 리뷰를 작성하는 API입니다.")
     @Secured(USER)
     @PostMapping
-    public Response<ReviewResponse> createReview(
+    public Response<ReviewCreateResponse> createReview(
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestBody ReviewCreateRequest reviewCreateRequest
     ) {
@@ -49,7 +49,7 @@ public class ReviewController {
     public Response<Void> uploadReviewImage(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reviewId,
-            @ModelAttribute ImageRequest imageRequest
+            @RequestBody ImageRequest imageRequest
     ) {
         reviewService.uploadReviewImage(authUser, reviewId, imageRequest);
         return Response.empty();
@@ -80,7 +80,7 @@ public class ReviewController {
             @PathVariable Long reviewId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        reviewDeleteService.deleteReview(reviewId, authUser);
+        reviewDeleteService.deleteReviews(reviewId, authUser);
         return Response.empty();
     }
 
