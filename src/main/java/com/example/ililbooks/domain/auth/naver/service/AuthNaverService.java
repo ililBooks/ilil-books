@@ -55,7 +55,7 @@ public class AuthNaverService {
     @Transactional(readOnly = true)
     public AuthTokensResponse signInWithNaver(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
         NaverApiProfileResponse profile = getProfile(authNaverAccessTokenRequest);
-        Users users = userService.findByEmailOrElseThrow(profile.email());
+        Users users = userService.findByEmailAndLoginTypeOrElseThrow(profile.email(), NAVER);
 
         if (users.isDeleted()) {
             throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());

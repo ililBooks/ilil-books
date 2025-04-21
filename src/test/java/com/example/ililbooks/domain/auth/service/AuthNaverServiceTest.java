@@ -131,7 +131,7 @@ public class AuthNaverServiceTest {
     void 조회한_프로필_이메일로_찾아지는_유저가_존재하지_않아_네이버_로그인_실패() {
         //given
         givenNaverProfile();
-        given(userService.findByEmailOrElseThrow(anyString())).willThrow(new UnauthorizedException());
+        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willThrow(new UnauthorizedException());
 
         //when & then
         assertThrows(UnauthorizedException.class,
@@ -146,7 +146,7 @@ public class AuthNaverServiceTest {
         ReflectionTestUtils.setField(TEST_NAVER_USERS, "isDeleted", true);
 
         givenNaverProfile();
-        given(userService.findByEmailOrElseThrow(anyString())).willReturn(TEST_NAVER_USERS);
+        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(TEST_NAVER_USERS);
 
         //when & then
         assertThrows(UnauthorizedException.class,
@@ -162,7 +162,7 @@ public class AuthNaverServiceTest {
         ReflectionTestUtils.setField(TEST_NAVER_USERS, "loginType", LoginType.EMAIL);
 
         givenNaverProfile();
-        given(userService.findByEmailOrElseThrow(anyString())).willReturn(TEST_NAVER_USERS);
+        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(TEST_NAVER_USERS);
 
         //when & then
         assertThrows(UnauthorizedException.class,
@@ -178,7 +178,7 @@ public class AuthNaverServiceTest {
         ReflectionTestUtils.setField(TEST_NAVER_USERS, "loginType", LoginType.NAVER);
 
         givenNaverProfile();
-        given(userService.findByEmailOrElseThrow(anyString())).willReturn(TEST_NAVER_USERS);
+        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(TEST_NAVER_USERS);
         given(authService.getTokenResponse(TEST_NAVER_USERS)).willReturn(AUTH_TOKENS_RESPONSE);
 
         //when
