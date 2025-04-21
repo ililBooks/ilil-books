@@ -2,6 +2,7 @@ package com.example.ililbooks.domain.user.controller;
 
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.user.dto.request.UserDeleteRequest;
+import com.example.ililbooks.domain.user.dto.request.UserUpdateAlertRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.dto.response.UserResponse;
@@ -12,12 +13,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
+
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/users/me")
 @Tag(name = "User", description = "유저 관련 API")
 public class UserController {
 
@@ -62,6 +66,18 @@ public class UserController {
             @Valid @RequestBody UserDeleteRequest userDeleteRequest
     ) {
         userService.deleteUser(authUser, userDeleteRequest);
+        return Response.empty();
+    }
+
+    /* 알림 수신 동의/거부 */
+    @Secured(USER)
+    @Operation(summary = "알림 수신 동의 및 거부", description = "예약 및 주문 알림 수신 동의/거부를 할 수 있습니다.")
+    @PatchMapping("alerts")
+    public Response<Void> updateAlert(
+            @AuthenticationPrincipal AuthUser authUser,
+            @Valid @RequestBody UserUpdateAlertRequest userUpdateAlertRequest
+    ) {
+        userService.updateAlert(authUser, userUpdateAlertRequest);
         return Response.empty();
     }
 }

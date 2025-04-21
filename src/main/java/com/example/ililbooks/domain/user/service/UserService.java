@@ -4,6 +4,7 @@ import com.example.ililbooks.config.util.JwtUtil;
 import com.example.ililbooks.domain.auth.dto.request.AuthSignUpRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.user.dto.request.UserDeleteRequest;
+import com.example.ililbooks.domain.user.dto.request.UserUpdateAlertRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.dto.response.UserResponse;
@@ -14,6 +15,7 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.example.ililbooks.global.exception.UnauthorizedException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -95,6 +97,13 @@ public class UserService {
         users.deleteUser();
     }
 
+    /* 알림 수신 동의 및 거부*/
+    @Transactional
+    public void updateAlert(AuthUser authUser, UserUpdateAlertRequest userUpdateAlertRequest) {
+        Users users = findByEmailOrElseThrow(authUser.getEmail());
+        users.updateAlert(userUpdateAlertRequest.receive());
+    }
+
     public Users findByEmailOrElseThrow(String email) {
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new UnauthorizedException(USER_EMAIL_NOT_FOUND.getMessage())
@@ -110,12 +119,12 @@ public class UserService {
     public boolean existsByEmailAndLoginType(String email, LoginType loginType) {
         return userRepository.existsByEmailAndLoginType(email, loginType);
     }
-
     /*
     * 로컬 db 에서 email 로 사용자 조회
     * 있는 경우 Users 객체 반환
     * 없을 경우 email, nickname 값의 유저 생성 후 저장
     *  */
+
     public Users findByEmailOrGet(String email, String nickname, LoginType loginType) {
         return userRepository.findByEmail(email)
                 .orElseGet(() -> userRepository.save(
