@@ -37,6 +37,7 @@ public class TokenServiceTest {
 
     private Users users;
     private RefreshToken savedToken;
+    private RefreshToken updatedToken;
 
     @BeforeEach
     public void setUp() {
@@ -50,6 +51,11 @@ public class TokenServiceTest {
         savedToken = RefreshToken.builder()
                 .userId(1L)
                 .token("refresh-token")
+                .build();
+
+        updatedToken = RefreshToken.builder()
+                .userId(1L)
+                .token("updated-token")
                 .build();
     }
 
@@ -82,6 +88,19 @@ public class TokenServiceTest {
         // then
         assertEquals(expectedToken, result);
         verify(refreshTokenRepository, times(1)).save(any(RefreshToken.class));
+    }
+
+    /* updateRefreshToken */
+    @Test
+    void 리플래시_토큰_갱신_성공() {
+        // given
+        given(refreshTokenRepository.save(any(RefreshToken.class))).willReturn(updatedToken);
+
+        // when
+        String result = tokenService.updateRefreshToken(savedToken);
+
+        // then
+        assertEquals(updatedToken.getToken(), result);
     }
 
     /* findRefreshToken */
