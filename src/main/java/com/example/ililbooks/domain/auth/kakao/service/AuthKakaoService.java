@@ -48,6 +48,6 @@ public class AuthKakaoService {
         String accessToken = tokenService.createAccessToken(user);
         String refreshToken = tokenService.createRefreshToken(user);
 
-        return new AuthKakaoTokenResponse("Logged In Already", accessToken, refreshToken);
+        return new AuthKakaoTokenResponse(accessToken, refreshToken);
     }
 }

@@ -119,7 +119,7 @@ public class UserService {
     * 없을 경우 email, nickname, loginType, userRole 값의 유저 생성 후 저장
     *  */
     public Users findByEmailOrGet(String email, String nickname, LoginType loginType, UserRole userRole) {
-        return userRepository. findByEmailAndLoginType(email, loginType)
+        return userRepository.findByEmailAndLoginType(email, loginType)
                 .orElseGet(() -> userRepository.save(
                         Users.builder()
                                 .email(email)
