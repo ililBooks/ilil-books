@@ -71,7 +71,7 @@ class AuthKakaoServiceTest {
         given(userService.findByEmailOrGet(anyString(), anyString(), any(LoginType.class), any(UserRole.class))).willReturn(user);
 
         // when
-        AuthKakaoTokenResponse result = authKakaoService.signInWithKakao(code);
+        AuthKakaoTokenResponse result = authKakaoService.signIn(code);
 
         // then
         assertThat(result).isNotNull();
@@ -88,7 +88,7 @@ class AuthKakaoServiceTest {
         when(kakaoClient.requestUserInfo(accessToken)).thenReturn(new AuthKakaoResponse(anyLong(), emptyAccount));
 
         // then
-        assertThrows(BadRequestException.class, () -> authKakaoService.signInWithKakao(code), INVALID_USER_INFORMATION.getMessage());
+        assertThrows(BadRequestException.class, () -> authKakaoService.signIn(code), INVALID_USER_INFORMATION.getMessage());
     }
 
     @Test
@@ -113,6 +113,6 @@ class AuthKakaoServiceTest {
         given(userService.findByEmailOrGet(anyString(), anyString(), any(LoginType.class), any(UserRole.class))).willReturn(deletedUser);
 
         // then
-        assertThrows(NotFoundException.class, () -> authKakaoService.signInWithKakao(code), DEACTIVATED_USER_EMAIL.getMessage());
+        assertThrows(NotFoundException.class, () -> authKakaoService.signIn(code), DEACTIVATED_USER_EMAIL.getMessage());
     }
 }

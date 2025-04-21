@@ -20,9 +20,9 @@ public class AuthKakaoController {
     private final AuthKakaoService authkakaoService;
 
     @GetMapping("/token")
-    public Response<AuthKakaoTokenResponse> signInWithKakao(@RequestParam String code,
-                                                            HttpServletResponse httpServletResponse) {
-        AuthKakaoTokenResponse authKakaoTokenResponse = authkakaoService.signInWithKakao(code);
+    public Response<AuthKakaoTokenResponse> signIn(@RequestParam String code,
+                                                   HttpServletResponse httpServletResponse) {
+        AuthKakaoTokenResponse authKakaoTokenResponse = authkakaoService.signIn(code);
         addRefreshTokenCookie(httpServletResponse, authKakaoTokenResponse.refreshToken());
         return Response.of(authKakaoTokenResponse);
     }

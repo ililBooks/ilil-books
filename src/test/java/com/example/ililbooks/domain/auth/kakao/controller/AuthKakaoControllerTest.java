@@ -34,7 +34,7 @@ class AuthKakaoControllerTest {
         // given
         AuthKakaoTokenResponse responseDto = new AuthKakaoTokenResponse(accessToken, refreshToken);
 
-        given(authKakaoService.signInWithKakao(anyString()))
+        given(authKakaoService.signIn(anyString()))
                 .willReturn(responseDto);
 
         // when
