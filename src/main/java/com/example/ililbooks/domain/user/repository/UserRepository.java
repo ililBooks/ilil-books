@@ -12,10 +12,15 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
     boolean existsByEmailAndLoginType(String email, LoginType loginType);
 
-    Optional<Users> findByEmail(@Param("email") String email);
+    Optional<Users> findByEmailAndLoginType(String email, LoginType loginType);
 
     @Query("SELECT u FROM Users u " +
             "WHERE u.id = :userId " +
             "AND u.isDeleted = false")
     Optional<Users> findById(@Param("userId") Long id);
+
+    @Query("SELECT u FROM Users u " +
+            "WHERE u.email = :email " +
+            "AND u.isDeleted = false")
+    Optional<Users> findByEmail(@Param("email") String email);
 }

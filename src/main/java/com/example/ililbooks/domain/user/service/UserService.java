@@ -15,7 +15,6 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.example.ililbooks.global.exception.UnauthorizedException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -110,6 +109,12 @@ public class UserService {
         );
     }
 
+    public Users findByEmailAndLoginTypeOrElseThrow(String email, LoginType loginType) {
+        return userRepository.findByEmailAndLoginType(email, loginType).orElseThrow(
+                () -> new UnauthorizedException(USER_EMAIL_NOT_FOUND.getMessage())
+        );
+    }
+
     public Users findByIdOrElseThrow(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(USER_ID_NOT_FOUND.getMessage())
@@ -119,14 +124,14 @@ public class UserService {
     public boolean existsByEmailAndLoginType(String email, LoginType loginType) {
         return userRepository.existsByEmailAndLoginType(email, loginType);
     }
+
     /*
     * 로컬 db 에서 email 로 사용자 조회
     * 있는 경우 Users 객체 반환
     * 없을 경우 email, nickname 값의 유저 생성 후 저장
     *  */
-
     public Users findByEmailOrGet(String email, String nickname, LoginType loginType) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndLoginType(email, loginType)
                 .orElseGet(() -> userRepository.save(
                         Users.builder()
                                 .email(email)

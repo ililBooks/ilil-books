@@ -5,6 +5,7 @@ import com.example.ililbooks.domain.auth.dto.request.AuthSignUpRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.auth.entity.RefreshToken;
 import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -21,8 +22,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
@@ -108,7 +108,7 @@ public class AuthServiceTest {
         // given
         ReflectionTestUtils.setField(users, "isDeleted", true);
 
-        given(userService.findByEmailOrElseThrow(any(String.class))).willReturn(users);
+        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(users);
 
         // when & then
         UnauthorizedException unauthorizedException = assertThrows(UnauthorizedException.class,
@@ -121,7 +121,7 @@ public class AuthServiceTest {
         // given
         ReflectionTestUtils.setField(users, "isDeleted", false);
 
-        given(userService.findByEmailOrElseThrow(any(String.class))).willReturn(users);
+        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(users);
         given(passwordEncoder.matches(successSignIn.password(), users.getPassword())).willReturn(false);
 
         // when & then
@@ -138,7 +138,7 @@ public class AuthServiceTest {
         String accessToken = "accessToken";
         String refreshToken = "refreshToken";
 
-        given(userService.findByEmailOrElseThrow(any(String.class))).willReturn(users);
+        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(users);
         given(passwordEncoder.matches(successSignIn.password(), users.getPassword())).willReturn(true);
         given(tokenService.createAccessToken(any(Users.class))).willReturn(accessToken);
         given(tokenService.createRefreshToken(any(Users.class))).willReturn(refreshToken);

@@ -150,7 +150,7 @@ class AuthGoogleServiceTest {
         ReflectionTestUtils.setField(users, "isDeleted", true);
 
         given(googleClient.findProfile(anyString())).willReturn(googleApiProfileResponse);
-        given(userService.findByEmailOrElseThrow(anyString())).willReturn(users);
+        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(users);
 
         // when & given
         UnauthorizedException unauthorizedException = assertThrows(UnauthorizedException.class,
@@ -165,7 +165,7 @@ class AuthGoogleServiceTest {
         ReflectionTestUtils.setField(users, "loginType", LoginType.EMAIL);
 
         given(googleClient.findProfile(anyString())).willReturn(googleApiProfileResponse);
-        given(userService.findByEmailOrElseThrow(anyString())).willReturn(users);
+        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(users);
 
         // when & given
         UnauthorizedException unauthorizedException = assertThrows(UnauthorizedException.class,
@@ -180,7 +180,7 @@ class AuthGoogleServiceTest {
         ReflectionTestUtils.setField(users, "loginType", LoginType.GOOGLE);
 
         given(googleClient.findProfile(anyString())).willReturn(googleApiProfileResponse);
-        given(userService.findByEmailOrElseThrow(anyString())).willReturn(users);
+        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(users);
         given(authService.getTokenResponse(any(Users.class))).willReturn(authTokensResponse);
 
         // when
