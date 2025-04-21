@@ -58,6 +58,7 @@ public class LimitedEventController {
     }
 
     /*/ 행사 삭제 (PUBLISHER 와 ADMIN 만 가능) */
+    //TODO 요거 /{limitedEventId} 로만 하세요
     @Secured({PUBLISHER, ADMIN})
     @DeleteMapping("/delete/{limitedEventId}")
     public Response<Void> deleteLimitedEvent(

@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+//TODO 나중에 실무에선 후기가 통계에 사용될 수 있음 soft delete고려 필요
 @Getter
 @Entity
 @Table(name = "reviews")

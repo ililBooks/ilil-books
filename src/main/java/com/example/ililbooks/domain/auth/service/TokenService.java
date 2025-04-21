@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.REFRESH_TOKEN_NOT_FOUND;
 
+//TODO 지금 Tokenservice, authservice, jwtutil이 결합도나 의존도가 너무 쎄요, 레이어를 나눠야하는데 이건 어려운 개념이라.. 알고만 계세요
 @Service
 @RequiredArgsConstructor
 public class TokenService {

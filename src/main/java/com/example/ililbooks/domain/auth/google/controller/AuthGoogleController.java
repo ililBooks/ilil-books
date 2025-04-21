@@ -68,6 +68,7 @@ public class AuthGoogleController {
     }
 
     /* http only 사용하기 위해 쿠키에 refreshToken 저장 */
+    //TODO 이거 공통 util로 뺴세요 모든 소셜에 이게 있네요
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         Cookie cookie = new Cookie("refreshToken", refreshToken);
         cookie.setMaxAge(REFRESH_TOKEN_TIME);

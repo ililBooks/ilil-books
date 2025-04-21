@@ -35,6 +35,7 @@ public class BookSearchService {
         bookSearchRepository.saveAll(bookDocuments);
     }
 
+    //TODO 검색이 빈 문자열일경우엔?
     public Page<BookSearchResponse> searchBooksV2(String keyword, Pageable pageable) {
         Page<BookDocument> bookDocuments = bookSearchRepository.findByMultiMatch(pageable, keyword);
 

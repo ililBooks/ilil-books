@@ -65,7 +65,8 @@ public class ReviewService {
 
         ReviewImage reviewImage = ReviewImage.of(review, imageRequest.imageUrl(), imageRequest.fileName(),imageRequest.extension());
 
-        //등록 개수 초과 
+        //등록 개수 초과
+        //TODO 요런거 분산 환경에선 race condition이 생길 수 있습니다. 트랜잭션 중간에 검증하는거니까요
         if ( imageReviewRepository.countByReviewId(reviewImage.getReview().getId()) >= 5) {
             throw new BadRequestException(IMAGE_UPLOAD_LIMIT_OVER.getMessage());
         }
@@ -79,6 +80,8 @@ public class ReviewService {
         ReviewImage reviewImage  = findReviewImage(imageId);
 
         //사용자가 다른 사람의 이미지를 삭제하려는 경우
+        //TODO 이거 reviewimage->review-user 접근 로직이 너무 과도하고, Review는 Lazy라 N+1 문제가 생길 수 있습니다
+        // 그냥 jpa써서 한번에 쫙 가져오세요
         if (!authUser.getUserId().equals(reviewImage.getReview().getUsers().getId()) && isUser(authUser)) {
             throw new ForbiddenException(CANNOT_DELETE_OTHERS_REVIEW.getMessage());
         }

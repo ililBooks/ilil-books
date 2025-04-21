@@ -15,6 +15,8 @@ public interface BookSearchRepository extends ElasticsearchRepository<BookDocume
     )
     Page<BookDocument> findByMultiMatch(Pageable pageable, String query);
 
+    //TODO saleStatus는 문자열 아닌가요? "ON_SALE" 이런거로 매칭해야할것같은데 그리고 isDeleted == false조건도 고려 필요
+    // raw Json String 사용 말고, elasticsearch Query DSL 추천
     @Query(
             "{" +
                     "  \"bool\": {" +

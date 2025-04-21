@@ -49,6 +49,7 @@ public class LimitedReservationOrderService {
             throw new BadRequestException(OUT_OF_STOCK.getMessage());
         }
 
+        //TODO 동시성 이슈 있음 단일 서버는 트랜잭션으로 커버 가능
         limitedEvent.decreaseBookQuantity(1);
 
         // 주문 생성 및 예약 연결

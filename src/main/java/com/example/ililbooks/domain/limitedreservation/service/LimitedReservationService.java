@@ -97,6 +97,7 @@ public class LimitedReservationService {
     /*
      * 예약 취소
      */
+    //TODO 누군가 예약 취소를 하면, 예약대기자가 예약이 되는 로직이 있으면 서비스 상으로 좋음
     @Transactional
     public void cancelReservation(AuthUser authUser, Long reservationId) {
         LimitedReservation reservation = findReservation(reservationId);

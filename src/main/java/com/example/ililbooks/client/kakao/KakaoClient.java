@@ -54,8 +54,10 @@ public class KakaoClient {
                 .retrieve()
                 .bodyToMono(AuthKakaoTokenResponse.class)
                 .block(); // 동기 처리
+        //TODO 동기처리 쓸거면 webClient를 왜 쓰나요? restClient등도 있는데 , 모든 부분에 해당하는 내용입니다.
     }
 
+    //TODO 이거(mutate)는 WebClient를 계속 재생성하는 코드에요 매 요청마다 재생성되기 때문에 퍼포먼스가 안좋아요
     public AuthKakaoResponse requestUserInfo(String accessToken) {
         return webClient.mutate()
                 .baseUrl("https://kapi.kakao.com")

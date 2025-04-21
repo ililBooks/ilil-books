@@ -72,6 +72,7 @@ public class LimitedEventService {
     /*
      * 한정판 행사 수정
      */
+    //TODO 이벤트 시작,종료 시간일때 수동으로 일일이 눌러줘야하는건가요?
     @Transactional
     public LimitedEventResponse updateLimitedEvent(AuthUser authUser, Long limitedEventId, LimitedEventUpdateRequest request) {
         LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
@@ -105,7 +106,7 @@ public class LimitedEventService {
         if (!limitedEvent.getBook().getUsers().getId().equals(authUser.getUserId())) {
             throw new BadRequestException(NO_PERMISSION.getMessage());
         }
-
+        //TODO 종료된 행사는 삭제 불가한가요?
         if (limitedEvent.getStatus() == LimitedEventStatus.ACTIVE) {
             throw new BadRequestException(ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED.getMessage());
         }

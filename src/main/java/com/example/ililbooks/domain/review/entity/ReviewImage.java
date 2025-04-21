@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+//TODO 이미지가 한 리뷰에 많이 저장되는 관계면 우선순위(대표 이미지) 등 필요
 @Getter
 @Entity
 @Table(name = "review_images")

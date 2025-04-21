@@ -33,7 +33,8 @@ public class CartService {
         Cart cart = findByUserIdOrElseNewCart(authUser.getUserId());
 
         for (CartItemRequest item : cartItemUpdateRequest.cartItemList()) {
-
+            //TODO 이거 매 roop마다 있는지 없는지 체크해주는데,
+            // existsOnSaleRegularBookByIdIN(bookIds)같은거로 변경해서 일괄적으로 체크
             if (!bookService.existsOnSaleRegularBookById(item.bookId())) {
                 throw new BadRequestException(CANNOT_ADD_BOOK_TO_CART.getMessage());
             }
@@ -42,7 +43,7 @@ public class CartService {
 
             if (existingItem != null) {
                 int updatedQuantity = existingItem.getQuantity() + item.quantity();
-
+                //TODO 0미만 뭐 이런 유효성검사는 DTO단에서 막아주세요
                 if (updatedQuantity < 0) {
                     throw new BadRequestException(CART_QUANTITY_INVALID.getMessage());
                 }
@@ -53,9 +54,6 @@ public class CartService {
 
                 existingItem.updateQuantity(item.quantity());
             } else {
-                if (item.quantity() <= 0) {
-                    throw new BadRequestException(CART_QUANTITY_INVALID.getMessage());
-                }
                 cart.getItems().put(item.bookId(), CartItem.of(item.bookId(), item.quantity()));
             }
         }

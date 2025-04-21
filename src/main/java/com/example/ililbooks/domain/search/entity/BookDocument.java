@@ -32,7 +32,7 @@ public class BookDocument {
     @Field(type = FieldType.Text, analyzer = "korean_analyzer")
     private String publisher;
 
-    @Field(type = FieldType.Long)
+    @Field(type = FieldType.Long) //요거 BigDecimal -> Long 사이에 데이터 손실 생길 수 있습니다.
     private BigDecimal price;
 
     @Field(type = FieldType.Text, analyzer = "korean_analyzer")

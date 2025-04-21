@@ -19,6 +19,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     void deleteAllByBookId(Long bookId);
 
+    //TODO 이거 뭐에요?
     Long book(Book book);
 
     Optional<Review> findReviewById(Long reviewId);

@@ -90,7 +90,7 @@ public class Book extends TimeStamped {
     public static Book of(Users users, BookApiResponse book, BigDecimal price, int stock) {
         return Book.builder()
                 .users(users)
-                .title(book.title().replaceAll("<[^>]*>", ""))
+                .title(book.title().replaceAll("<[^>]*>", ""))  //Entity 내부에서 파싱하는건 대표적인 SRP 위반이에요
                 .author(book.author().replaceAll("<[^>]*>", ""))
                 .price(price)
                 .category(book.category())

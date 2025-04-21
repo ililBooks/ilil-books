@@ -86,6 +86,9 @@ public class NaverClient {
     private URI buildApiUri() {
 
         //고유의 UUID 생성
+        //TODO 얘도 매 요청마다 새로 생성해줍니다. 근데 이거 어디에도 저장이 되지 않네요
+        // 요거는 CSRF 공격 방지때문에 있는건데, 요런 경우에는 콜백 요청시 공격자가 대충 만든 URL인지 판단할 수가 없습니다.
+        // 따라서 지금 코드로는 state가 있는이유가 없어요 세션에 저장해놓는 경우가 많아요
         String state = String.valueOf(UUID.randomUUID());
 
         return UriComponentsBuilder
@@ -111,7 +114,7 @@ public class NaverClient {
         return UriComponentsBuilder
                 .fromUriString("https://nid.naver.com/oauth2.0/token")
                 .queryParam("grant_type", "authorization_code")
-                .queryParam("client_id", clientId)
+                .queryParam("client_id", clientId) //TODO 얘네 body로 보내세요 +grant_type,
                 .queryParam("client_secret", clientSecret)
                 .queryParam("code", code)
                 .queryParam("state", state)

@@ -69,13 +69,15 @@ public class GoogleClient {
         try {
             GoogleApiProfileResponse googleApiProfileResponse = objectMapper.readValue(responseBody, GoogleApiProfileResponse.class);
 
-            if (ObjectUtils.isEmpty(googleApiProfileResponse)) {
+            if (ObjectUtils.isEmpty(googleApiProfileResponse)) { //TODO googleApiProfileResponse얘는 record 객체에요, 객체가 Null인지 아닌지만 판단하면 됩니디ㅏ
+                //만약에 new GoogleApiProfileResponse(null,null)이면 null인지 아닌지 애매해져요, 그렇기 때문에 이 오브젝트가 비어있나가 의미가없어요
+                //googleApiProfileResponse == null 이런식으로 가는게 깔끔합니다 / list map.. 등등은 오브젝트 엠티로 판단하지만 , record클래스는 null체크가 더 용이함
                 throw new NotFoundException(NOT_FOUND_PROFILE.getMessage());
             }
 
             return googleApiProfileResponse;
         } catch (Exception e) {
-            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
+            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e); //??? GOOGLE로 수정필요
         }
     }
 
@@ -118,6 +120,7 @@ public class GoogleClient {
                 .toUri();
     }
 
+    //TODO 요 네이밍은 HTTP 프로토콜 요청을 나타내지 않습니다.
     private GoogleApiResponse findResponseBody(URI uri, MultiValueMap<String, String> body) {
 
         String responseBody = webClient.post()

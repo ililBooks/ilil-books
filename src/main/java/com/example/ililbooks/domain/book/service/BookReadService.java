@@ -48,7 +48,7 @@ public class BookReadService {
                     if (bookImages.isEmpty()) {
                         return BookListResponse.of(book);
                     }
-                    return BookListResponse.of(book, bookImages.get(0).getImageUrl());
+                    return BookListResponse.of(book, bookImages.get(0).getImageUrl());  //TODO 이런거 BookImage에 orderList나 positionIndex 이런 컬럼 넣어서 관리하세요
                 });
     }
 

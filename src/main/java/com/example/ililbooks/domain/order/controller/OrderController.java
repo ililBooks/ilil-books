@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.*;
 
+//TODO Controller가 너무 세분화되어있음, rest 구조상 이상함, 같은 핸들러를 쓰고 있음
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/orders")
