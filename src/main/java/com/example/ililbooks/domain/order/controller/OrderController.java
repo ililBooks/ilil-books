@@ -34,9 +34,9 @@ public class OrderController {
     }
 
     /* 주문 취소 */
-    @Secured(USER)
     @Operation(summary = "주문 취소", description = "배송이 되지 않은 주문을 취소할 수 있습니다.")
-    @PatchMapping("/cancel/{orderId}")
+    @Secured(USER)
+    @DeleteMapping("/cancel/{orderId}")
     public Response<OrderResponse> cancelOrder(
             @PathVariable Long orderId,
             @AuthenticationPrincipal AuthUser authUser,
