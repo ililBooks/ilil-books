@@ -10,6 +10,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 import static com.example.ililbooks.domain.user.enums.UserRole.ROLE_USER;
 
 @Getter
@@ -112,6 +114,7 @@ public class Users extends TimeStamped {
     }
 
     public void deleteUser() {
+        this.email = email + "_deleted_" + UUID.randomUUID().toString().substring(0, 6);
         this.isDeleted = true;
     }
 
