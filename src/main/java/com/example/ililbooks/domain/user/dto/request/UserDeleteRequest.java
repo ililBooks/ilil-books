@@ -10,7 +10,6 @@ import static com.example.ililbooks.global.dto.ValidationMessage.NOT_BLANK_PASSW
 public record UserDeleteRequest(
 
         @Schema(example = "password1234")
-        @NotBlank(message = NOT_BLANK_PASSWORD)
         String password
 ) {
         @Builder
