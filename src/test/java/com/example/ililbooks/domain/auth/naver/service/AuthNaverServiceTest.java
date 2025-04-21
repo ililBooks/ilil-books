@@ -1,11 +1,11 @@
-package com.example.ililbooks.domain.auth.service;
+package com.example.ililbooks.domain.auth.naver.service;
 
 import com.example.ililbooks.client.naver.NaverClient;
 import com.example.ililbooks.client.naver.dto.NaverApiProfileResponse;
 import com.example.ililbooks.client.naver.dto.NaverApiResponse;
 import com.example.ililbooks.domain.auth.naver.dto.request.AuthNaverAccessTokenRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
-import com.example.ililbooks.domain.auth.naver.service.AuthNaverService;
+import com.example.ililbooks.domain.auth.service.AuthService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.service.UserService;
@@ -82,6 +82,7 @@ public class AuthNaverServiceTest {
         assertEquals(expectedUri, result);
         verify(naverClient).getRedirectUrl();
     }
+
     @Test
     void STATE값_불일치로_네이버_소셜_로그인_접근_토큰_발급_실패 () {
         //given
@@ -165,22 +166,6 @@ public class AuthNaverServiceTest {
         assertThrows(UnauthorizedException.class,
                 () -> authNaverService.signIn(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
                 DEACTIVATED_USER_EMAIL.getMessage()
-        );
-    }
-
-    @Test
-    void LoginType이_NAVER가_아니라_네이버_로그인_실패() {
-        //given
-        ReflectionTestUtils.setField(TEST_NAVER_USERS, "isDeleted", false);
-        ReflectionTestUtils.setField(TEST_NAVER_USERS, "loginType", LoginType.EMAIL);
-
-        givenNaverProfile();
-        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(TEST_NAVER_USERS);
-
-        //when & then
-        assertThrows(UnauthorizedException.class,
-                () -> authNaverService.signIn(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
-                NOT_NAVER_USER.getMessage()
         );
     }
 

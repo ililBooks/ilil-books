@@ -30,7 +30,7 @@ public class AuthNaverController {
     @Operation(summary = "네이버 로그인 인증 요청", description = "네이버 로그인 인증 요청을 위한 API입니다.")
     @GetMapping
     public Response<URI> getLoginRedirectUrl() {
-        return Response.of(authNaverService.getNaverLoginRedirectUrl());
+        return Response.of(authNaverService.getLoginRedirectUrl());
     }
 
     /**
@@ -73,7 +73,7 @@ public class AuthNaverController {
             HttpServletResponse httpServletResponse
     ) {
         AuthTokensResponse tokensResponseDto = authNaverService.signIn(authNaverAccessTokenRequest);
-        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
+        addRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
 
         return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
     }
