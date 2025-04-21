@@ -26,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -351,5 +352,50 @@ class UserServiceTest {
         // then
         assertFalse(result);
         verify(userRepository, times(1)).existsByEmailAndLoginType(anyString(), any(LoginType.class));
+        verify(userRepository, times(1)).existsByEmailAndLoginType(anyString(), any(LoginType.class));
+    }
+
+    @Test
+    void findByEmailOrGet_존재함_반환() {
+        // given
+        String email = "test@example.com";
+        String nickname = "nickname";
+        LoginType loginType = LoginType.KAKAO;
+        UserRole userRole = UserRole.ROLE_USER;
+        Users users = Users.builder()
+                .email(email)
+                .loginType(loginType)
+                .userRole(userRole)
+                .build();
+        given(userRepository.findByEmailAndLoginType(anyString(), any(LoginType.class))).willReturn(Optional.of(users));
+        // when
+        Users result = userService.findByEmailOrGet(email, nickname, loginType, userRole);
+        // then
+        assertThat(result).isEqualTo(users);
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void findByEmailOrGet_존재하지_않음_저장_후_반환() {
+        // given
+        String email = "notfound@example.com";
+        String nickname = "nickname";
+        LoginType loginType = LoginType.KAKAO;
+        UserRole userRole = UserRole.ROLE_USER;
+        Users users = Users.builder()
+                .email(email)
+                .nickname(nickname)
+                .loginType(loginType)
+                .userRole(userRole)
+                .build();
+        when(userRepository.findByEmailAndLoginType(email, loginType)).thenReturn(Optional.empty());
+        when(userRepository.save(any(Users.class))).thenReturn(users);
+        // when
+        Users result = userService.findByEmailOrGet(email, nickname, loginType, userRole);
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getEmail()).isEqualTo(email);
+        assertThat(result.getNickname()).isEqualTo(nickname);
+        verify(userRepository, times(1)).save(any(Users.class));
     }
 }

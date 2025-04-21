@@ -92,7 +92,7 @@ public class AuthNaverServiceTest {
         given(naverClient.issueToken(code, state)).willReturn(NAVER_API_RESPONSE);
 
         //when
-        NaverApiResponse result = authNaverService.requestNaverToken(code, state);
+        NaverApiResponse result = authNaverService.requestToken(code, state);
 
         //then
         assertEquals(NAVER_API_RESPONSE, result);
@@ -107,7 +107,7 @@ public class AuthNaverServiceTest {
 
         //when & then
         assertThrows(BadRequestException.class,
-                () -> authNaverService.signUpWithNaver(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
+                () -> authNaverService.signUp(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
                 DUPLICATE_EMAIL.getMessage());
     }
 
@@ -120,7 +120,7 @@ public class AuthNaverServiceTest {
         given(authService.getTokenResponse(any(Users.class))).willReturn(AUTH_TOKENS_RESPONSE);
 
         //when
-        AuthTokensResponse result = authNaverService.signUpWithNaver(AUTH_NAVER_ACCESS_TOKEN_REQUEST);
+        AuthTokensResponse result = authNaverService.signUp(AUTH_NAVER_ACCESS_TOKEN_REQUEST);
 
         //then
         assertEquals(AUTH_TOKENS_RESPONSE.accessToken(), result.accessToken());
@@ -135,7 +135,7 @@ public class AuthNaverServiceTest {
 
         //when & then
         assertThrows(UnauthorizedException.class,
-                () -> authNaverService.signInWithNaver(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
+                () -> authNaverService.signIn(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
                 USER_EMAIL_NOT_FOUND.getMessage()
         );
     }
@@ -150,7 +150,7 @@ public class AuthNaverServiceTest {
 
         //when & then
         assertThrows(UnauthorizedException.class,
-                () -> authNaverService.signInWithNaver(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
+                () -> authNaverService.signIn(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
                 DEACTIVATED_USER_EMAIL.getMessage()
         );
     }
@@ -166,7 +166,7 @@ public class AuthNaverServiceTest {
         given(authService.getTokenResponse(TEST_NAVER_USERS)).willReturn(AUTH_TOKENS_RESPONSE);
 
         //when
-        AuthTokensResponse result = authNaverService.signInWithNaver(AUTH_NAVER_ACCESS_TOKEN_REQUEST);
+        AuthTokensResponse result = authNaverService.signIn(AUTH_NAVER_ACCESS_TOKEN_REQUEST);
 
         //then
         assertEquals(AUTH_TOKENS_RESPONSE.accessToken(), result.accessToken());

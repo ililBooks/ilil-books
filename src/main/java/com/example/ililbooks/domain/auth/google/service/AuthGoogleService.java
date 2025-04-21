@@ -7,6 +7,7 @@ import com.example.ililbooks.domain.auth.google.dto.request.AuthGoogleAccessToke
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.auth.service.AuthService;
 import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.domain.user.service.UserSocialService;
 import com.example.ililbooks.global.exception.BadRequestException;

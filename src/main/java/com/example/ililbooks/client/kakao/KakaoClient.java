@@ -1,14 +1,13 @@
 package com.example.ililbooks.client.kakao;
 
-import com.example.ililbooks.domain.auth.kakao.dto.response.AuthKakaoResponse;
-import com.example.ililbooks.domain.auth.kakao.dto.response.AuthKakaoTokenResponse;
+import com.example.ililbooks.client.kakao.dto.AuthKakaoResponse;
+import com.example.ililbooks.client.kakao.dto.AuthKakaoTokenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class KakaoClient {
@@ -32,17 +31,6 @@ public class KakaoClient {
                 .build();
     }
 
-    public String getSignupUri() {
-        return UriComponentsBuilder
-                .fromUriString("https://kauth.kakao.com/oauth/authorize") // 인가 코드 받기
-                .queryParam("client_id", clientId)
-                .queryParam("redirect_uri", redirectUri)
-                .queryParam("response_type", "code")
-                .queryParam("prompt", "create") // 카카오 회원 가입
-                .build()
-                .toUriString();
-    }
-
     public AuthKakaoTokenResponse requestToken(String code) {
         return webClient.post()
                 .uri("https://kauth.kakao.com/oauth/token") // 토큰 받기
@@ -57,11 +45,8 @@ public class KakaoClient {
     }
 
     public AuthKakaoResponse requestUserInfo(String accessToken) {
-        return webClient.mutate()
-                .baseUrl("https://kapi.kakao.com")
-                .build()
-                .get()
-                .uri("/v2/user/me") // 사용자 정보 조회 uri
+        return webClient.get()
+                .uri("https://kapi.kakao.com/v2/user/me") // 사용자 정보 조회 uri
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .retrieve()
                 .bodyToMono(AuthKakaoResponse.class)
