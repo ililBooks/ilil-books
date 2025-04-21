@@ -70,7 +70,7 @@ public class BookController {
     public Response<Void> uploadBookImage(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long bookId,
-            @RequestBody ImageRequest imageRequest
+            @Valid @RequestBody ImageRequest imageRequest
     ) {
         bookService.uploadBookImage(authUser, bookId, imageRequest);
         return Response.empty();
