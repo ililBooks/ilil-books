@@ -103,7 +103,7 @@ public class AuthNaverServiceTest {
     void 이미_존재하는_이메일_있어_네이버_회원가입_실패() {
         //given
         givenNaverProfile();
-        given(userService.existsByEmail(anyString())).willReturn(true);
+        given(userService.existsByEmailAndLoginType(anyString(), any(LoginType.class))).willReturn(true);
 
         //when & then
         assertThrows(BadRequestException.class,
@@ -115,7 +115,7 @@ public class AuthNaverServiceTest {
     void 네이버_회원가입_성공() {
         //given
         givenNaverProfile();
-        given(userService.existsByEmail(anyString())).willReturn(false);
+        given(userService.existsByEmailAndLoginType(anyString(), any(LoginType.class))).willReturn(false);
         given(userSocialService.saveUser(any(Users.class))).willReturn(TEST_NAVER_USERS);
         given(authService.getTokenResponse(any(Users.class))).willReturn(AUTH_TOKENS_RESPONSE);
 

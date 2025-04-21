@@ -33,7 +33,7 @@ public class UserService {
     @Transactional
     public Users saveUser(AuthSignUpRequest request) {
 
-        if (userRepository.existsByEmail(request.email())) {
+        if (existsByEmailAndLoginType(request.email(), LoginType.EMAIL)) {
             throw new BadRequestException(DUPLICATE_EMAIL.getMessage());
         }
 
@@ -107,8 +107,8 @@ public class UserService {
         );
     }
 
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
+    public boolean existsByEmailAndLoginType(String email, LoginType loginType) {
+        return userRepository.existsByEmailAndLoginType(email, loginType);
     }
 
     /*
