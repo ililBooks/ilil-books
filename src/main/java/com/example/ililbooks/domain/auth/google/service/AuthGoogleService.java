@@ -65,10 +65,6 @@ public class AuthGoogleService {
             throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());
         }
 
-        if (!GOOGLE.equals(users.getLoginType())) {
-            throw new UnauthorizedException(NOT_GOOGLE_USER.getMessage());
-        }
-
         return authService.getTokenResponse(users);
     }
 

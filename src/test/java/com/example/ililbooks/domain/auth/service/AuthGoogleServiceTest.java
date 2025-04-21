@@ -159,21 +159,6 @@ class AuthGoogleServiceTest {
     }
 
     @Test
-    void 구글_소셜로그인_로그인_LoginType이_GOOGLE이_아니라면_실패() {
-        // given
-        ReflectionTestUtils.setField(users, "isDeleted", false);
-        ReflectionTestUtils.setField(users, "loginType", LoginType.EMAIL);
-
-        given(googleClient.findProfile(anyString())).willReturn(googleApiProfileResponse);
-        given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(users);
-
-        // when & given
-        UnauthorizedException unauthorizedException = assertThrows(UnauthorizedException.class,
-                () -> authGoogleService.signIn(authGoogleAccessTokenRequest));
-        assertEquals(unauthorizedException.getMessage(), NOT_GOOGLE_USER.getMessage());
-    }
-
-    @Test
     void 구글_소셜로그인_로그인_성공() {
         // given
         ReflectionTestUtils.setField(users, "isDeleted", false);
