@@ -1,6 +1,7 @@
 package com.example.ililbooks.domain.user.repository;
 
 import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.enums.LoginType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,7 +10,7 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<Users, Long> {
 
-    boolean existsByEmail(String email);
+    boolean existsByEmailAndLoginType(String email, LoginType loginType);
 
     Optional<Users> findByEmail(@Param("email") String email);
 

@@ -119,7 +119,7 @@ class AuthGoogleServiceTest {
     void 구글_소셜로그인_회원가입_이미_존재하는_이메일의_가입_실패() {
         // given
         given(googleClient.findProfile(anyString())).willReturn(googleApiProfileResponse);
-        given(userService.existsByEmail(anyString())).willReturn(true);
+        given(userService.existsByEmailAndLoginType(anyString(), any(LoginType.class))).willReturn(true);
 
         // when & given
         BadRequestException badRequestException = assertThrows(BadRequestException.class,
@@ -131,7 +131,7 @@ class AuthGoogleServiceTest {
     void 구글_소셜로그인_회원가입_성공() {
         // given
         given(googleClient.findProfile(anyString())).willReturn(googleApiProfileResponse);
-        given(userService.existsByEmail(anyString())).willReturn(false);
+        given(userService.existsByEmailAndLoginType(anyString(), any(LoginType.class))).willReturn(false);
         given(userSocialService.saveUser(any(Users.class))).willReturn(users);
         given(authService.getTokenResponse(any(Users.class))).willReturn(authTokensResponse);
 
