@@ -8,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class KakaoClient {
@@ -30,17 +29,6 @@ public class KakaoClient {
         this.webClient = WebClient.builder()
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .build();
-    }
-
-    public String getSignupUri() {
-        return UriComponentsBuilder
-                .fromUriString("https://kauth.kakao.com/oauth/authorize") // 인가 코드 받기
-                .queryParam("client_id", clientId)
-                .queryParam("redirect_uri", redirectUri)
-                .queryParam("response_type", "code")
-                .queryParam("prompt", "create") // 카카오 회원 가입
-                .build()
-                .toUriString();
     }
 
     public AuthKakaoTokenResponse requestToken(String code) {
