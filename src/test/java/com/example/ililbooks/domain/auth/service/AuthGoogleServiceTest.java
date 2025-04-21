@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -118,7 +119,7 @@ class AuthGoogleServiceTest {
     @Test
     void 구글_소셜로그인_회원가입_이미_존재하는_이메일의_가입_실패() {
         // given
-        given(googleClient.findProfile(anyString())).willReturn(googleApiProfileResponse);
+        given(googleClient.requestProfile(anyString())).willReturn(googleApiProfileResponse);
         given(userService.existsByEmailAndLoginType(anyString(), any(LoginType.class))).willReturn(true);
 
         // when & given
@@ -130,7 +131,7 @@ class AuthGoogleServiceTest {
     @Test
     void 구글_소셜로그인_회원가입_성공() {
         // given
-        given(googleClient.findProfile(anyString())).willReturn(googleApiProfileResponse);
+        given(googleClient.requestProfile(anyString())).willReturn(googleApiProfileResponse);
         given(userService.existsByEmailAndLoginType(anyString(), any(LoginType.class))).willReturn(false);
         given(userSocialService.saveUser(any(Users.class))).willReturn(users);
         given(authService.getTokenResponse(any(Users.class))).willReturn(authTokensResponse);
@@ -141,6 +142,7 @@ class AuthGoogleServiceTest {
         // when & given
         assertEquals(authTokensResponse.accessToken(), result.accessToken());
         assertEquals(authTokensResponse.refreshToken(), result.refreshToken());
+        verify(userSocialService, times(1)).saveUser(any(Users.class));
     }
 
     /* signIn */
@@ -149,7 +151,7 @@ class AuthGoogleServiceTest {
         // given
         ReflectionTestUtils.setField(users, "isDeleted", true);
 
-        given(googleClient.findProfile(anyString())).willReturn(googleApiProfileResponse);
+        given(googleClient.requestProfile(anyString())).willReturn(googleApiProfileResponse);
         given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(users);
 
         // when & given
@@ -164,7 +166,7 @@ class AuthGoogleServiceTest {
         ReflectionTestUtils.setField(users, "isDeleted", false);
         ReflectionTestUtils.setField(users, "loginType", LoginType.GOOGLE);
 
-        given(googleClient.findProfile(anyString())).willReturn(googleApiProfileResponse);
+        given(googleClient.requestProfile(anyString())).willReturn(googleApiProfileResponse);
         given(userService.findByEmailAndLoginTypeOrElseThrow(anyString(), any(LoginType.class))).willReturn(users);
         given(authService.getTokenResponse(any(Users.class))).willReturn(authTokensResponse);
 
