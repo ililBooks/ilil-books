@@ -76,11 +76,24 @@ public class AuthNaverServiceTest {
         given(naverClient.getRedirectUrl()).willReturn(expectedUri);
 
         //when
-        URI result = authNaverService.getNaverLoginRedirectUrl();
+        URI result = authNaverService.getLoginRedirectUrl();
 
         //then
         assertEquals(expectedUri, result);
         verify(naverClient).getRedirectUrl();
+    }
+    @Test
+    void STATE값_불일치로_네이버_소셜_로그인_접근_토큰_발급_실패 () {
+        //given
+        String code = "issued-code";
+        String state = String.valueOf(UUID.randomUUID());
+        String savedState = String.valueOf(UUID.randomUUID());
+
+        //when & then
+        assertThrows(UnauthorizedException.class,
+                () -> authNaverService.requestToken(code, state, savedState),
+                INVALID_STATE.getMessage()
+        );
     }
 
     @Test
@@ -92,7 +105,7 @@ public class AuthNaverServiceTest {
         given(naverClient.issueToken(code, state)).willReturn(NAVER_API_RESPONSE);
 
         //when
-        NaverApiResponse result = authNaverService.requestNaverToken(code, state);
+        NaverApiResponse result = authNaverService.requestToken(code, state, state);
 
         //then
         assertEquals(NAVER_API_RESPONSE, result);
@@ -107,7 +120,7 @@ public class AuthNaverServiceTest {
 
         //when & then
         assertThrows(BadRequestException.class,
-                () -> authNaverService.signUpWithNaver(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
+                () -> authNaverService.signUp(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
                 DUPLICATE_EMAIL.getMessage());
     }
 
@@ -120,7 +133,7 @@ public class AuthNaverServiceTest {
         given(authService.getTokenResponse(any(Users.class))).willReturn(AUTH_TOKENS_RESPONSE);
 
         //when
-        AuthTokensResponse result = authNaverService.signUpWithNaver(AUTH_NAVER_ACCESS_TOKEN_REQUEST);
+        AuthTokensResponse result = authNaverService.signUp(AUTH_NAVER_ACCESS_TOKEN_REQUEST);
 
         //then
         assertEquals(AUTH_TOKENS_RESPONSE.accessToken(), result.accessToken());
@@ -135,7 +148,7 @@ public class AuthNaverServiceTest {
 
         //when & then
         assertThrows(UnauthorizedException.class,
-                () -> authNaverService.signInWithNaver(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
+                () -> authNaverService.signIn(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
                 USER_EMAIL_NOT_FOUND.getMessage()
         );
     }
@@ -150,7 +163,7 @@ public class AuthNaverServiceTest {
 
         //when & then
         assertThrows(UnauthorizedException.class,
-                () -> authNaverService.signInWithNaver(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
+                () -> authNaverService.signIn(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
                 DEACTIVATED_USER_EMAIL.getMessage()
         );
     }
@@ -166,7 +179,7 @@ public class AuthNaverServiceTest {
 
         //when & then
         assertThrows(UnauthorizedException.class,
-                () -> authNaverService.signInWithNaver(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
+                () -> authNaverService.signIn(AUTH_NAVER_ACCESS_TOKEN_REQUEST),
                 NOT_NAVER_USER.getMessage()
         );
     }
@@ -182,7 +195,7 @@ public class AuthNaverServiceTest {
         given(authService.getTokenResponse(TEST_NAVER_USERS)).willReturn(AUTH_TOKENS_RESPONSE);
 
         //when
-        AuthTokensResponse result = authNaverService.signInWithNaver(AUTH_NAVER_ACCESS_TOKEN_REQUEST);
+        AuthTokensResponse result = authNaverService.signIn(AUTH_NAVER_ACCESS_TOKEN_REQUEST);
 
         //then
         assertEquals(AUTH_TOKENS_RESPONSE.accessToken(), result.accessToken());
@@ -190,6 +203,6 @@ public class AuthNaverServiceTest {
     }
 
     private void givenNaverProfile() {
-        given(naverClient.findProfile(TEST_ISSUED_ACCESS_TOKEN)).willReturn(NAVER_API_PROFILE_RESPONSE);
+        given(naverClient.requestProfile(TEST_ISSUED_ACCESS_TOKEN)).willReturn(NAVER_API_PROFILE_RESPONSE);
     }
 }

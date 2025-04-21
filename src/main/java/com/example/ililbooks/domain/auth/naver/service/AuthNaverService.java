@@ -7,7 +7,6 @@ import com.example.ililbooks.domain.auth.naver.dto.request.AuthNaverAccessTokenR
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.auth.service.AuthService;
 import com.example.ililbooks.domain.user.entity.Users;
-import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.domain.user.service.UserSocialService;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -30,16 +29,21 @@ public class AuthNaverService {
     private final AuthService authService;
     private final UserSocialService userSocialService;
 
-    public URI getNaverLoginRedirectUrl() {
+    public URI getLoginRedirectUrl() {
         return naverClient.getRedirectUrl();
     }
 
-    public NaverApiResponse requestNaverToken(String code, String state) {
+    public NaverApiResponse requestToken(String code, String state, String savedState) {
+
+        if (!state.equals(savedState)) {
+            throw new UnauthorizedException(INVALID_STATE.getMessage());
+        }
+
         return naverClient.issueToken(code, state);
     }
 
     @Transactional
-    public AuthTokensResponse signUpWithNaver(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
+    public AuthTokensResponse signUp(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
         NaverApiProfileResponse profile = getProfile(authNaverAccessTokenRequest);
 
         if (userService.existsByEmailAndLoginType(profile.email(), NAVER)) {
@@ -53,7 +57,7 @@ public class AuthNaverService {
     }
 
     @Transactional(readOnly = true)
-    public AuthTokensResponse signInWithNaver(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
+    public AuthTokensResponse signIn(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
         NaverApiProfileResponse profile = getProfile(authNaverAccessTokenRequest);
         Users users = userService.findByEmailAndLoginTypeOrElseThrow(profile.email(), NAVER);
 
@@ -69,6 +73,6 @@ public class AuthNaverService {
     }
 
     private NaverApiProfileResponse getProfile(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
-        return naverClient.findProfile(authNaverAccessTokenRequest.accessToken());
+        return naverClient.requestProfile(authNaverAccessTokenRequest.accessToken());
     }
 }

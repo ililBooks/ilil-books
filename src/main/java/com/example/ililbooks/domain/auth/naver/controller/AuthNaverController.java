@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,7 @@ public class AuthNaverController {
     @Operation(summary = "네이버 로그인 인증 요청", description = "네이버 로그인 인증 요청을 위한 API입니다.")
     @GetMapping
     public Response<URI> getNaverLoginRedirectUrl () {
-        return Response.of(authNaverService.getNaverLoginRedirectUrl());
+        return Response.of(authNaverService.getLoginRedirectUrl());
     }
 
     /**
@@ -40,9 +41,12 @@ public class AuthNaverController {
     @PostMapping("/token")
     public Response<NaverApiResponse> requestNaverToken(
             @RequestParam String code,
-            @RequestParam String state
+            @RequestParam String state,
+            HttpSession session
     ) {
-        return Response.of(authNaverService.requestNaverToken(code, state));
+        //세션에 저장되어 있던 state값
+        String sessionState = (String) session.getAttribute("oauth_state");
+        return Response.of(authNaverService.requestToken(code, state, sessionState));
     }
 
     /**
@@ -54,7 +58,7 @@ public class AuthNaverController {
             @RequestBody AuthNaverAccessTokenRequest authNaverAccessTokenRequest,
             HttpServletResponse httpServletResponse
     ) {
-        AuthTokensResponse tokensResponseDto = authNaverService.signUpWithNaver(authNaverAccessTokenRequest);
+        AuthTokensResponse tokensResponseDto = authNaverService.signUp(authNaverAccessTokenRequest);
         setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
 
         return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
@@ -69,7 +73,7 @@ public class AuthNaverController {
             @RequestBody AuthNaverAccessTokenRequest authNaverAccessTokenRequest,
             HttpServletResponse httpServletResponse
     ) {
-        AuthTokensResponse tokensResponseDto = authNaverService.signInWithNaver(authNaverAccessTokenRequest);
+        AuthTokensResponse tokensResponseDto = authNaverService.signIn(authNaverAccessTokenRequest);
         setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
 
         return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
