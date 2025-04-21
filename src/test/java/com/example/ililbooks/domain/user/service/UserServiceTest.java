@@ -237,12 +237,28 @@ class UserServiceTest {
     }
 
     @Test
-    void 회원_삭제_성공() {
+    void 회원_삭제_이메일_유저일_때_비밀번호_확인_성공() {
         // given
         Users mockUsers = mock(Users.class);
 
         given(userRepository.findById(anyLong())).willReturn(Optional.of(mockUsers));
+        given(mockUsers.getLoginType()).willReturn(LoginType.EMAIL);
         given(passwordEncoder.matches(userDeleteRequest.password(), mockUsers.getPassword())).willReturn(true);
+
+        // when
+        userService.deleteUser(authUser, userDeleteRequest);
+
+        // then
+        verify(mockUsers, times(1)).deleteUser();
+    }
+
+    @Test
+    void 회원_삭제_이메일외_유저일_때_비밀번호_확인하지_않아도_성공() {
+        // given
+        Users mockUsers = mock(Users.class);
+
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(mockUsers));
+        given(mockUsers.getLoginType()).willReturn(LoginType.GOOGLE);
 
         // when
         userService.deleteUser(authUser, userDeleteRequest);
@@ -335,6 +351,7 @@ class UserServiceTest {
 
         // then
         assertFalse(result);
+        verify(userRepository, times(1)).existsByEmailAndLoginType(anyString(), any(LoginType.class));
         verify(userRepository, times(1)).existsByEmailAndLoginType(anyString(), any(LoginType.class));
     }
 

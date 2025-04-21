@@ -89,7 +89,8 @@ public class UserService {
     public void deleteUser(AuthUser authUser, UserDeleteRequest userDeleteRequest) {
         Users users = findByIdOrElseThrow(authUser.getUserId());
 
-        if (!passwordEncoder.matches(userDeleteRequest.password(), users.getPassword())) {
+        if (users.getLoginType() == LoginType.EMAIL
+                && !passwordEncoder.matches(userDeleteRequest.password(), users.getPassword())) {
             throw new BadRequestException(INVALID_PASSWORD.getMessage());
         }
 
@@ -101,7 +102,6 @@ public class UserService {
                 () -> new UnauthorizedException(USER_EMAIL_NOT_FOUND.getMessage())
         );
     }
-
 
     public Users findByIdOrElseThrow(Long userId) {
         return userRepository.findById(userId).orElseThrow(
