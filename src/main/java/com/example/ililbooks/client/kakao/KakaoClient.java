@@ -57,11 +57,8 @@ public class KakaoClient {
     }
 
     public AuthKakaoResponse requestUserInfo(String accessToken) {
-        return webClient.mutate()
-                .baseUrl("https://kapi.kakao.com")
-                .build()
-                .get()
-                .uri("/v2/user/me") // 사용자 정보 조회 uri
+        return webClient.get()
+                .uri("https://kapi.kakao.com/v2/user/me") // 사용자 정보 조회 uri
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .retrieve()
                 .bodyToMono(AuthKakaoResponse.class)
