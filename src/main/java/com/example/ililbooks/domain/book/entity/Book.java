@@ -119,20 +119,26 @@ public class Book extends TimeStamped {
         this.limitedType = LimitedType.valueOf(limitedType);
     }
 
-    public int decreaseStock(int quantity) {
-        if (stock < quantity) {
-            throw new BadRequestException(OUT_OF_STOCK.getMessage());
-        }
-        this.stock -= quantity;
-        this.version++;
-        return this.stock;
-    }
-
     public void deleteBook() {
         this.isDeleted = true;
     }
 
-    public void rollbackStock(int quantity) {
+    public void decreaseStock(int quantity) {
+        if (stock < quantity) {
+            throw new BadRequestException(OUT_OF_STOCK.getMessage());
+        }
+        if (stock == quantity) {
+            this.saleStatus = SaleStatus.SOLD_OUT;
+        }
+        this.stock -= quantity;
+        this.version++;
+    }
+
+    public void increaseStoke(int quantity) {
         this.stock += quantity;
+
+        if (this.stock > 0 && this.saleStatus == SaleStatus.SOLD_OUT) {
+            this.saleStatus = SaleStatus.ON_SALE;
+        }
     }
 }

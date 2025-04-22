@@ -11,7 +11,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.example.ililbooks.global.exception.ErrorMessage.OUT_OF_STOCK;
 import static com.example.ililbooks.global.exception.ErrorMessage.STOCK_UPDATE_CONFLICT;
 
 @Service
@@ -30,11 +29,7 @@ public class BookStockService {
     @Transactional
     public void decreaseStock(Long bookId, int quantity) {
         Book book = bookService.findBookByIdOrElseThrow(bookId);
-        int remainingStock = book.decreaseStock(quantity);
-
-        if (remainingStock < 0) {
-            throw new BadRequestException(OUT_OF_STOCK.getMessage());
-        }
+        book.decreaseStock(quantity);
     }
 
     @Retryable(
@@ -45,12 +40,18 @@ public class BookStockService {
             backoff = @Backoff(delay = 100)
     )
     @Transactional
-    public void rollbackStock(Book book, int quantity) {
-        book.rollbackStock(quantity);
+    public void rollbackStock(Long bookId, int quantity) {
+        Book book = bookService.findBookByIdOrElseThrow(bookId);
+        book.increaseStoke(quantity);
     }
 
-//    @Recover
-//    public void recover(OptimisticLockException e, Book book, int quantity) {
-//        throw new BadRequestException(STOCK_UPDATE_CONFLICT.getMessage());
-//    }
+    @Recover
+    public void recover(OptimisticLockException e, Long bookId, int quantity) {
+        throw new BadRequestException(STOCK_UPDATE_CONFLICT.getMessage());
+    }
+
+    @Recover
+    public void recover(ObjectOptimisticLockingFailureException e, Long bookId, int quantity) {
+        throw new BadRequestException(STOCK_UPDATE_CONFLICT.getMessage());
+    }
 }
