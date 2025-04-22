@@ -1,0 +1,28 @@
+{
+  "family": "ililbooks-task",
+  "networkMode": "awsvpc",
+  "executionRoleArn": "arn:aws:iam::198109037411:role/ecsTaskExecutionRole",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "512",
+  "memory": "1024",
+  "containerDefinitions": [
+    {
+      "name": "ilil-books-app",
+      "image": "__IMAGE_URI__",
+      "portMappings": [
+        {
+          "containerPort": 8081
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "docker"
+        }
+      ]
+    }
+  ]
+}
