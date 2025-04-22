@@ -5,9 +5,10 @@ import com.example.ililbooks.client.naver.dto.NaverApiProfileWrapper;
 import com.example.ililbooks.client.naver.dto.NaverApiResponse;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
@@ -22,6 +23,7 @@ public class NaverClient {
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
+    private final HttpSession httpSession;
 
     @Value("${client.naver.client-id}")
     private String clientId;
@@ -32,9 +34,10 @@ public class NaverClient {
     @Value("${client.naver.client-secret}")
     private String clientSecret;
 
-    public NaverClient(WebClient.Builder builder, ObjectMapper objectMapper) {
+    public NaverClient(WebClient.Builder builder, ObjectMapper objectMapper, HttpSession httpSession) {
         this.webClient = builder.build();
         this.objectMapper = objectMapper;
+        this.httpSession = httpSession;
     }
 
     public URI getRedirectUrl() {
@@ -42,12 +45,27 @@ public class NaverClient {
     }
 
     public NaverApiResponse issueToken(String code, String state) {
-        URI uri = buildAccessTokenApiUri(code, state);
+        URI uri = buildAccessTokenApiUri();
 
-        return findResponseBody(uri);
+        try {
+            return webClient.post()
+                    .uri(uri)
+                    .body(BodyInserters.fromFormData("grant_type", "authorization_code")
+                            .with("client_id", clientId)
+                            .with("client_secret", clientSecret)
+                            .with("code", code)
+                            .with("state", state)
+                    )
+                    .retrieve()
+                    .bodyToMono(NaverApiResponse.class)
+                    .block();
+
+        } catch (Exception e) {
+            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
+        }
     }
 
-    public NaverApiProfileResponse findProfile(String accessToken) {
+    public NaverApiProfileResponse requestProfile(String accessToken) {
         URI uri = buildUserProfileApiUri();
 
         String responseBody = webClient.get()
@@ -66,7 +84,7 @@ public class NaverClient {
             NaverApiProfileResponse profile = naverProfile.response();
 
             //검색된 프로필이 없는 경우
-            if (ObjectUtils.isEmpty(profile)) {
+            if (profile == null) {
                 throw new NotFoundException(NOT_FOUND_PROFILE.getMessage());
             }
 
@@ -88,6 +106,9 @@ public class NaverClient {
         //고유의 UUID 생성
         String state = String.valueOf(UUID.randomUUID());
 
+        //세션에 저장
+        httpSession.setAttribute("oauth_state", state);
+
         return UriComponentsBuilder
                 .fromUriString("https://nid.naver.com/oauth2.0/authorize")
                 .queryParam("response_type", "code")
@@ -99,22 +120,10 @@ public class NaverClient {
                 .toUri();
     }
 
-    /**
-     *
-     * @param code: redirect_uri를 통해 얻은 내부 구분값
-     * @param state: redirect_uri를 통해 얻은 상태 값
-     *
-     * grant_type: authorization_code(발급)
-     */
-    private URI buildAccessTokenApiUri(String code, String state) {
+    private URI buildAccessTokenApiUri() {
 
         return UriComponentsBuilder
                 .fromUriString("https://nid.naver.com/oauth2.0/token")
-                .queryParam("grant_type", "authorization_code")
-                .queryParam("client_id", clientId)
-                .queryParam("client_secret", clientSecret)
-                .queryParam("code", code)
-                .queryParam("state", state)
                 .encode()
                 .build()
                 .toUri();
@@ -126,22 +135,5 @@ public class NaverClient {
                 .encode()
                 .build()
                 .toUri();
-    }
-
-    private NaverApiResponse findResponseBody(URI uri) {
-        String responseBody = webClient.get()
-                .uri(uri)
-                .retrieve()
-                .onStatus(status -> !status.is2xxSuccessful(),
-                        res -> Mono.error(new RuntimeException(NAVER_API_RESPONSE_FAILED.getMessage())))
-                .bodyToMono(String.class)
-                .block();
-
-        try {
-            return objectMapper.readValue(responseBody, NaverApiResponse.class);
-
-        } catch (Exception e) {
-            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
-        }
     }
 }

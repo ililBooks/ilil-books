@@ -1,11 +1,11 @@
-package com.example.ililbooks.domain.auth.service;
+package com.example.ililbooks.domain.auth.naver.service;
 
 import com.example.ililbooks.client.naver.NaverClient;
 import com.example.ililbooks.client.naver.dto.NaverApiProfileResponse;
 import com.example.ililbooks.client.naver.dto.NaverApiResponse;
 import com.example.ililbooks.domain.auth.naver.dto.request.AuthNaverAccessTokenRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
-import com.example.ililbooks.domain.auth.naver.service.AuthNaverService;
+import com.example.ililbooks.domain.auth.service.AuthService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.service.UserService;
@@ -76,11 +76,25 @@ public class AuthNaverServiceTest {
         given(naverClient.getRedirectUrl()).willReturn(expectedUri);
 
         //when
-        URI result = authNaverService.getNaverLoginRedirectUrl();
+        URI result = authNaverService.getLoginRedirectUrl();
 
         //then
         assertEquals(expectedUri, result);
         verify(naverClient).getRedirectUrl();
+    }
+
+    @Test
+    void STATE값_불일치로_네이버_소셜_로그인_접근_토큰_발급_실패 () {
+        //given
+        String code = "issued-code";
+        String state = String.valueOf(UUID.randomUUID());
+        String savedState = String.valueOf(UUID.randomUUID());
+
+        //when & then
+        assertThrows(UnauthorizedException.class,
+                () -> authNaverService.requestToken(code, state, savedState),
+                INVALID_STATE.getMessage()
+        );
     }
 
     @Test
@@ -92,7 +106,7 @@ public class AuthNaverServiceTest {
         given(naverClient.issueToken(code, state)).willReturn(NAVER_API_RESPONSE);
 
         //when
-        NaverApiResponse result = authNaverService.requestToken(code, state);
+        NaverApiResponse result = authNaverService.requestToken(code, state, state);
 
         //then
         assertEquals(NAVER_API_RESPONSE, result);
@@ -174,6 +188,6 @@ public class AuthNaverServiceTest {
     }
 
     private void givenNaverProfile() {
-        given(naverClient.findProfile(TEST_ISSUED_ACCESS_TOKEN)).willReturn(NAVER_API_PROFILE_RESPONSE);
+        given(naverClient.requestProfile(TEST_ISSUED_ACCESS_TOKEN)).willReturn(NAVER_API_PROFILE_RESPONSE);
     }
 }

@@ -3,8 +3,8 @@ package com.example.ililbooks.domain.auth.naver.service;
 import com.example.ililbooks.client.naver.NaverClient;
 import com.example.ililbooks.client.naver.dto.NaverApiProfileResponse;
 import com.example.ililbooks.client.naver.dto.NaverApiResponse;
-import com.example.ililbooks.domain.auth.naver.dto.request.AuthNaverAccessTokenRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
+import com.example.ililbooks.domain.auth.naver.dto.request.AuthNaverAccessTokenRequest;
 import com.example.ililbooks.domain.auth.service.AuthService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
@@ -29,11 +29,16 @@ public class AuthNaverService {
     private final AuthService authService;
     private final UserSocialService userSocialService;
 
-    public URI getNaverLoginRedirectUrl() {
+    public URI getLoginRedirectUrl() {
         return naverClient.getRedirectUrl();
     }
 
-    public NaverApiResponse requestToken(String code, String state) {
+    public NaverApiResponse requestToken(String code, String state, String savedState) {
+
+        if (!state.equals(savedState)) {
+            throw new UnauthorizedException(INVALID_STATE.getMessage());
+        }
+
         return naverClient.issueToken(code, state);
     }
 
@@ -64,6 +69,6 @@ public class AuthNaverService {
     }
 
     private NaverApiProfileResponse getProfile(AuthNaverAccessTokenRequest authNaverAccessTokenRequest) {
-        return naverClient.findProfile(authNaverAccessTokenRequest.accessToken());
+        return naverClient.requestProfile(authNaverAccessTokenRequest.accessToken());
     }
 }
