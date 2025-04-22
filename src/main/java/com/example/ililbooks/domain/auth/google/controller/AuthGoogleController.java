@@ -1,21 +1,20 @@
 package com.example.ililbooks.domain.auth.google.controller;
 
 import com.example.ililbooks.client.google.dto.GoogleApiResponse;
-import com.example.ililbooks.domain.auth.google.dto.request.AuthGoogleAccessTokenRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
+import com.example.ililbooks.domain.auth.google.dto.request.AuthGoogleAccessTokenRequest;
 import com.example.ililbooks.domain.auth.google.service.AuthGoogleService;
 import com.example.ililbooks.global.dto.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
-import static com.example.ililbooks.config.util.JwtUtil.REFRESH_TOKEN_TIME;
+import static com.example.ililbooks.config.util.CookieUtil.addRefreshTokenCookie;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,7 +48,7 @@ public class AuthGoogleController {
             HttpServletResponse httpServletResponse
     ) {
         AuthTokensResponse tokensResponseDto = authGoogleService.signUp(authGoogleAccessTokenRequest);
-        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
+        addRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
 
         return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
     }
@@ -62,19 +61,8 @@ public class AuthGoogleController {
             HttpServletResponse httpServletResponse
     ) {
         AuthTokensResponse tokensResponseDto = authGoogleService.signIn(authGoogleAccessTokenRequest);
-        setRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
+        addRefreshTokenCookie(httpServletResponse, tokensResponseDto.refreshToken());
 
         return Response.of(AuthAccessTokenResponse.of(tokensResponseDto.accessToken()));
-    }
-
-    /* http only 사용하기 위해 쿠키에 refreshToken 저장 */
-    private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setMaxAge(REFRESH_TOKEN_TIME);
-        cookie.setSecure(true);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-
-        response.addCookie(cookie);
     }
 }
