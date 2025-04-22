@@ -25,7 +25,7 @@ public class BestSellerScheduler {
     private final BestSellerRepository bestSellerRepository;
 
     /* 매일 자정에 daily 베스트셀러 저장 */
-    @Scheduled(cron = "0 */1 * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void saveDailyBestSeller() {
         saveBestSellers("daily", LocalDate.now());
     }
