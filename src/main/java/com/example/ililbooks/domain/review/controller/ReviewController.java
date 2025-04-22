@@ -49,7 +49,7 @@ public class ReviewController {
     public Response<Void> uploadReviewImage(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reviewId,
-            @RequestBody ImageRequest imageRequest
+            @Valid @RequestBody ImageRequest imageRequest
     ) {
         reviewService.uploadReviewImage(authUser, reviewId, imageRequest);
         return Response.empty();
