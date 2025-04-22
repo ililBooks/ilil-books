@@ -43,13 +43,13 @@ public class BookReadService {
         return books
                 .map(book ->
                 {
-                    List<BookImage> bookImages = imageBookRepository.findAllByBookId(book.getId());
-                    //대표 이미지 하나를 뽑아서 응답
-                    if (bookImages.isEmpty()) {
+                    BookImage bookImage = imageBookRepository.findFirstByBookId(book.getId()).orElse(null);
+
+                    if(bookImage == null) {
                         return BookListResponse.of(book);
                     }
-                    return BookListResponse.of(book, bookImages.get(0).getImageUrl());
+
+                    return BookListResponse.of(book, bookImage.getImageUrl());
                 });
     }
-
 }

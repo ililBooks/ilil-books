@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.review.controller;
 
+import com.example.ililbooks.domain.review.service.ReviewDeleteService;
 import com.example.ililbooks.domain.review.service.ReviewService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
@@ -21,7 +22,7 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
 @RequestMapping("/api/v1/review-images")
 @Tag(name = "Review Image", description = "리뷰 이미지 관련 API")
 public class ReviewImageController {
-    private final ReviewService reviewService;
+    private final ReviewDeleteService reviewDeleteService;
 
     /**
      * 리뷰 이미지 삭제 API
@@ -33,7 +34,7 @@ public class ReviewImageController {
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long imageId
     ) {
-        reviewService.deleteReviewImage(authUser, imageId);
+        reviewDeleteService.deleteReviewImage(authUser, imageId);
         return Response.empty();
     }
 }

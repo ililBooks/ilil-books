@@ -1,5 +1,7 @@
 package com.example.ililbooks.domain.cart.service;
 
+import com.example.ililbooks.domain.book.entity.Book;
+import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.domain.cart.dto.request.CartItemRequest;
 import com.example.ililbooks.domain.cart.dto.request.CartItemUpdateRequest;
@@ -7,6 +9,7 @@ import com.example.ililbooks.domain.cart.dto.response.CartResponse;
 import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
 import com.example.ililbooks.domain.cart.repository.CartRepository;
+import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -17,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,6 +41,7 @@ class CartUpdateServiceTest {
     private CartService cartService;
 
     private AuthUser authUser;
+    private Book book;
 
     @BeforeEach
     void setUp() {
@@ -46,6 +51,16 @@ class CartUpdateServiceTest {
                 .nickname("nickname")
                 .role(UserRole.ROLE_USER)
                 .build();
+
+        book = Book.builder()
+                .id(1L)
+                .title("book1")
+                .users(Users.builder().id(2L).userRole(UserRole.ROLE_ADMIN).build())
+                .stock(100)
+                .price(new BigDecimal(20000))
+                .publisher("publisher1")
+                .limitedType(LimitedType.REGULAR)
+                .build();
     }
 
     /* --- 실패 테스트 케이스 --- */
@@ -53,45 +68,27 @@ class CartUpdateServiceTest {
     @Test
     void updateCart_판매_안하는_책_추가시_예외_실패() {
         // given
-        given(bookService.existsOnSaleRegularBookById(anyLong())).willReturn(false);
-
-        CartItemRequest item = new CartItemRequest(1L, 2); // 수량은 양수(id 1책 수량 2권 추가)
+        CartItemRequest item = new CartItemRequest(book.getId(), 2); // 수량은 양수(id 1책 수량 2권 추가)
         CartItemUpdateRequest request = new CartItemUpdateRequest(List.of(item));
 
+        given(bookService.findInvalidBookIds(anyList())).willReturn(List.of(book.getId()));
+
         // when & then
-        BadRequestException badRequestException = assertThrows(BadRequestException.class,
+        BadRequestException exception = assertThrows(BadRequestException.class,
                 () -> cartService.updateCart(authUser, request));
-        assertEquals(badRequestException.getMessage(), CANNOT_ADD_BOOK_TO_CART.getMessage());
+        assertEquals(exception.getMessage(), CANNOT_ADD_BOOK_TO_CART.getMessage());
     }
 
     @Test
     void updateCart_수량_음수_예외_실패() {
         // given
-        Long bookId = 1L;
         Cart cart = new Cart(authUser.getUserId(), new HashMap<>());
-        cart.getItems().put(bookId, CartItem.of(bookId, 1)); // 장바구니에 담긴 1책 1권
+        cart.getItems().put(book.getId(), CartItem.of(book, 1)); // 장바구니에 담긴 1책 1권
 
-        given(bookService.existsOnSaleRegularBookById(anyLong())).willReturn(true);
         given(cartRepository.get(anyLong())).willReturn(cart);
+        given(bookService.findInvalidBookIds(anyList())).willReturn(List.of());
 
-        CartItemRequest item = new CartItemRequest(bookId, -2); // 수량 줄이면 -1 됨
-        CartItemUpdateRequest request = new CartItemUpdateRequest(List.of(item));
-
-        // when & then
-        BadRequestException badRequestException = assertThrows(BadRequestException.class,
-                () -> cartService.updateCart(authUser, request));
-        assertEquals(badRequestException.getMessage(), CART_QUANTITY_INVALID.getMessage());
-    }
-
-    @Test
-    void updateCart_수량_0인_새책추가_예외() {
-        // given
-        Cart cart = new Cart(authUser.getUserId(), new HashMap<>());
-
-        given(bookService.existsOnSaleRegularBookById(anyLong())).willReturn(true);
-        given(cartRepository.get(anyLong())).willReturn(cart);
-
-        CartItemRequest item = new CartItemRequest(1L, 0); // 수량 0
+        CartItemRequest item = new CartItemRequest(book.getId(), -2); // 수량 줄이면 -1 됨
         CartItemUpdateRequest request = new CartItemUpdateRequest(List.of(item));
 
         // when & then
@@ -104,15 +101,14 @@ class CartUpdateServiceTest {
     @Test
     void 기존_아이템_수량_증가_성공() {
         // given
-        Long bookId = 1L;
         int originalQuantity = 1;
         int increaseBy = 2;
 
         Cart cart = new Cart(authUser.getUserId());
-        cart.getItems().put(bookId, CartItem.of(bookId, originalQuantity));
+        cart.getItems().put(book.getId(), CartItem.of(book, originalQuantity));
 
-        given(bookService.existsOnSaleRegularBookById(anyLong())).willReturn(true);
         given(cartRepository.get(anyLong())).willReturn(cart);
+        given(bookService.findInvalidBookIds(anyList())).willReturn(List.of());
 
         CartItemRequest item = new CartItemRequest(1L, increaseBy); // 수량 0
         CartItemUpdateRequest request = new CartItemUpdateRequest(List.of(item));
@@ -127,15 +123,14 @@ class CartUpdateServiceTest {
     @Test
     void 기존_아이템_수량_감소_성공() {
         // given
-        Long bookId = 1L;
         int originalQuantity = 2;
         int decreaseBy = -1;
 
         Cart cart = new Cart(authUser.getUserId());
-        cart.getItems().put(bookId, CartItem.of(bookId, originalQuantity));
+        cart.getItems().put(book.getId(), CartItem.of(book, originalQuantity));
 
-        given(bookService.existsOnSaleRegularBookById(anyLong())).willReturn(true);
         given(cartRepository.get(anyLong())).willReturn(cart);
+        given(bookService.findInvalidBookIds(anyList())).willReturn(List.of());
 
         CartItemRequest item = new CartItemRequest(1L, decreaseBy);
         CartItemUpdateRequest request = new CartItemUpdateRequest(List.of(item));
@@ -150,17 +145,16 @@ class CartUpdateServiceTest {
     @Test
     void 기존_아이템_수량_0으로_감소시_삭제_성공() {
         // given
-        Long bookId = 1L;
         int originalQuantity = 1;
         int decreaseBy = -1;
 
         Cart cart = new Cart(authUser.getUserId());
-        cart.getItems().put(bookId, CartItem.of(bookId, originalQuantity));
+        cart.getItems().put(book.getId(), CartItem.of(book, originalQuantity));
 
-        given(bookService.existsOnSaleRegularBookById(anyLong())).willReturn(true);
         given(cartRepository.get(anyLong())).willReturn(cart);
+        given(bookService.findInvalidBookIds(anyList())).willReturn(List.of());
 
-        CartItemRequest item = new CartItemRequest(1L, decreaseBy);
+        CartItemRequest item = new CartItemRequest(book.getId(), decreaseBy);
         CartItemUpdateRequest request = new CartItemUpdateRequest(List.of(item));
 
         // when
@@ -173,16 +167,16 @@ class CartUpdateServiceTest {
     @Test
     void 새_책_추가_성공() {
         // given
-        Long bookId = 4L;
         int quantity = 3;
 
         Cart cart = new Cart(authUser.getUserId());
 
-        given(bookService.existsOnSaleRegularBookById(bookId)).willReturn(true);
         given(cartRepository.get(anyLong())).willReturn(cart);
+        given(bookService.findInvalidBookIds(anyList())).willReturn(List.of());
+        given(bookService.findBookByIdOrElseThrow(book.getId())).willReturn(book);
 
         CartItemUpdateRequest request = new CartItemUpdateRequest(
-                List.of(new CartItemRequest(bookId, quantity))
+                List.of(new CartItemRequest(book.getId(), quantity))
         );
 
         // when
@@ -190,21 +184,21 @@ class CartUpdateServiceTest {
 
         // then
         assertEquals(1, result.items().size());
-        assertEquals(bookId, result.items().get(0).bookId());
+        assertEquals(book.getId(), result.items().get(0).bookId());
         assertEquals(quantity, result.items().get(0).quantity());
     }
 
     @Test
     void 장바구니가_없으면_새로_생성됨() {
         // given
-        Long bookId = 10L;
         int quantity = 2;
 
         given(cartRepository.get(anyLong())).willReturn(new Cart(authUser.getUserId()));
-        given(bookService.existsOnSaleRegularBookById(bookId)).willReturn(true);
+        given(bookService.findInvalidBookIds(anyList())).willReturn(List.of());
+        given(bookService.findBookByIdOrElseThrow(book.getId())).willReturn(book);
 
         CartItemUpdateRequest request = new CartItemUpdateRequest(
-                List.of(new CartItemRequest(bookId, quantity))
+                List.of(new CartItemRequest(book.getId(), quantity))
         );
 
         // when
@@ -212,7 +206,7 @@ class CartUpdateServiceTest {
 
         // then
         assertEquals(1, result.items().size());
-        assertEquals(bookId, result.items().get(0).bookId());
+        assertEquals(book.getId(), result.items().get(0).bookId());
         assertEquals(quantity, result.items().get(0).quantity());
     }
 
@@ -222,11 +216,15 @@ class CartUpdateServiceTest {
         Long bookId1 = 20L;
         Long bookId2 = 21L;
 
+        Book book1 = Book.builder().id(bookId1).title("책1").price(BigDecimal.valueOf(10000)).build();
+        Book book2 = Book.builder().id(bookId2).title("책2").price(BigDecimal.valueOf(15000)).build();
+
         Cart cart = new Cart(authUser.getUserId());
 
         given(cartRepository.get(anyLong())).willReturn(cart);
-        given(bookService.existsOnSaleRegularBookById(bookId1)).willReturn(true);
-        given(bookService.existsOnSaleRegularBookById(bookId2)).willReturn(true);
+        given(bookService.findInvalidBookIds(anyList())).willReturn(List.of());
+        given(bookService.findBookByIdOrElseThrow(bookId1)).willReturn(book1);
+        given(bookService.findBookByIdOrElseThrow(bookId2)).willReturn(book2);
 
         CartItemUpdateRequest request = new CartItemUpdateRequest(
                 List.of(

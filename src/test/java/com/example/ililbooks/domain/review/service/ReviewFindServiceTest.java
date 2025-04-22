@@ -14,9 +14,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.example.ililbooks.domain.book.service.BookReadServiceTest.*;
-import static com.example.ililbooks.domain.review.service.ReviewDeleteServiceTest.TEST_LIST_REVIEW_IMAGE;
+import static com.example.ililbooks.domain.review.service.ReviewDeleteServiceTest.TEST_REVIEW_IMAGE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -43,14 +44,26 @@ public class ReviewFindServiceTest {
     void 리뷰_전체_조회_성공() {
         //given
         given(reviewRepository.findAllByBookId(anyLong(), any(Pageable.class))).willReturn(TEST_PAGE_REVIEW);
-        given(imageReviewRepository.findAllByReviewId(anyLong())).willReturn(TEST_LIST_REVIEW_IMAGE);
+        given(imageReviewRepository.findFirstByReviewId(anyLong())).willReturn(Optional.ofNullable(TEST_REVIEW_IMAGE));
 
         //when
         Page<ReviewWithImagesResponse> result = reviewFindService.getReviews(TEST_BOOK_ID, TEST_PAGEALBE);
 
         //then
         assertEquals(result.getTotalElements(), TEST_PAGE_REVIEW.getTotalElements());
+    }
 
+    @Test
+    void 이미지를_제외한_리뷰_전체_조회_성공() {
+        //given
+        given(reviewRepository.findAllByBookId(anyLong(), any(Pageable.class))).willReturn(TEST_PAGE_REVIEW);
+        given(imageReviewRepository.findFirstByReviewId(anyLong())).willReturn(Optional.empty());
+
+        //when
+        Page<ReviewWithImagesResponse> result = reviewFindService.getReviews(TEST_BOOK_ID, TEST_PAGEALBE);
+
+        //then
+        assertEquals(result.getTotalElements(), TEST_PAGE_REVIEW.getTotalElements());
     }
 
 }

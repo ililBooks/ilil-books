@@ -52,6 +52,8 @@ public final class ValidationMessage {
     public static final String NOT_NULL_IMAGE_URL = "ImageUrl은 필수 입력 값입니다.";
     public static final String NOT_NULL_FILENAME = "fileName은 필수 입력 값입니다.";
     public static final String NOT_NULL_EXTENSION = "확장자는 필수 입력 값입니다.";
+    public static final String INVALID_POSITION_INDEX = "이미지 순서는 최소 1부터 최대 5까지 입력 가능합니다.";
+    public static final String NOT_NULL_POSITION_INDEX = "이미지 순서는 반드시 입력되어야 합니다.";
 
 
 }
