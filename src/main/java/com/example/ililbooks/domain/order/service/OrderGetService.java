@@ -24,19 +24,18 @@ public class OrderGetService {
 
     /* 주문 단건 조회 */
     @Transactional(readOnly = true)
-    public OrderResponse findOrder(AuthUser authUser, Long orderId, int pageNum, int pageSize) {
+    public OrderResponse findOrder(AuthUser authUser, Long orderId, Pageable pageable) {
         Order order = orderService.findByIdOrElseThrow(orderId);
 
         if (!authUser.getUserId().equals(order.getUsers().getId())) {
             throw new ForbiddenException(NOT_OWN_ORDER.getMessage());
         }
-        return orderService.getOrderResponse(order, pageNum, pageSize);
+        return orderService.getOrderResponse(order, pageable);
     }
 
     /* 주문 다건 조회 */
     @Transactional(readOnly = true)
-    public Page<OrdersGetResponse> getOrders(AuthUser authUser, int pageNum, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
+    public Page<OrdersGetResponse> getOrders(AuthUser authUser, Pageable pageable) {
         Page<Order> findOrders = orderRepository.findAllByUsersId(authUser.getUserId(), pageable);
 
         return findOrders.map(OrdersGetResponse::of);

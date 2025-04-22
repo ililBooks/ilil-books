@@ -17,6 +17,7 @@ public enum ErrorMessage {
     REFRESH_TOKEN_MUST_BE_STRING("@RefreshToken과 String 타입은 함께 사용되어야 합니다."),
     NOT_NAVER_USER("네이버로 가입된 사용자가 아닙니다."),
     NOT_GOOGLE_USER("구글로 가입된 사용자가 아닙니다."),
+    INVALID_USER_INFORMATION("유저 정보가 유효하지 않습니다. 어플리케이션으로 회원가입해주세요."),
 
     DEFAULT_UNAUTHORIZED("인증이 필요합니다."),
     DEFAULT_BAD_REQUEST("잘못된 요청입니다."),
@@ -35,6 +36,10 @@ public enum ErrorMessage {
     BOOK_PARSING_FAILED("도서 정보 파싱 실패"),
     BOOK_API_RESPONSE_FAILED("도서 API 응답 실패"),
     BOOK_ISBN_MISSING("도서의 ISBN이 존재하지 않거나 비어 있습니다."),
+
+    STOCK_UPDATE_CONFLICT("재고 변경 중 충돌이 반복되어 실패했습니다."),
+
+    NOT_FOUND_BOOK_DOCUMENT("Book document 를 찾을 수 없습니다."),
 
     DUPLICATE_REVIEW("하나의 책에 하나의 리뷰만 등록할 수 있습니다."),
     NOT_FOUND_REVIEW("리뷰를 찾을 수 없습니다."),
@@ -55,6 +60,11 @@ public enum ErrorMessage {
     IMAGE_ALREADY_EXISTS("해당 책에는 이미 업로드된 이미지가 있습니다."),
     FAILED_DELETE_IMAGE("이미지 삭제에 실패하였습니다."),
     IMAGE_UPLOAD_LIMIT_OVER("등록 가능한 이미지 개수를 초과하였습니다."),
+    NO_PERMISSION("권한이 없습니다."),
+    RESERVATION_NOT_SUCCESS("예약이 성공하지 못했습니다."),
+    RESERVATION_EXPIRED("예약시간이 만료되었습니다."),
+    ALREADY_ORDERED("이미 예약되었습니다."),
+    DUPLICATE_POSITION_INDEX("이미 해당 위치에 이미지가 존재합니다."),
 
     NOT_EXIST_SHOPPING_CART("장바구니가 존재하지 않습니다."),
     CANNOT_ADD_BOOK_TO_CART("장바구니에 담을 수 없는 책입니다."),
@@ -72,6 +82,7 @@ public enum ErrorMessage {
     NAVER_API_RESPONSE_FAILED("네이버 api 응답 실패"),
     NAVER_PASING_FAILED("네이버 파싱 실패"),
     NOT_FOUND_PROFILE("프로필을 찾을 수 없습니다."),
+    INVALID_STATE("CSRF 방지를 위한 state 값이 일치하지 않습니다."),
 
     GOOGLE_API_RESPONSE_FAILED("구글 API 응답 실패"),
     GOOGLE_PASING_FAILED("구글 파싱 실패"),

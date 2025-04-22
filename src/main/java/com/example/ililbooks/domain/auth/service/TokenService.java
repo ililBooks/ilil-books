@@ -24,8 +24,15 @@ public class TokenService {
 
     /* Refresh Token 생성 */
     public String createRefreshToken(Users users) {
-        RefreshToken refreshToken = refreshTokenRepository.save(new RefreshToken(users.getId()));
+        RefreshToken refreshToken = refreshTokenRepository.save(RefreshToken.of(users.getId()));
         return refreshToken.getToken();
+    }
+
+    /* Refresh Token 갱신 */
+    public String updateRefreshToken(RefreshToken refreshToken) {
+        refreshToken.updateToken();
+        RefreshToken updatedToken = refreshTokenRepository.save(refreshToken);
+        return updatedToken.getToken();
     }
 
     public RefreshToken findRefreshToken(String token) {

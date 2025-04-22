@@ -1,6 +1,7 @@
 package com.example.ililbooks.client.google.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 
 /**
  * Open API 응답의 필드명(access_token, id_token, token_type, expires_in, scope)은
@@ -29,4 +30,8 @@ public record GoogleApiResponse (
         @JsonProperty("scope")
         String scope
         ){
+
+        @Builder
+        public GoogleApiResponse {
+        }
 }

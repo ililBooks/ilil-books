@@ -32,7 +32,6 @@ public final class ValidationMessage {
     public static final String NOT_NULL_PUBLISHER = "출판사는 필수 입력 값입니다.";
     public static final String NOT_NULL_STOCK = "재고는 필수 입력 값입니다.";
 
-    public static final String NOT_BLANK_EVENT_NAME = "이벤트 이름은 필수 입력 값입니다.";
     public static final String NOT_BLANK_EVENT_DESCRIPTION = "이벤트 설명은 필수 입력 값입니다.";
     public static final String INVALID_EVENT_QUANTITY = "수량은 1개 이상이어야 합니다.";
     public static final String NOT_NULL_START_DATE = "시작 날짜는 필수 입력 값입니다.";
@@ -48,10 +47,13 @@ public final class ValidationMessage {
     public static final String NOT_NULL_EVENT_TITLE = "행사 제목은 필수 입력 값입니다.";
     public static final String FUTURE_EVENT_END_DATE = "행사 종료일은 현재 시각보다 이후여야 합니다.";
     public static final String NOT_NULL_EVENT_ID = "예약할 한정판 행사 ID는 필수입니다.";
+    public static final String NOT_EMPTY_RESERVATION_STATUS = "행사 상태는 필수입니다.";
 
     public static final String NOT_NULL_IMAGE_URL = "ImageUrl은 필수 입력 값입니다.";
     public static final String NOT_NULL_FILENAME = "fileName은 필수 입력 값입니다.";
     public static final String NOT_NULL_EXTENSION = "확장자는 필수 입력 값입니다.";
+    public static final String INVALID_POSITION_INDEX = "이미지 순서는 최소 1부터 최대 5까지 입력 가능합니다.";
+    public static final String NOT_NULL_POSITION_INDEX = "이미지 순서는 반드시 입력되어야 합니다.";
 
 
 }

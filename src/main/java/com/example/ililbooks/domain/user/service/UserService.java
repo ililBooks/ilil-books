@@ -9,6 +9,7 @@ import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.dto.response.UserResponse;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.LoginType;
+import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.repository.UserRepository;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -33,7 +34,7 @@ public class UserService {
     @Transactional
     public Users saveUser(AuthSignUpRequest request) {
 
-        if (userRepository.existsByEmail(request.email())) {
+        if (existsByEmailAndLoginType(request.email(), LoginType.EMAIL)) {
             throw new BadRequestException(DUPLICATE_EMAIL.getMessage());
         }
 
@@ -88,15 +89,16 @@ public class UserService {
     public void deleteUser(AuthUser authUser, UserDeleteRequest userDeleteRequest) {
         Users users = findByIdOrElseThrow(authUser.getUserId());
 
-        if (!passwordEncoder.matches(userDeleteRequest.password(), users.getPassword())) {
+        if (users.getLoginType() == LoginType.EMAIL
+                && !passwordEncoder.matches(userDeleteRequest.password(), users.getPassword())) {
             throw new BadRequestException(INVALID_PASSWORD.getMessage());
         }
 
         users.deleteUser();
     }
 
-    public Users findByEmailOrElseThrow(String email) {
-        return userRepository.findByEmail(email).orElseThrow(
+    public Users findByEmailAndLoginTypeOrElseThrow(String email, LoginType loginType) {
+        return userRepository.findByEmailAndLoginType(email, loginType).orElseThrow(
                 () -> new UnauthorizedException(USER_EMAIL_NOT_FOUND.getMessage())
         );
     }
@@ -107,7 +109,24 @@ public class UserService {
         );
     }
 
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
+    public boolean existsByEmailAndLoginType(String email, LoginType loginType) {
+        return userRepository.existsByEmailAndLoginType(email, loginType);
+    }
+
+    /*
+    * 로컬 db 에서 email 로 사용자 조회
+    * 있는 경우 Users 객체 반환
+    * 없을 경우 email, nickname, loginType, userRole 값의 유저 생성 후 저장
+    *  */
+    public Users findByEmailOrGet(String email, String nickname, LoginType loginType, UserRole userRole) {
+        return userRepository.findByEmailAndLoginType(email, loginType)
+                .orElseGet(() -> userRepository.save(
+                        Users.builder()
+                                .email(email)
+                                .nickname(nickname)
+                                .loginType(loginType)
+                                .userRole(userRole)
+                                .build()
+                ));
     }
 }

@@ -10,19 +10,25 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 import static com.example.ililbooks.domain.user.enums.UserRole.ROLE_USER;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "users")
+@Table(
+        name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_email_login_type", columnNames = {"email", "login_type"})
+        }
+)
 public class Users extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String email;
 
     private String nickname;
@@ -108,6 +114,7 @@ public class Users extends TimeStamped {
     }
 
     public void deleteUser() {
+        this.email = email + "_deleted_" + UUID.randomUUID().toString().substring(0, 6);
         this.isDeleted = true;
     }
 

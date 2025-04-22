@@ -49,11 +49,12 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .rememberMe(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers(HttpMethod.GET).permitAll()
-                                .requestMatchers(request -> request.getRequestURI().startsWith("/api/v1/auth")).permitAll()
-                                .requestMatchers(SWAGGER_URI).permitAll()
-                                .anyRequest().authenticated()
-                )
-                .build();
+                        .requestMatchers(HttpMethod.GET).permitAll()
+                        .requestMatchers(request -> request.getRequestURI().startsWith("/api/v1/auth")).permitAll()
+                        .requestMatchers(SWAGGER_URI).permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
+                        .anyRequest().authenticated()
+                ).build();
     }
+
 }

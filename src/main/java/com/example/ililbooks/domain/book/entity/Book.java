@@ -5,6 +5,7 @@ import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.enums.SaleStatus;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.global.entity.TimeStamped;
+import com.example.ililbooks.global.exception.BadRequestException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 
 import static com.example.ililbooks.domain.book.enums.LimitedType.REGULAR;
 import static com.example.ililbooks.domain.book.enums.SaleStatus.ON_SALE;
+import static com.example.ililbooks.global.exception.ErrorMessage.OUT_OF_STOCK;
 
 @Getter
 @Entity
@@ -54,10 +56,15 @@ public class Book extends TimeStamped {
     @Column(columnDefinition = "varchar(50)")
     private LimitedType limitedType;
 
-    private Boolean isDeleted;
+    private boolean isDeleted;
+
+    // 주문 - 낙관락
+    @Version
+    private Long version;
 
     @Builder
-    private Book(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher) {
+    private Book(Long id, Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher, SaleStatus saleStatus, LimitedType limitedType, boolean isDeleted, Long version) {
+        this.id = id;
         this.users = users;
         this.title = title;
         this.author = author;
@@ -66,9 +73,10 @@ public class Book extends TimeStamped {
         this.stock = stock;
         this.isbn = isbn;
         this.publisher = publisher;
-        this.saleStatus = ON_SALE;
-        this.limitedType = REGULAR;
-        this.isDeleted = false;
+        this.saleStatus = saleStatus;
+        this.limitedType = limitedType;
+        this.isDeleted = isDeleted;
+        this.version = version;
     }
 
     public static Book of(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher ) {
@@ -81,19 +89,23 @@ public class Book extends TimeStamped {
                 .stock(stock)
                 .isbn(isbn)
                 .publisher(publisher)
+                .saleStatus(ON_SALE)
+                .limitedType(REGULAR)
                 .build();
     }
 
-    public static Book of(Users users, BookApiResponse book, BigDecimal price, int stock) {
+    public static Book of(Users users, String title, String author, String publisher, String category, String isbn, BigDecimal price, int stock) {
         return Book.builder()
                 .users(users)
-                .title(book.title().replaceAll("<[^>]*>", ""))
-                .author(book.author().replaceAll("<[^>]*>", ""))
+                .title(title)
+                .author(author)
+                .publisher(publisher)
+                .category(category)
+                .isbn(isbn)
                 .price(price)
-                .category(book.category())
                 .stock(stock)
-                .isbn(book.isbn())
-                .publisher(book.publisher().replaceAll("<[^>]*>", ""))
+                .saleStatus(ON_SALE)
+                .limitedType(REGULAR)
                 .build();
     }
 
@@ -107,16 +119,26 @@ public class Book extends TimeStamped {
         this.limitedType = LimitedType.valueOf(limitedType);
     }
 
-    public int decreaseStock(int quantity) {
-        this.stock -= quantity;
-        return stock;
-    }
-
     public void deleteBook() {
         this.isDeleted = true;
     }
 
-    public void rollbackStock(int quantity) {
+    public void decreaseStock(int quantity) {
+        if (stock < quantity) {
+            throw new BadRequestException(OUT_OF_STOCK.getMessage());
+        }
+        if (stock == quantity) {
+            this.saleStatus = SaleStatus.SOLD_OUT;
+        }
+        this.stock -= quantity;
+        this.version++;
+    }
+
+    public void increaseStoke(int quantity) {
         this.stock += quantity;
+
+        if (this.stock > 0 && this.saleStatus == SaleStatus.SOLD_OUT) {
+            this.saleStatus = SaleStatus.ON_SALE;
+        }
     }
 }

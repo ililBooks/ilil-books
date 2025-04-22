@@ -1,3 +1,23 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+    session:
+      timeout: 1800
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -5,6 +25,7 @@ spring:
     redis:
       host: localhost
       port: 6379
+      password: ${REDIS_PASSWORD}
     elasticsearch:
       uris: http://localhost:9200
       repositories:
@@ -26,18 +47,7 @@ spring:
         show_sql: true
         format_sql: true
         use_sql_comments: true
-        dialect: org.hibernate.dialect.MySQLDialect
-
-server:
-  port: 8080
-  servlet:
-    context-path: /
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
-    session:
-      timeout: 1800
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
 jwt:
   secret:
@@ -57,11 +67,15 @@ cloud:
       bucket: ${AWS_S3_BUCKET_NAME}
 
 client:
-   naver:
-      client-id: ${NAVER_CLIENT_ID}
-      client-secret: ${NAVER_CLIENT_SECRET}
-      redirect-uri: ${NAVER_REDIRECT_URI}
-   google:
-      client_id: ${GOOGLE_CLIENT_ID}
-      client_secret: ${GOOGLE_CLIENT_SECRET}
-      redirect_uri: ${GOOGLE_REDIRECT_URI}
+  naver:
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET}
+    redirect-uri: ${NAVER_REDIRECT_URI}
+  google:
+    client_id: ${GOOGLE_CLIENT_ID}
+    client_secret: ${GOOGLE_CLIENT_SECRET}
+    redirect_uri: ${GOOGLE_REDIRECT_URI}
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID}
+    client-secret: ${KAKAO_CLIENT_SECRET}
+    redirect-uri: ${KAKAO_REDIRECT_URI}

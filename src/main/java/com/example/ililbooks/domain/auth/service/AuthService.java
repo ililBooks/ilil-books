@@ -5,6 +5,7 @@ import com.example.ililbooks.domain.auth.dto.request.AuthSignUpRequest;
 import com.example.ililbooks.domain.auth.dto.response.AuthTokensResponse;
 import com.example.ililbooks.domain.auth.entity.RefreshToken;
 import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.enums.LoginType;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.UnauthorizedException;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.example.ililbooks.domain.user.enums.LoginType.EMAIL;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
@@ -39,7 +41,7 @@ public class AuthService {
     /* 로그인 */
     @Transactional(readOnly = true)
     public AuthTokensResponse signIn(AuthSignInRequest request) {
-        Users users = userService.findByEmailOrElseThrow(request.email());
+        Users users = userService.findByEmailAndLoginTypeOrElseThrow(request.email(), EMAIL);
 
         if (users.isDeleted()) {
             throw new UnauthorizedException(DEACTIVATED_USER_EMAIL.getMessage());
@@ -59,7 +61,7 @@ public class AuthService {
         Users users = userService.findByIdOrElseThrow(findRefreshToken.getUserId());
 
         String reissuedAccessToken = tokenService.createAccessToken(users);
-        String reissuedRefreshToken = findRefreshToken.updateToken();
+        String reissuedRefreshToken = tokenService.updateRefreshToken(findRefreshToken);
 
         return AuthTokensResponse.of(reissuedAccessToken, reissuedRefreshToken);
     }

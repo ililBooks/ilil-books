@@ -1,7 +1,7 @@
 package com.example.ililbooks.domain.book.dto.response;
 
 import com.example.ililbooks.domain.book.entity.Book;
-import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
+import com.example.ililbooks.domain.review.dto.response.ReviewCreateResponse;
 import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
@@ -15,7 +15,7 @@ public record BookResponse(
         String category,
         int stock,
         String publisher,
-        Page<ReviewResponse> reviews,
+        Page<ReviewCreateResponse> reviews,
         String imageUrl,
         String saleStatus,
         String limitedType
@@ -51,23 +51,6 @@ public record BookResponse(
                 imageUrl,
                 book.getSaleStatus().name(),
                 book.getLimitedType().name()
-        );
-    }
-
-    public BookResponse withReviews(Page<ReviewResponse> reviews) {
-        return new BookResponse(
-                this.id,
-                this.userId,
-                this.title,
-                this.author,
-                this.price,
-                this.category,
-                this.stock,
-                this.publisher,
-                reviews,
-                this.imageUrl,
-                this.saleStatus,
-                this.limitedType
         );
     }
 }
