@@ -128,14 +128,8 @@ public class BookReadServiceTest {
             new ImageListResponse("imageUrl2.png")
     );
 
-    public static final List<ImageListResponse> TEST_REVIEW_IMAGE_LIST_RESPONSE = List.of(
-            new ImageListResponse("imageUrl1"),
-            new ImageListResponse("imageUrl2")
-    );
-
     public static final ReviewWithImagesResponse REVIEW_WITH_IMAGES_RESPONSE = ReviewWithImagesResponse.of(
-            TEST_REVIEW,
-            TEST_REVIEW_IMAGE_LIST_RESPONSE
+            TEST_REVIEW
     );
 
     public static final Page<ReviewWithImagesResponse> PAGE_REVIEW_WITH_IMAGES_RESPONSE = new PageImpl<>(

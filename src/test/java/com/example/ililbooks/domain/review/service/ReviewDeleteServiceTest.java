@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.example.ililbooks.domain.book.service.BookReadServiceTest.*;
+import static com.example.ililbooks.domain.review.service.ReviewServiceTest.TEST_REVIEW_IMAGE_ID;
 import static com.example.ililbooks.global.exception.ErrorMessage.CANNOT_DELETE_OTHERS_REVIEW;
 import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_REVIEW;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -57,6 +58,7 @@ public class ReviewDeleteServiceTest {
             .imageUrl("imageUrl.png")
             .fileName("imagerUrl")
             .extension("png")
+            .positionIndex(5)
             .build();
 
     public static final List<Review> TEST_LIST_REVIEW = List.of(
@@ -79,7 +81,7 @@ public class ReviewDeleteServiceTest {
 
         //when & then
         assertThrows(NotFoundException.class,
-                () -> reviewDeleteService.deleteReview(TEST_REVIEW_ID, TEST_AUTH_USER),
+                () -> reviewDeleteService.deleteReviews(TEST_REVIEW_ID, TEST_AUTH_USER),
                 NOT_FOUND_REVIEW.getMessage()
         );
     }
@@ -95,7 +97,7 @@ public class ReviewDeleteServiceTest {
 
         //when & then
         assertThrows(ForbiddenException.class,
-                () -> reviewDeleteService.deleteReview(TEST_REVIEW_ID, TEST_AUTH_USER),
+                () -> reviewDeleteService.deleteReviews(TEST_REVIEW_ID, TEST_AUTH_USER),
                 CANNOT_DELETE_OTHERS_REVIEW.getMessage()
         );
     }
@@ -110,7 +112,7 @@ public class ReviewDeleteServiceTest {
         given(imageReviewRepository.findAllReviewImageById(anyLong())).willReturn(TEST_LIST_REVIEW_IMAGE);
 
         //when
-        reviewDeleteService.deleteReview(TEST_REVIEW_ID, TEST_AUTH_USER);
+        reviewDeleteService.deleteReviews(TEST_REVIEW_ID, TEST_AUTH_USER);
 
         //then
         verify(s3ImageService, times(TEST_LIST_REVIEW_IMAGE.size())).deleteImage(anyString());
@@ -134,5 +136,55 @@ public class ReviewDeleteServiceTest {
         verify(s3ImageService,times(TEST_LIST_REVIEW_IMAGE_FILENAME.size())).deleteImage(anyString());
         verify(imageReviewRepository, times(TEST_LIST_REVIEW_IMAGE_FILENAME.size())).deleteByFileName(anyString());
         verify(reviewRepository).deleteAllByBookId(anyLong());
+    }
+
+    @Test
+    void 리뷰가_존재하지_않아_리뷰_이미지_삭제_실패() {
+        //given
+        given(imageReviewRepository.findReviewImageById(anyLong())).willThrow(new NotFoundException());
+
+        //when & then
+        assertThrows(NotFoundException.class,
+                () -> reviewDeleteService.deleteReviewImage(TEST_AUTH_USER, TEST_REVIEW_IMAGE_ID),
+                NOT_FOUND_REVIEW.getMessage()
+        );
+    }
+
+    @Test
+    void 자신이_등록한_리뷰_이미지가_아니라서_삭제_실패() {
+        //given
+        ReflectionTestUtils.setField(TEST_REVIEW, "id", TEST_REVIEW_ID);
+        ReflectionTestUtils.setField(TEST_EMAIL_USERS, "id", TEST_USER_ID1);
+        ReflectionTestUtils.setField(TEST_AUTH_USER, "userId", TEST_USER_ID2);
+
+        given(imageReviewRepository.findReviewImageById(anyLong())).willReturn(Optional.of(TEST_REVIEW_IMAGE));
+
+        //when & then
+        assertThrows(ForbiddenException.class,
+                () -> reviewDeleteService.deleteReviewImage(TEST_AUTH_USER, TEST_REVIEW_IMAGE_ID),
+                CANNOT_DELETE_OTHERS_REVIEW.getMessage()
+        );
+    }
+
+    @Test
+    void 리뷰_이미지_삭제_성공() {
+        //given
+        setUpReviewImageAndUser();
+
+        given(imageReviewRepository.findReviewImageById(anyLong())).willReturn(Optional.of(TEST_REVIEW_IMAGE));
+        given(imageReviewRepository.findUserIdByReviewImageId(anyLong())).willReturn(TEST_USER_ID1);
+
+        //when
+        reviewDeleteService.deleteReviewImage(TEST_AUTH_USER, TEST_REVIEW_IMAGE_ID);
+
+        //then
+        verify(s3ImageService).deleteImage(anyString());
+        verify(imageReviewRepository).delete(any(ReviewImage.class));
+    }
+
+    private static void setUpReviewImageAndUser() {
+        ReflectionTestUtils.setField(TEST_REVIEW_IMAGE, "id", TEST_REVIEW_IMAGE_ID);
+        ReflectionTestUtils.setField(TEST_EMAIL_USERS, "id", TEST_USER_ID1);
+        ReflectionTestUtils.setField(TEST_AUTH_USER, "userId", TEST_USER_ID1);
     }
 }

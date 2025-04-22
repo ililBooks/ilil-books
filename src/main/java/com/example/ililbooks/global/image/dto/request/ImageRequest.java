@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import static com.example.ililbooks.global.dto.ValidationMessage.*;
 
@@ -22,6 +23,7 @@ public record ImageRequest(
         String extension,
 
         @Schema(example = "3")
+        @NotNull(message = NOT_NULL_POSITION_INDEX)
         @Min(value = 1, message = INVALID_POSITION_INDEX)
         @Max(value = 5, message = INVALID_POSITION_INDEX)
         int positionIndex

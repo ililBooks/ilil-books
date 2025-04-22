@@ -27,7 +27,7 @@ public class ReviewDeleteService {
     private final ImageReviewRepository imageReviewRepository;
 
     @Transactional
-    public void deleteReview(Long reviewId, AuthUser authUser) {
+    public void deleteReviews(Long reviewId, AuthUser authUser) {
         Review review = reviewRepository.findReviewById(reviewId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_REVIEW.getMessage()));
 
@@ -45,6 +45,22 @@ public class ReviewDeleteService {
         reviewRepository.delete(review);
     }
 
+    @Transactional
+    public void deleteReviewImage(AuthUser authUser, Long imageId) {
+
+        ReviewImage reviewImage  = findReviewImage(imageId);
+        Long userId = imageReviewRepository.findUserIdByReviewImageId(reviewImage.getId());
+
+        //사용자가 다른 사람의 이미지를 삭제하려는 경우
+        if (!authUser.getUserId().equals(userId) && isUser(authUser)) {
+            throw new ForbiddenException(CANNOT_DELETE_OTHERS_REVIEW.getMessage());
+        }
+
+        s3ImageService.deleteImage(reviewImage.getFileName());
+        imageReviewRepository.delete(reviewImage);
+    }
+
+    @Transactional
     public void deleteAllReviewByBookId(Long bookId) {
         List<Review> reviews = reviewRepository.findReviewsByBookId(bookId);
 
@@ -63,5 +79,10 @@ public class ReviewDeleteService {
         );
 
         reviewRepository.deleteAllByBookId(bookId);
+    }
+
+    private ReviewImage findReviewImage(Long imageId) {
+        return imageReviewRepository.findReviewImageById(imageId)
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_REVIEW.getMessage()));
     }
 }
