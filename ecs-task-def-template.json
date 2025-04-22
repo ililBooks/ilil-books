@@ -1,6 +1,7 @@
 {
   "family": "ililbooks-task",
   "networkMode": "awsvpc",
+  "executionRoleArn": "arn:aws:iam::198109037411:role/ecsTaskExecutionRole",
   "requiresCompatibilities": [
     "FARGATE"
   ],
@@ -8,8 +9,8 @@
   "memory": "1024",
   "containerDefinitions": [
     {
-      "name": "ililbooks-app",
-      "image": "<Image URI>",
+      "name": "ilil-books-app",
+      "image": "__IMAGE_URI__",
       "portMappings": [
         {
           "containerPort": 8081
