@@ -143,10 +143,12 @@ public class LimitedReservationService {
     }
 
     private LimitedEvent findEvent(Long eventId) {
-        return eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(NOT_FOUND_EVENT.getMessage()));
+        return eventRepository.findById(eventId).orElseThrow(
+                () -> new NotFoundException(NOT_FOUND_EVENT.getMessage()));
     }
 
     private LimitedReservation findReservation(Long reservationId) {
-        return reservationRepository.findById(reservationId).orElseThrow(() -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage()));
+        return reservationRepository.findById(reservationId).orElseThrow(
+                () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage()));
     }
 }

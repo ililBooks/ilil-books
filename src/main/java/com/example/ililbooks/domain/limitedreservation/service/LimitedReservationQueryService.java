@@ -29,18 +29,31 @@ public class LimitedReservationQueryService {
     private final LimitedEventRepository eventRepository;
     private final LimitedReservationStatusHistoryRepository historyRepository;
 
-    /*/ 예약 단건 조회 */
+    /*/ 내 예약 상세 조회 */
     @Transactional(readOnly = true)
     public LimitedReservationResponse getReservationByUser(AuthUser authUser, Long reservationId) {
-        LimitedReservation reservation = findReservation(reservationId);
-
-        if (!reservation.getUsers().getId().equals(authUser.getUserId())) {
-            throw new BadRequestException(NOT_OWN_RESERVATION.getMessage());
-        }
+        LimitedReservation reservation = findOwnReservation(reservationId, authUser.getUserId());
         return LimitedReservationResponse.of(reservation);
     }
 
-    /*/ 행사별 예약 전체 조회 (페이징) */
+    /*/ 내 예약 상태 단건 조회 */
+    @Transactional(readOnly = true)
+    public LimitedReservationStatusResponse getReservationStatus(AuthUser authUser, Long reservationId) {
+        LimitedReservation reservation = findOwnReservation(reservationId, authUser.getUserId());
+        return LimitedReservationStatusResponse.of(reservation);
+    }
+
+    /*/ 예약 상태 변경 이력 조회 */
+    @Transactional(readOnly = true)
+    public List<LimitedReservationStatusHistoryResponse> getReservationStatusHistory(Long reservationId) {
+        findReservation(reservationId); // 존재 여부만 확인
+        return historyRepository.findAllByReservationIdOrderByCreatedAtDesc(reservationId)
+                .stream()
+                .map(LimitedReservationStatusHistoryResponse::of)
+                .toList();
+    }
+
+    /*/ 행사별 예약 전체 조회 */
     @Transactional(readOnly = true)
     public Page<LimitedReservationResponse> getReservationsByEvent(Long eventId, Pageable pageable) {
         LimitedEvent event = findEvent(eventId);
@@ -54,39 +67,11 @@ public class LimitedReservationQueryService {
         LimitedEvent event = findEvent(eventId);
         return reservationRepository.findAllByLimitedEventAndStatusIn(event, statuses)
                 .stream()
-                .map(LimitedReservationResponse::of).toList();
+                .map(LimitedReservationResponse::of)
+                .toList();
     }
 
-    /*/ 예약 상태 변경 이력 조회 */
-    @Transactional(readOnly = true)
-    public List<LimitedReservationStatusHistoryResponse> getReservationStatusHistory(Long reservationId) {
-        findReservation(reservationId);
-        return historyRepository.findAllByReservationIdOrderByCreatedAtDesc(reservationId)
-                .stream()
-                .map(LimitedReservationStatusHistoryResponse::of).toList();
-    }
-
-    /*/ 필터 기반 예약 목록 조회 */
-    @Transactional(readOnly = true)
-    public List<LimitedReservationResponse> getReservationsByFilter(LimitedReservationStatusFilterRequest request) {
-        return reservationRepository.findByFilter(request.eventId(), request.statuses(), request.userId(), request.startDate(), request.endDate())
-                .stream()
-                .map(LimitedReservationResponse::of).toList();
-    }
-
-    /*/ 내 예약 단건 조회 */
-    @Transactional(readOnly = true)
-    public LimitedReservationStatusResponse getReservationStatus(AuthUser authUser, Long reservationId) {
-        LimitedReservation reservation = findReservation(reservationId);
-
-        if (!reservation.getUsers().getId().equals(authUser.getUserId())) {
-            throw new BadRequestException(NOT_OWN_RESERVATION.getMessage());
-        }
-
-        return LimitedReservationStatusResponse.of(reservation);
-    }
-
-    /*/ 행사별 예약 상태 통계 조회 */
+    /*/ 예약 통계 조회 (출판사/관리자) */
     @Transactional(readOnly = true)
     public LimitedReservationSummaryResponse getReservationSummary(Long eventId) {
         LimitedEvent event = findEvent(eventId);
@@ -98,15 +83,36 @@ public class LimitedReservationQueryService {
         return LimitedReservationSummaryResponse.of(event, success, waiting, canceled);
     }
 
+    /*/ 필터 기반 예약 목록 조회 */
+    @Transactional(readOnly = true)
+    public List<LimitedReservationResponse> getReservationsByFilter(LimitedReservationStatusFilterRequest request) {
+        if (request.eventId() == null || request.statuses() == null || request.statuses().isEmpty()) {
+            throw new BadRequestException("이벤트 ID 및 상태 목록은 필수입니다.");
+        }
+
+        return reservationRepository.findByFilter(request.eventId(), request.statuses(), request.userId(), request.startDate(), request.endDate())
+                .stream()
+                .map(LimitedReservationResponse::of)
+                .toList();
+    }
+
     // ---- 내부 메서드 ----
 
-    private LimitedEvent findEvent(Long id) {
-        return eventRepository.findById(id).orElseThrow(
-                () -> new NotFoundException(NOT_FOUND_EVENT.getMessage()));
+    private LimitedReservation findOwnReservation(Long id, Long userId) {
+        LimitedReservation reservation = findReservation(id);
+        if (!reservation.getUsers().getId().equals(userId)) {
+            throw new BadRequestException(NOT_OWN_RESERVATION.getMessage());
+        }
+        return reservation;
     }
 
     private LimitedReservation findReservation(Long id) {
         return reservationRepository.findById(id).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage()));
+    }
+
+    private LimitedEvent findEvent(Long id) {
+        return eventRepository.findById(id).orElseThrow(
+                () -> new NotFoundException(NOT_FOUND_EVENT.getMessage()));
     }
 }

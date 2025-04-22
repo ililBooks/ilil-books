@@ -1,13 +1,14 @@
 package com.example.ililbooks.domain.limitedreservation.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LimitedReservationQueueService {
@@ -20,22 +21,31 @@ public class LimitedReservationQueueService {
      * 대기열에 예약 추가
      */
     public void enqueue(Long eventId, Long reservationId, Instant timestamp) {
+        if (eventId == null || reservationId == null || timestamp == null) return;
+
         String key = getKey(eventId);
-        redisTemplate.opsForZSet().add(key, reservationId.toString(), timestamp.toEpochMilli());
+        boolean result = Boolean.TRUE.equals(
+                redisTemplate.opsForZSet().add(key, reservationId.toString(), timestamp.toEpochMilli())
+        );
+
+        if (result) {
+            log.info("[ENQUEUE] eventId={}, reservationId={}, score={}", eventId, reservationId, timestamp.toEpochMilli());
+        }
     }
 
     /*
      * 가장 오래된 예약 하나 꺼내기
      */
-    public Long dequeue(Long  limitedEventId) {
+    public Long dequeue(Long limitedEventId) {
         String key = getKey(limitedEventId);
-        ZSetOperations<String, String> zSet = redisTemplate.opsForZSet();
+        Set<String> ids = redisTemplate.opsForZSet().range(key, 0, 0); // 가장 먼저 들어온 1개
 
-        Set<String> ids = zSet.range(key, 0, 0); // 가장 먼저 들어온 1개
         if (ids == null || ids.isEmpty()) return null;
 
         String reservationId = ids.iterator().next();
-        zSet.remove(key, reservationId);
+        redisTemplate.opsForZSet().remove(key, reservationId);
+
+        log.info("[DEQUEUE] eventId={}, dequeuedId={}", limitedEventId, reservationId);
         return Long.parseLong(reservationId);
     }
 
@@ -43,8 +53,12 @@ public class LimitedReservationQueueService {
      * 대기열에서 예약 제거
      */
     public void remove(Long eventId, Long reservationId) {
+        if (eventId == null || reservationId == null) return;
+
         String key = getKey(eventId);
         redisTemplate.opsForZSet().remove(key, reservationId.toString());
+
+        log.info("[REMOVE] eventId={}, reservationId={}", eventId, reservationId);
     }
 
     /*

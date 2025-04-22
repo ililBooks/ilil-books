@@ -12,6 +12,7 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LimitedEventService {
@@ -31,12 +33,10 @@ public class LimitedEventService {
      */
     @Transactional
     public LimitedEventResponse createLimitedEvent(AuthUser authUser, LimitedEventCreateRequest request) {
-        Book book = bookRepository.findById(request.bookId())
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_BOOK.getMessage()));
+        Book book = bookRepository.findById(request.bookId()).orElseThrow(
+                () -> new NotFoundException(NOT_FOUND_BOOK.getMessage()));
 
-        if (!book.getUsers().getId().equals(authUser.getUserId())) {
-            throw new BadRequestException(NO_PERMISSION.getMessage());
-        }
+        validateOwnership(authUser.getUserId(), book);
 
         LimitedEvent limitedEvent = LimitedEvent.of(
                 book,
@@ -48,6 +48,8 @@ public class LimitedEventService {
         );
 
         limitedEventRepository.save(limitedEvent);
+        log.info("[한정판 행사 생성] userId={}, bookId={}, eventId={}", authUser.getUserId(), book.getId(), limitedEvent.getId());
+
         return LimitedEventResponse.of(limitedEvent);
     }
 
@@ -75,6 +77,7 @@ public class LimitedEventService {
     @Transactional
     public LimitedEventResponse updateLimitedEvent(AuthUser authUser, Long limitedEventId, LimitedEventUpdateRequest request) {
         LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
+        validateOwnership(authUser.getUserId(), limitedEvent.getBook());
 
         if (!limitedEvent.getBook().getUsers().getId().equals(authUser.getUserId())) {
             throw new BadRequestException(NO_PERMISSION.getMessage());
@@ -91,6 +94,7 @@ public class LimitedEventService {
                     request.bookQuantity()
             );
         }
+        log.info("[한정판 행사 수정] eventId={}, userId={}", limitedEvent.getId(), authUser.getUserId());
 
         return LimitedEventResponse.of(limitedEvent);
     }
@@ -101,23 +105,27 @@ public class LimitedEventService {
     @Transactional
     public void deleteLimitedEvent(AuthUser authUser, Long limitedEventId) {
         LimitedEvent limitedEvent = findByIdOrElseThrow(limitedEventId);
-
-        if (!limitedEvent.getBook().getUsers().getId().equals(authUser.getUserId())) {
-            throw new BadRequestException(NO_PERMISSION.getMessage());
-        }
+        validateOwnership(authUser.getUserId(), limitedEvent.getBook());
 
         if (limitedEvent.getStatus() == LimitedEventStatus.ACTIVE) {
             throw new BadRequestException(ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED.getMessage());
         }
 
         limitedEvent.softDelete();
+
+        log.info("[한정판 행사 삭제] eventId={}, userId={}", limitedEvent.getId(), authUser.getUserId());
     }
 
-    /*
-     * 내부용 find 메서드
-     */
+    // ---- 내부 메서드 ----
+
+    private void validateOwnership(Long userId, Book book) {
+        if (!book.getUsers().getId().equals(userId)) {
+            throw new BadRequestException(NO_PERMISSION.getMessage());
+        }
+    }
+
     private LimitedEvent findByIdOrElseThrow(Long id) {
-        return limitedEventRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_EVENT.getMessage()));
+        return limitedEventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(
+                () -> new NotFoundException(NOT_FOUND_EVENT.getMessage()));
     }
 }

@@ -33,7 +33,6 @@ public class LimitedReservationController {
     private final LimitedReservationOrderService orderService;
 
     /*/ 예약 생성 */
-    @Secured(USER)
     @PostMapping
     public Response<LimitedReservationResponse> createReservation(
             @AuthenticationPrincipal AuthUser authUser,
@@ -42,18 +41,8 @@ public class LimitedReservationController {
         return Response.of(reservationService.createReservation(authUser, request));
     }
 
-    /*/ 예약 단건 조회 */
-    @Secured(USER)
-    @GetMapping("/{reservationId}")
-    public Response<LimitedReservationResponse> getMyReservation(
-            @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable Long reservationId
-    ) {
-        return Response.of(queryService.getReservationByUser(authUser, reservationId));
-    }
-
-    /*/ 행사별 전체 예약 조회 */
-    @Secured({PUBLISHER, ADMIN})
+    /*/ 행사별 전체 예약 조회 (출판사 / 관리자 전용) */
+    @Secured({ADMIN})
     @GetMapping("/events/{eventId}")
     public Response<Page<LimitedReservationResponse>> getAllReservationsByEvent(
             @PathVariable Long eventId,
@@ -62,17 +51,16 @@ public class LimitedReservationController {
         return Response.of(queryService.getReservationsByEvent(eventId, pageable));
     }
 
-     /*/ 예약 상태별 조회 */
-    @Secured({PUBLISHER, ADMIN})
-    @GetMapping("/events/status")
-    public Response<List<LimitedReservationResponse>> getReservationsByEventAndStatus(
+    /*/ 예약 상태별 조회 (출판사 / 관리자용 필터 검색) */
+    @Secured({ADMIN})
+    @PostMapping("/status/limitedEvents")
+    public Response<List<LimitedReservationResponse>> getReservationsByEventAndStatusWithFilter(
             @RequestBody LimitedReservationStatusFilterRequest request
     ) {
-        return Response.of(queryService.getReservationsByEventAndStatus(request.eventId(), request.statuses()));
+        return Response.of(queryService.getReservationsByFilter(request));
     }
 
-    /*/ 예약 취소 */
-    @Secured(USER)
+    /*/ 예약 취소 (USER 본인만 가능) */
     @PatchMapping("/cancel/{reservationId}")
     public Response<Void> cancelReservation(
             @AuthenticationPrincipal AuthUser authUser,
@@ -82,8 +70,7 @@ public class LimitedReservationController {
         return Response.empty();
     }
 
-    /*/ 주문 생성 */
-    @Secured(USER)
+    /*/ 성공 예약 기반 주문 생성 (USER 전용) */
     @PostMapping("/order/{reservationId}")
     public Response<OrdersGetResponse> createOrderForReservation(
             @AuthenticationPrincipal AuthUser authUser,
@@ -92,8 +79,25 @@ public class LimitedReservationController {
         return Response.of(orderService.createOrderFroReservation(authUser, reservationId));
     }
 
-    /*/ 실시간 예약 상태 조회 */
-    @Secured(USER)
+    /*/ 예약 단건 조회 (USER 전용) */
+    @GetMapping("/{reservationId}")
+    public Response<LimitedReservationResponse> getMyReservation(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long reservationId
+    ) {
+        return Response.of(queryService.getReservationByUser(authUser, reservationId));
+    }
+
+     /*/ 예약 상태별 조회 */
+    @Secured({ADMIN})
+    @PostMapping("/events/status")
+    public Response<List<LimitedReservationResponse>> getReservationsByEventAndStatus(
+            @RequestBody LimitedReservationStatusFilterRequest request
+    ) {
+        return Response.of(queryService.getReservationsByEventAndStatus(request.eventId(), request.statuses()));
+    }
+
+    /*/ 실시간 예약 상태 조회 (USER 전용) */
     @GetMapping("/status/{reservationId}")
     public Response<LimitedReservationStatusResponse> getReservationStatus(
             @AuthenticationPrincipal AuthUser authUser,
@@ -103,19 +107,11 @@ public class LimitedReservationController {
     }
 
     /*/ 예약 상태 변경 이력 조회 */
-    @Secured({PUBLISHER, ADMIN})
+    @Secured({ADMIN})
     @GetMapping("/history/{reservationId}")
     public Response<List<LimitedReservationStatusHistoryResponse>> getReservationStatusHistory(
             @PathVariable Long reservationId
     ) {
         return Response.of(queryService.getReservationStatusHistory(reservationId));
-    }
-
-    @Secured({PUBLISHER, ADMIN})
-    @PostMapping("/status/limitedEvents")
-    public Response<List<LimitedReservationResponse>> getReservationsByEventAndStatusWithFilter(
-            @RequestBody LimitedReservationStatusFilterRequest request
-    ) {
-        return Response.of(queryService.getReservationsByFilter(request));
     }
 }

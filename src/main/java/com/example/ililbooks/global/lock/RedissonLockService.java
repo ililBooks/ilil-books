@@ -22,29 +22,44 @@ public class RedissonLockService {
     private static final long WAIT_TIME  = 3L;
     private static final long LEASE_TIME = 5L;
 
-    /*
-     * 락을  획득한 상태에서 로직을 실행
-     */
+    /*/ 락을  획득한 상태에서 로직을 실행 */
     public <T> T runWithLock(String lockKey, Supplier<T> supplier) {
+        return runWithLockInternal(lockKey, supplier, null);
+    }
+
+    /*/ 락 획득 실패 시 fallback 로직 실행 */
+    public <T> T runWithLockOrElse(String lockKey, Supplier<T> supplier, Supplier<T> fallback) {
+        return runWithLockInternal(lockKey, supplier, fallback);
+    }
+
+    /*/ 내부 공통 처리 로직 */
+    private <T> T runWithLockInternal(String lockKey, Supplier<T> supplier, Supplier<T> fallback) {
         RLock lock = redissonClient.getLock(lockKey);
         boolean isLocked = false;
 
         try {
+            log.info("[LOCK START] key={}, thread={}", lockKey, Thread.currentThread().getName());
             isLocked = lock.tryLock(WAIT_TIME, LEASE_TIME, TimeUnit.SECONDS);
+
             if (!isLocked) {
-                throw new HandledException(ErrorCode.LOCK_ACQUISITION_FAILED);
+                log.warn("[LOCK FAIL] key={} - 락 획득 실패", lockKey);
+                if (fallback != null) {
+                    return fallback.get();
+                }
+                throw new HandledException(ErrorCode.LOCK_ACQUISITION_FAILED, "Redisson 락 획득 실패 - key=" + lockKey);
             }
 
             return supplier.get();
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new HandledException(ErrorCode.LOCK_INTERRUPTED, "Redisson 락 처리 중 인터럽트 발생");
+            throw new HandledException(ErrorCode.LOCK_INTERRUPTED, "Redisson 락 인터럽트 발생 - key=" + lockKey);
         } catch (Exception e) {
-            throw new HandledException(ErrorCode.INTERNAL_SERVER_ERROR, "락 실행 중 예외 발생: " + e.getMessage());
+            throw new HandledException(ErrorCode.INTERNAL_SERVER_ERROR, "Redisson 락 실행 예외 - key=" + lockKey + ", message=" + e.getMessage());
         } finally {
             if (isLocked && lock.isHeldByCurrentThread()) {
                 lock.unlock();
+                log.info("[LOCK END] key={}, thread={}", lockKey, Thread.currentThread().getName());
             }
         }
     }

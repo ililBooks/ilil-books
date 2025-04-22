@@ -31,12 +31,17 @@ public class LimitedEventStatusUpdater {
         Instant now = Instant.now();
 
         for (LimitedEvent limitedEvent : limitedEvents) {
-            if (limitedEvent.getStatus() == LimitedEventStatus.ENDED) continue;
+            LimitedEventStatus currentStatus = limitedEvent.getStatus();
 
+            if (currentStatus == LimitedEventStatus.ENDED) continue;
+
+            // 종료 시간 지남 → ENDED
             if (now.isAfter(limitedEvent.getEndTime())) {
                 limitedEvent.updateStatus(LimitedEventStatus.ENDED);
-                log.info("[이벤트 상태 변경] {} → ENDED (id={})", limitedEvent.getStatus(), limitedEvent.getId());
-            } else if (now.isAfter(limitedEvent.getStartTime()) && limitedEvent.getStatus() == LimitedEventStatus.INACTIVE) {
+                log.info("[이벤트 상태 변경] {} → ENDED (id={})", currentStatus, limitedEvent.getId());
+            }
+            // 시작 시간 지남 + 현재 상태가 INACTIVE → ACTIVE
+            else if (now.isAfter(limitedEvent.getStartTime()) && currentStatus == LimitedEventStatus.INACTIVE) {
                 limitedEvent.updateStatus(LimitedEventStatus.ACTIVE);
                 log.info("[이벤트 상태 변경] INACTIVE → ACTIVE (id={})", limitedEvent.getId());
             }

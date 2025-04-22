@@ -17,7 +17,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.ADMIN;
-import static com.example.ililbooks.domain.user.enums.UserRole.Authority.PUBLISHER;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,7 +27,7 @@ public class LimitedEventController {
     private final LimitedReservationQueryService queryService;
 
     /*/ 행사 등록 (PUBLISHER 만 가능) */
-    @Secured(PUBLISHER)
+    @Secured(ADMIN)
     @PostMapping
     public Response<LimitedEventResponse> createLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,
@@ -50,7 +49,7 @@ public class LimitedEventController {
     }
 
     /*/ 예약 통계 요약 조회 */
-    @Secured({PUBLISHER, ADMIN})
+    @Secured({ADMIN})
     @GetMapping("/summary/{limitedEventId}")
     public Response<LimitedReservationSummaryResponse> getReservationSummary(
             @PathVariable Long limitedEventId
@@ -59,7 +58,7 @@ public class LimitedEventController {
     }
 
     /*/ 행사 수정 (PUBLISHER 와 ADMIN 만 가능) */
-    @Secured({PUBLISHER, ADMIN})
+    @Secured({ADMIN})
     @PatchMapping("/{limitedEventId}")
     public Response<LimitedEventResponse> updateLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,
@@ -70,7 +69,7 @@ public class LimitedEventController {
     }
 
     /*/ 행사 삭제 (PUBLISHER 와 ADMIN 만 가능) */
-    @Secured({PUBLISHER, ADMIN})
+    @Secured({ADMIN})
     @DeleteMapping("/delete/{limitedEventId}")
     public Response<Void> deleteLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,
