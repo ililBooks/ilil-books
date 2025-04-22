@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class TrendingSearchService {
+public class TrendingKeywordService {
     private final RedisTemplate<String, String> redisTemplate;
     private static final String TRENDING_KEYWORD_KEY = "trending:keyword:";
 

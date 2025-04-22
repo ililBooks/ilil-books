@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
@@ -166,5 +167,9 @@ public class BookService {
         return ids.stream()
                 .filter(id -> !existsOnSaleRegularBookById(id))
                 .toList();
+    }
+
+    public Optional<BookImage> findFirstByBookId(Long bookId) {
+        return imageBookRepository.findFirstByBookId(bookId);
     }
 }
