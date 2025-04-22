@@ -9,6 +9,7 @@ import com.example.ililbooks.global.dto.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +30,7 @@ public class AuthNaverController {
     @Operation(summary = "네이버 로그인 인증 요청", description = "네이버 로그인 인증 요청을 위한 API입니다.")
     @GetMapping
     public Response<URI> getLoginRedirectUrl() {
-        return Response.of(authNaverService.getNaverLoginRedirectUrl());
+        return Response.of(authNaverService.getLoginRedirectUrl());
     }
 
     /**
@@ -39,9 +40,12 @@ public class AuthNaverController {
     @PostMapping("/token")
     public Response<NaverApiResponse> requestToken(
             @RequestParam String code,
-            @RequestParam String state
+            @RequestParam String state,
+            HttpSession session
     ) {
-        return Response.of(authNaverService.requestToken(code, state));
+        //세션에 저장되어 있던 state값
+        String sessionState = (String) session.getAttribute("oauth_state");
+        return Response.of(authNaverService.requestToken(code, state, sessionState));
     }
 
     /**
