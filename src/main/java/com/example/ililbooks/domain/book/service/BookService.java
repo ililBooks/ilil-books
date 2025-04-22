@@ -72,7 +72,12 @@ public class BookService {
             throw new ForbiddenException(CANNOT_UPLOAD_OTHERS_BOOK_IMAGE.getMessage());
         }
 
-        BookImage bookImage = BookImage.of(book, imageRequest.imageUrl(), imageRequest.fileName(), imageRequest.extension());
+        BookImage bookImage = BookImage.of(book, imageRequest.imageUrl(), imageRequest.fileName(), imageRequest.extension(), imageRequest.positionIndex());
+
+        //해당 순서의 이미지가 이미 존재하는 경우
+        if (imageBookRepository.existsByBookIdAndPositionIndex(book.getId(), imageRequest.positionIndex())) {
+            throw new BadRequestException(DUPLICATE_POSITION_INDEX.getMessage());
+        }
 
         //등록된 이미지의 개수가 5개를 넘는 경우
         if (imageBookRepository.countByBookId(bookImage.getBook().getId()) >= 5) {

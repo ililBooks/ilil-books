@@ -82,7 +82,8 @@ public class BookServiceTest {
     public static final ImageRequest IMAGE_REQUEST = new ImageRequest(
             "imageUrl.png",
             "imageUrl",
-            "png"
+            "png",
+            5
     );
 
     //users
@@ -101,7 +102,8 @@ public class BookServiceTest {
             TEST_BOOK,
             "imageUrl.png",
             "imageUrl",
-            "png"
+            "png",
+            5
     );
 
     @Test
@@ -160,6 +162,21 @@ public class BookServiceTest {
         assertThrows(ForbiddenException.class,
                 () -> bookService.uploadBookImage(TEST_ADMIN_AUTH_USER, TEST_BOOK_ID, IMAGE_REQUEST),
                 CANNOT_UPLOAD_OTHERS_BOOK_IMAGE.getMessage()
+        );
+    }
+
+    @Test
+    void 입력된_위치에_이미_이미지가_존재하여_이미지_업로드_실패 () {
+        //given
+        setBookAndUserId();
+
+        given(bookRepository.findBookById(anyLong())).willReturn(Optional.of(TEST_BOOK));
+        given(imageBookRepository.existsByBookIdAndPositionIndex(anyLong(), anyInt())).willReturn(true);
+
+        //when & then
+        assertThrows(BadRequestException.class,
+                () -> bookService.uploadBookImage(TEST_ADMIN_AUTH_USER, TEST_BOOK_ID, IMAGE_REQUEST),
+                DUPLICATE_POSITION_INDEX.getMessage()
         );
     }
 
@@ -319,6 +336,7 @@ public class BookServiceTest {
     }
 
     private void setBookAndUserId() {
+        ReflectionTestUtils.setField(TEST_BOOK, "id", TEST_BOOK_ID);
         ReflectionTestUtils.setField(TEST_BOOK_IMAGE, "id", TEST_BOOK_IMAGE_ID);
         ReflectionTestUtils.setField(TEST_ADMIN_AUTH_USER, "userId", TEST_ADMIN_USER_ID1);
         ReflectionTestUtils.setField(TEST_EMAIL_ADMIN_USERS, "id", TEST_ADMIN_USER_ID1);

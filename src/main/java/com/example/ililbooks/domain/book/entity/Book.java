@@ -87,16 +87,16 @@ public class Book extends TimeStamped {
                 .build();
     }
 
-    public static Book of(Users users, BookApiResponse book, BigDecimal price, int stock) {
+    public static Book of(Users users, String title, String author, String publisher, String category, String isbn, BigDecimal price, int stock) {
         return Book.builder()
                 .users(users)
-                .title(book.title().replaceAll("<[^>]*>", ""))
-                .author(book.author().replaceAll("<[^>]*>", ""))
+                .title(title)
+                .author(author)
+                .publisher(publisher)
+                .category(category)
+                .isbn(isbn)
                 .price(price)
-                .category(book.category())
                 .stock(stock)
-                .isbn(book.isbn())
-                .publisher(book.publisher().replaceAll("<[^>]*>", ""))
                 .saleStatus(ON_SALE)
                 .limitedType(REGULAR)
                 .build();

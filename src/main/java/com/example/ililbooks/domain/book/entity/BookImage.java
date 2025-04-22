@@ -25,21 +25,25 @@ public class BookImage{
 
     private String extension;
 
+    private int positionIndex;
+
     @Builder
-    private BookImage(Book book, String imageUrl, String fileName, String extension) {
+    private BookImage(Book book, String imageUrl, String fileName, String extension, int positionIndex) {
         this.book = book;
         this.imageUrl = imageUrl;
         this.fileName = fileName;
         this.extension = extension;
+        this.positionIndex = positionIndex;
     }
 
-    public static BookImage of(Book book,String imageUrl, String fileName, String extension) {
+    public static BookImage of(Book book,String imageUrl, String fileName, String extension, int positionIndex) {
 
         return BookImage.builder()
                 .book(book)
                 .imageUrl(imageUrl)
                 .fileName(fileName)
                 .extension(extension)
+                .positionIndex(positionIndex)
                 .build();
     }
 }

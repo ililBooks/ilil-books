@@ -62,6 +62,7 @@ public enum ErrorMessage {
     RESERVATION_NOT_SUCCESS("예약이 성공하지 못했습니다."),
     RESERVATION_EXPIRED("예약시간이 만료되었습니다."),
     ALREADY_ORDERED("이미 예약되었습니다."),
+    DUPLICATE_POSITION_INDEX("이미 해당 위치에 이미지가 존재합니다."),
 
     NOT_EXIST_SHOPPING_CART("장바구니가 존재하지 않습니다."),
     CANNOT_ADD_BOOK_TO_CART("장바구니에 담을 수 없는 책입니다."),
