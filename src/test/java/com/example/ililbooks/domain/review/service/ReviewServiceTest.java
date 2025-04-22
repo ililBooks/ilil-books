@@ -3,7 +3,7 @@ package com.example.ililbooks.domain.review.service;
 import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.domain.review.dto.request.ReviewCreateRequest;
 import com.example.ililbooks.domain.review.dto.request.ReviewUpdateRequest;
-import com.example.ililbooks.domain.review.dto.response.ReviewResponse;
+import com.example.ililbooks.domain.review.dto.response.ReviewCreateResponse;
 import com.example.ililbooks.domain.review.entity.Review;
 import com.example.ililbooks.domain.review.entity.ReviewImage;
 import com.example.ililbooks.domain.review.repository.ImageReviewRepository;
@@ -46,11 +46,9 @@ class ReviewServiceTest {
     @Mock
     private BookService bookService;
 
-    @Mock
-    private S3ImageService s3ImageService;
-
     @InjectMocks
     private ReviewService reviewService;
+
 
     //request
     public static final ReviewCreateRequest REVIEW_CREATE_REQUEST = new ReviewCreateRequest(
@@ -68,7 +66,7 @@ class ReviewServiceTest {
     public static final Long TEST_REVIEW_IMAGE_ID = 1L;
 
     //response
-    public static final ReviewResponse REVIEW_RESPONSE = ReviewResponse.of(
+    public static final ReviewCreateResponse REVIEW_RESPONSE = ReviewCreateResponse.of(
             TEST_REVIEW
     );
 
@@ -129,7 +127,7 @@ class ReviewServiceTest {
         given(reviewRepository.save(any(Review.class))).willReturn(TEST_REVIEW);
 
         //when
-        ReviewResponse result = reviewService.createReview(TEST_AUTH_USER, REVIEW_CREATE_REQUEST);
+        ReviewCreateResponse result = reviewService.createReview(TEST_AUTH_USER, REVIEW_CREATE_REQUEST);
 
         //then
         assertEquals(REVIEW_RESPONSE.id(), result.id());
@@ -159,6 +157,24 @@ class ReviewServiceTest {
         assertThrows(ForbiddenException.class,
                 () -> reviewService.uploadReviewImage(TEST_AUTH_USER, TEST_REVIEW_ID, IMAGE_REQUEST),
                 CANNOT_UPDATE_OTHERS_REVIEW_IMAGE.getMessage()
+        );
+
+    }
+
+    @Test
+    void 입력된_위치에_이미_이미지가_존재하여_이미지_업로드_실패() {
+        //given
+        ReflectionTestUtils.setField(TEST_EMAIL_USERS, "id", TEST_USER_ID1);
+        ReflectionTestUtils.setField(TEST_AUTH_USER, "userId", TEST_USER_ID1);
+        ReflectionTestUtils.setField(TEST_REVIEW_IMAGE, "id", TEST_REVIEW_IMAGE_ID);
+
+        given(reviewRepository.findById(anyLong())).willReturn(Optional.ofNullable(TEST_REVIEW));
+        given(imageReviewRepository.existsByReviewIdAndPositionIndex(anyLong(), anyInt())).willReturn(true);
+
+        //when & then
+        assertThrows(BadRequestException.class,
+                () -> reviewService.uploadReviewImage(TEST_AUTH_USER, TEST_REVIEW_ID, IMAGE_REQUEST),
+                DUPLICATE_POSITION_INDEX.getMessage()
         );
     }
 
@@ -195,48 +211,6 @@ class ReviewServiceTest {
         verify(imageReviewRepository).save(any(ReviewImage.class));
     }
 
-    @Test
-    void 리뷰가_존재하지_않아_리뷰_이미지_삭제_실패() {
-        //given
-        given(imageReviewRepository.findReviewImageById(anyLong())).willThrow(new NotFoundException());
-
-        //when & then
-        assertThrows(NotFoundException.class,
-                () -> reviewService.deleteReviewImage(TEST_AUTH_USER, TEST_REVIEW_IMAGE_ID),
-                NOT_FOUND_REVIEW.getMessage()
-        );
-    }
-
-    @Test
-    void 자신이_등록한_리뷰_이미지가_아니라서_삭제_실패() {
-        //given
-        ReflectionTestUtils.setField(TEST_REVIEW, "id", TEST_REVIEW_ID);
-        ReflectionTestUtils.setField(TEST_EMAIL_USERS, "id", TEST_USER_ID1);
-        ReflectionTestUtils.setField(TEST_AUTH_USER, "userId", TEST_USER_ID2);
-
-        given(imageReviewRepository.findReviewImageById(anyLong())).willReturn(Optional.of(TEST_REVIEW_IMAGE));
-
-        //when & then
-        assertThrows(ForbiddenException.class,
-                () -> reviewService.deleteReviewImage(TEST_AUTH_USER, TEST_REVIEW_IMAGE_ID),
-                CANNOT_DELETE_OTHERS_REVIEW.getMessage()
-        );
-    }
-
-    @Test
-    void 리뷰_이미지_삭제_성공() {
-        //given
-        setUpReviewImageAndUser();
-
-        given(imageReviewRepository.findReviewImageById(anyLong())).willReturn(Optional.of(TEST_REVIEW_IMAGE));
-
-        //when
-        reviewService.deleteReviewImage(TEST_AUTH_USER, TEST_REVIEW_IMAGE_ID);
-
-        //then
-        verify(s3ImageService).deleteImage(anyString());
-        verify(imageReviewRepository).delete(any(ReviewImage.class));
-    }
 
     @Test
     void 리뷰가_존재하지_않아_리뷰_수정_실패() {
@@ -287,6 +261,4 @@ class ReviewServiceTest {
         ReflectionTestUtils.setField(TEST_EMAIL_USERS, "id", TEST_USER_ID1);
         ReflectionTestUtils.setField(TEST_AUTH_USER, "userId", TEST_USER_ID1);
     }
-
-
 }

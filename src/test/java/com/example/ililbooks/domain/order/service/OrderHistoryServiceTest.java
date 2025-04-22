@@ -2,6 +2,7 @@ package com.example.ililbooks.domain.order.service;
 
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.enums.LimitedType;
+import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
 import com.example.ililbooks.domain.order.dto.response.OrderHistoryResponse;
@@ -11,7 +12,6 @@ import com.example.ililbooks.domain.order.repository.OrderHistoryRepository;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,6 +39,8 @@ class OrderHistoryServiceTest {
 
     @Mock
     private OrderHistoryRepository orderHistoryRepository;
+    @Mock
+    private BookService bookService;
 
     @InjectMocks
     private OrderHistoryService orderHistoryService;
@@ -46,7 +48,6 @@ class OrderHistoryServiceTest {
     private final Pageable pageable = PageRequest.of(0, 10);
     private Order order;
     private Book book1, book2;
-    private Cart cart;
 
     @BeforeEach
     void setUp() {
@@ -73,24 +74,20 @@ class OrderHistoryServiceTest {
                 .publisher("publisher2")
                 .limitedType(LimitedType.REGULAR)
                 .build();
-
-        cart = Cart.builder()
-                .items(new HashMap<>(){{
-                    put(1L, CartItem.of(100L, 2));
-                    put(2L, CartItem.of(200L, 3));
-                }})
-                .build();
     }
 
     @Test
     void 주문_이력_저장_성공() {
         // Given
-        Map<Long, Book> bookMap = new HashMap<>();
-        bookMap.put(1L, book1);
-        bookMap.put(2L, book2);
+        Map<Long, CartItem> cartItemMap = new HashMap<>();
+        cartItemMap.put(1L, CartItem.of(book1, 2));
+        cartItemMap.put(2L, CartItem.of(book2, 3));
+
+        given(bookService.findBookByIdOrElseThrow(anyLong())).willReturn(book1);
+        given(bookService.findBookByIdOrElseThrow(anyLong())).willReturn(book2);
 
         // When
-        orderHistoryService.saveOrderHistory(bookMap, cart, order);
+        orderHistoryService.saveOrderHistory(cartItemMap, order);
 
         // Then
         verify(orderHistoryRepository, times(2)).save(any(OrderHistory.class));

@@ -1,6 +1,5 @@
 package com.example.ililbooks.domain.review.repository;
 
-import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.review.entity.Review;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,8 +17,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     boolean existsByBookIdAndUsersId(Long bookId, Long userId);
 
     void deleteAllByBookId(Long bookId);
-
-    Long book(Book book);
 
     Optional<Review> findReviewById(Long reviewId);
 }

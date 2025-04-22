@@ -55,7 +55,7 @@ public class BookController {
     @PostMapping("/open-api")
     public Response<Void> createBooksByOpenApi(
             @AuthenticationPrincipal AuthUser authUser,
-            @PageableDefault(size = 500, page = 1) Pageable pageable
+            @PageableDefault(size = 100, page = 1) Pageable pageable
     ) {
         bookOpenApiService.createBookByOpenApi(authUser,pageable);
         return Response.empty();
@@ -70,7 +70,7 @@ public class BookController {
     public Response<Void> uploadBookImage(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long bookId,
-            @ModelAttribute ImageRequest imageRequest
+            @Valid @RequestBody ImageRequest imageRequest
     ) {
         bookService.uploadBookImage(authUser, bookId, imageRequest);
         return Response.empty();
@@ -94,7 +94,7 @@ public class BookController {
     @Operation(summary = "책 목록 조회", description = "등록된 모든 책을 페이징 처리하여 조회하는 API입니다.")
     @GetMapping("/all")
     public Response<Page<BookListResponse>> getBooks(
-           Pageable pageable
+            Pageable pageable
     ) {
         return Response.of(bookReadService.getBooks(pageable));
     }

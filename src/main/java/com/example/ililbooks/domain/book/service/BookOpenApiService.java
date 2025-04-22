@@ -81,7 +81,17 @@ public class BookOpenApiService {
                 int randomStock = 1 + random.nextInt(100);
 
                 try {
-                    Book book = Book.of(users, bookApiResponse, price, randomStock);
+                    Book book = Book.of(
+                            users,
+                            bookApiResponse.title().replaceAll("<[^>]*>", ""),
+                            bookApiResponse.author().replaceAll("<[^>]*>", ""),
+                            bookApiResponse.publisher().replaceAll("<[^>]*>", ""),
+                            bookApiResponse.category(),
+                            bookApiResponse.isbn(),
+                            price,
+                            randomStock
+                    );
+
                     BookDocument document = BookDocument.toDocument(book);
 
                     for (Book bookToSave : booksToSave) {

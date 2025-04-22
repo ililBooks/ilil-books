@@ -1,4 +1,4 @@
-package com.example.ililbooks.domain.auth.kakao.dto.response;
+package com.example.ililbooks.client.kakao.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -8,8 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @JsonProperty 사용해 프로퍼티 이름 명시
  * */
 public record AuthKakaoTokenResponse (
-        String signupUri,
-
         @JsonProperty("access_token")
         String accessToken,
 

@@ -28,7 +28,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
+import static com.example.ililbooks.domain.book.service.BookServiceTest.TEST_BOOK_IMAGE;
+import static com.example.ililbooks.domain.book.service.BookServiceTest.TEST_BOOK_IMAGE_ID;
 import static com.example.ililbooks.domain.user.enums.LoginType.EMAIL;
 import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_BOOK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -125,14 +128,8 @@ public class BookReadServiceTest {
             new ImageListResponse("imageUrl2.png")
     );
 
-    public static final List<ImageListResponse> TEST_REVIEW_IMAGE_LIST_RESPONSE = List.of(
-            new ImageListResponse("imageUrl1"),
-            new ImageListResponse("imageUrl2")
-    );
-
     public static final ReviewWithImagesResponse REVIEW_WITH_IMAGES_RESPONSE = ReviewWithImagesResponse.of(
-            TEST_REVIEW,
-            TEST_REVIEW_IMAGE_LIST_RESPONSE
+            TEST_REVIEW
     );
 
     public static final Page<ReviewWithImagesResponse> PAGE_REVIEW_WITH_IMAGES_RESPONSE = new PageImpl<>(
@@ -185,7 +182,7 @@ public class BookReadServiceTest {
         ReflectionTestUtils.setField(TEST_BOOK, "id", TEST_BOOK_ID);
 
         given(bookRepository.findAllNotDeleted(any(Pageable.class))).willReturn(TEST_PAGE_BOOK);
-        given(imageBookRepository.findAllByBookId(anyLong())).willReturn(TEST_LIST_BOOK_IMAGE);
+        given(imageBookRepository.findFirstByBookId(anyLong())).willReturn(Optional.ofNullable(TEST_BOOK_IMAGE));
 
         //when
         Page<BookListResponse> result = bookReadService.getBooks(TEST_PAGEALBE);
@@ -200,7 +197,7 @@ public class BookReadServiceTest {
         ReflectionTestUtils.setField(TEST_BOOK, "id", TEST_BOOK_ID);
 
         given(bookRepository.findAllNotDeleted(any(Pageable.class))).willReturn(TEST_PAGE_BOOK);
-        given(imageBookRepository.findAllByBookId(anyLong())).willReturn(Collections.emptyList());
+        given(imageBookRepository.findFirstByBookId(anyLong())).willReturn(Optional.empty());
 
         //when
         Page<BookListResponse> result = bookReadService.getBooks(TEST_PAGEALBE);
