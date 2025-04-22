@@ -81,7 +81,7 @@ public class ReviewDeleteService {
         reviewRepository.deleteAllByBookId(bookId);
     }
 
-    public ReviewImage findReviewImage(Long imageId) {
+    private ReviewImage findReviewImage(Long imageId) {
         return imageReviewRepository.findReviewImageById(imageId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_REVIEW.getMessage()));
     }
