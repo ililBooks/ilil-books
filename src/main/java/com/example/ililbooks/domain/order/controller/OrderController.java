@@ -3,7 +3,7 @@ package com.example.ililbooks.domain.order.controller;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
 import com.example.ililbooks.domain.order.service.OrderDeliveryService;
-import com.example.ililbooks.domain.order.service.OrderGetService;
+import com.example.ililbooks.domain.order.service.OrderReadService;
 import com.example.ililbooks.domain.order.service.OrderService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
@@ -25,7 +25,7 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.*;
 public class OrderController {
 
     private final OrderService orderService;
-    private final OrderGetService orderGetService;
+    private final OrderReadService orderReadService;
     private final OrderDeliveryService orderDeliveryService;
 
     /* 주문 생성 */
@@ -48,7 +48,7 @@ public class OrderController {
             @AuthenticationPrincipal AuthUser authUser,
             Pageable pageable
     ) {
-        return Response.of(orderGetService.findOrder(authUser, orderId, pageable));
+        return Response.of(orderReadService.findOrder(authUser, orderId, pageable));
     }
 
     /* 주문 다건 조회 */
@@ -59,7 +59,7 @@ public class OrderController {
             @AuthenticationPrincipal AuthUser authUser,
             Pageable pageable
     ) {
-        return Response.of(orderGetService.getOrders(authUser, pageable));
+        return Response.of(orderReadService.getOrders(authUser, pageable));
     }
 
     /* 주문 취소 */

@@ -33,7 +33,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class OrderGetServiceTest {
+class OrderReadServiceTest {
 
     @Mock
     private OrderService orderService;
@@ -41,7 +41,7 @@ class OrderGetServiceTest {
     private OrderRepository orderRepository;
 
     @InjectMocks
-    private OrderGetService orderGetService;
+    private OrderReadService orderReadService;
 
     private AuthUser authUser;
     private final Pageable pageable = PageRequest.of(0, 10);
@@ -97,7 +97,7 @@ class OrderGetServiceTest {
 
         // when & then
         ForbiddenException forbiddenException = assertThrows(ForbiddenException.class,
-                () -> orderGetService.findOrder(authUser, orderId, pageable));
+                () -> orderReadService.findOrder(authUser, orderId, pageable));
         assertEquals(forbiddenException.getMessage(), NOT_OWN_ORDER.getMessage());
     }
 
@@ -110,7 +110,7 @@ class OrderGetServiceTest {
         given(orderService.getOrderResponse(any(Order.class), any(Pageable.class))).willReturn(orderResponse);
 
         // when
-        OrderResponse result = orderGetService.findOrder(authUser, orderId, pageable);
+        OrderResponse result = orderReadService.findOrder(authUser, orderId, pageable);
 
         // then
         assertEquals(orderResponse.number(), result.number());
@@ -125,7 +125,7 @@ class OrderGetServiceTest {
         given(orderRepository.findAllByUsersId(anyLong(), any(Pageable.class))).willReturn(orderPage);
 
         // When
-        Page<OrdersGetResponse> result = orderGetService.getOrders(authUser, pageable);
+        Page<OrdersGetResponse> result = orderReadService.getOrders(authUser, pageable);
 
         // Then
         assertThat(result.getTotalElements()).isEqualTo(2);
