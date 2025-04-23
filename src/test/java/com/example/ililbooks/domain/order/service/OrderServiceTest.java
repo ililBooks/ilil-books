@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.order.service;
 
+import com.example.ililbooks.domain.bestseller.service.BestSellerService;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.domain.book.service.BookStockService;
@@ -9,6 +10,7 @@ import com.example.ililbooks.domain.cart.service.CartService;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.enums.DeliveryStatus;
+import com.example.ililbooks.domain.order.enums.LimitedType;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.enums.PaymentStatus;
 import com.example.ililbooks.domain.order.repository.OrderRepository;
@@ -39,6 +41,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,6 +55,8 @@ class OrderServiceTest {
     private OrderHistoryService orderHistoryService;
     @Mock
     private BookStockService bookStockService;
+    @Mock
+    private BestSellerService bestSellerService;
 
     @InjectMocks
     private OrderService orderService;
@@ -105,6 +110,7 @@ class OrderServiceTest {
                 .id(1L)
                 .users(Users.fromAuthUser(authUser))
                 .number("order-number")
+                .limitedType(LimitedType.REGULAR)
                 .build();
     }
 
@@ -130,6 +136,7 @@ class OrderServiceTest {
         cart.getItems().put(book2.getId(), CartItem.of(book2, book2originalQuantity));
 
         given(cartService.findByUserIdOrElseNewCart(anyLong())).willReturn(cart);
+        willDoNothing().given(bestSellerService).increaseBookSalesByQuantity(anyMap());
 
         // When
         OrderResponse result = orderService.createOrder(authUser, pageable);

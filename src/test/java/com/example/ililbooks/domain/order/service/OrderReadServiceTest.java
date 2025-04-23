@@ -4,6 +4,7 @@ import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
 import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.enums.DeliveryStatus;
+import com.example.ililbooks.domain.order.enums.LimitedType;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.enums.PaymentStatus;
 import com.example.ililbooks.domain.order.repository.OrderRepository;
@@ -66,6 +67,7 @@ class OrderReadServiceTest {
                 .deliveryStatus(DeliveryStatus.READY)
                 .paymentStatus(PaymentStatus.PAID)
                 .totalPrice(new BigDecimal("50000"))
+                .limitedType(LimitedType.REGULAR)
                 .build();
 
         order2 = Order.builder()
@@ -76,6 +78,7 @@ class OrderReadServiceTest {
                 .deliveryStatus(DeliveryStatus.DELIVERED)
                 .paymentStatus(PaymentStatus.PAID)
                 .totalPrice(new BigDecimal("75000"))
+                .limitedType(LimitedType.REGULAR)
                 .build();
 
         orderResponse = OrderResponse.builder()
