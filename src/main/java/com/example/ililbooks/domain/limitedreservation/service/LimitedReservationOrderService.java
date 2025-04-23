@@ -30,7 +30,7 @@ public class LimitedReservationOrderService {
      * 성공 예약 기반으로 주문 생성
      */
     @Transactional
-    public OrdersGetResponse createOrderFroReservation(AuthUser authUser, Long reservationId) {
+    public OrdersGetResponse createOrderFromReservation(AuthUser authUser, Long reservationId) {
         LimitedReservation reservation = validateReservation(authUser, reservationId);
         LimitedEvent limitedEvent = reservation.getLimitedEvent();
 
@@ -44,13 +44,6 @@ public class LimitedReservationOrderService {
             throw new BadRequestException(ALREADY_ORDERED.getMessage());
         }
 
-        // 재고 확인 및 차감
-        if (limitedEvent.getBookQuantity() < 1) {
-            throw new BadRequestException(OUT_OF_STOCK.getMessage());
-        }
-
-        limitedEvent.decreaseBookQuantity(1);
-
         // 주문 생성 및 예약 연결
         Users user = userService.findByIdOrElseThrow(authUser.getUserId());
         Order order = Order.of(user, limitedEvent.getBook().getPrice());
@@ -59,6 +52,9 @@ public class LimitedReservationOrderService {
         return OrdersGetResponse.of(order);
     }
 
+    /*
+     * 유효성 검증 메서드
+     */
     private LimitedReservation validateReservation(AuthUser authUser, Long reservationId) {
         LimitedReservation reservation = limitedReservationRepository.findById(reservationId).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage())

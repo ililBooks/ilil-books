@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorMessage {
+
     NOT_INVALID_USER_ROLE("유효하지 않은 UserRole"),
     NOT_FOUND_TOKEN("토큰을 찾을 수 없습니다."),
     PASSWORD_CONFIRMATION_MISMATCH("비밀번호가 비밀번호 확인과 일치하지 않습니다."),
@@ -52,7 +53,7 @@ public enum ErrorMessage {
     ALREADY_RESERVED_EVENT("이미 예약된 행사입니다."),
     NOT_FOUND_USER("유저 확인 불가"),
     NOT_FOUND_EVENT("행사 확인 불가"),
-    NOT_OWN_RESERVATION("본인 예약 외 조회 불가"),
+    NOT_OWN_RESERVATION("본인의 예약이 아닙니다."),
     NOT_FOUND_RESERVATION("예약 확인 불가"),
     CANNOT_DELETE_OTHERS_IMAGE("다른 사람의 이미지를 삭제할 수 없습니다."),
     NOT_FOUND_IMAGE("이미지가 존재하지 않습니다."),
@@ -64,7 +65,7 @@ public enum ErrorMessage {
     NO_PERMISSION("권한이 없습니다."),
     RESERVATION_NOT_SUCCESS("예약이 성공하지 못했습니다."),
     RESERVATION_EXPIRED("예약시간이 만료되었습니다."),
-    ALREADY_ORDERED("이미 예약되었습니다."),
+    ALREADY_ORDERED("이미 주문하신 상품입니다."),
     DUPLICATE_POSITION_INDEX("이미 해당 위치에 이미지가 존재합니다."),
 
     NOT_EXIST_SHOPPING_CART("장바구니가 존재하지 않습니다."),
@@ -90,8 +91,14 @@ public enum ErrorMessage {
 
     REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
     REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패"),
+
     BOOK_ID_NOT_FOUND_IN_REDIS("해당 키에 해당하는 BOOK ID 존재하지 않음"),
     PERIOD_TYPE_NOT_FOUND("PeriodType 조회 실패");
+
+
+    REDISSON_LOCK_FAILED("락 획득에 실패했습니다."),
+    REDISSON_LOCK_INTERRUPTED("Redisson 락 처리 중 인터럽트 발생");
+
 
     private final String message;
 
