@@ -41,6 +41,7 @@ public enum ErrorMessage {
     STOCK_UPDATE_CONFLICT("재고 변경 중 충돌이 반복되어 실패했습니다."),
 
     NOT_FOUND_BOOK_DOCUMENT("Book document 를 찾을 수 없습니다."),
+    BLANK_KEYWORD_NOT_ALLOWED("검색어를 입력해주세요."),
 
     DUPLICATE_REVIEW("하나의 책에 하나의 리뷰만 등록할 수 있습니다."),
     NOT_FOUND_REVIEW("리뷰를 찾을 수 없습니다."),
@@ -92,8 +93,13 @@ public enum ErrorMessage {
     REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
     REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패"),
 
+    BOOK_ID_NOT_FOUND_IN_REDIS("해당 키에 해당하는 BOOK ID 존재하지 않음"),
+    PERIOD_TYPE_NOT_FOUND("PeriodType 조회 실패");
+
+
     REDISSON_LOCK_FAILED("락 획득에 실패했습니다."),
     REDISSON_LOCK_INTERRUPTED("Redisson 락 처리 중 인터럽트 발생");
+
 
     private final String message;
 

@@ -14,6 +14,7 @@ import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.enums.LimitedType;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.repository.OrderRepository;
+import com.example.ililbooks.domain.bestseller.service.BestSellerService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -42,6 +43,7 @@ public class OrderService {
     private final OrderHistoryService orderHistoryService;
     private final BookStockService bookStockService;
     private final LimitedReservationReadService limitedReservationReadService;
+    private final BestSellerService bestSellerService;
 
     /* 주문 생성 - 일반판 */
     @Transactional
@@ -65,6 +67,8 @@ public class OrderService {
         orderHistoryService.saveOrderHistory(cartItemMap, order);
 
         cartService.clearCart(authUser);
+
+        bestSellerService.increaseBookSalesByQuantity(cartItemMap);
 
         return getOrderResponse(order, pageable);
     }
