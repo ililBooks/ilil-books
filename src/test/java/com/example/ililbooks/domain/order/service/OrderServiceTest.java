@@ -51,8 +51,6 @@ class OrderServiceTest {
     @Mock
     private OrderHistoryService orderHistoryService;
     @Mock
-    private BookService bookService;
-    @Mock
     private BookStockService bookStockService;
 
     @InjectMocks
