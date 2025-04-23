@@ -52,10 +52,10 @@ public class Users extends TimeStamped {
     @Temporal(TemporalType.TIMESTAMP)
     private boolean isDeleted;
 
-    private boolean alert;
+    private boolean notification;
 
     @Builder
-    private Users(Long id, String email, String nickname, String password, String zipCode, String roadAddress, String detailedAddress, String contactNumber, LoginType loginType, UserRole userRole, boolean isDeleted, boolean alert) {
+    private Users(Long id, String email, String nickname, String password, String zipCode, String roadAddress, String detailedAddress, String contactNumber, LoginType loginType, UserRole userRole, boolean isDeleted, boolean notification) {
         this.id = id;
         this.email = email;
         this.nickname = nickname;
@@ -67,7 +67,7 @@ public class Users extends TimeStamped {
         this.loginType = loginType;
         this.userRole = userRole;
         this.isDeleted = isDeleted;
-        this.alert = alert;
+        this.notification = notification;
     }
 
     public static Users fromAuthUser(AuthUser authUser) {
@@ -86,7 +86,7 @@ public class Users extends TimeStamped {
                 .password(encodedPassword)
                 .loginType(loginType)
                 .userRole(UserRole.of(userRole))
-                .alert(false)
+                .notification(false)
                 .build();
     }
 
@@ -97,7 +97,7 @@ public class Users extends TimeStamped {
                 .contactNumber(contactNumber)
                 .loginType(loginType)
                 .userRole(ROLE_USER)
-                .alert(false)
+                .notification(false)
                 .build();
     }
 
@@ -107,7 +107,7 @@ public class Users extends TimeStamped {
                 .nickname(nickname)
                 .loginType(loginType)
                 .userRole(ROLE_USER)
-                .alert(false)
+                .notification(false)
                 .build();
     }
 
@@ -128,7 +128,7 @@ public class Users extends TimeStamped {
         this.password = newPassword;
     }
 
-    public void updateAlert(boolean alert) {
-        this.alert = alert;
+    public void updateAlert(boolean receive) {
+        this.notification = receive;
     }
 }

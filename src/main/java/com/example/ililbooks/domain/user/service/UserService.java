@@ -100,9 +100,9 @@ public class UserService {
 
     /* 알림 수신 동의 및 거부*/
     @Transactional
-    public void updateAlert(AuthUser authUser, UserUpdateAlertRequest userUpdateAlertRequest) {
+    public void updateAlert(AuthUser authUser, boolean receive) {
         Users users = findByEmailOrElseThrow(authUser.getEmail());
-        users.updateAlert(userUpdateAlertRequest.receive());
+        users.updateAlert(receive);
     }
 
     public Users findByEmailOrElseThrow(String email) {

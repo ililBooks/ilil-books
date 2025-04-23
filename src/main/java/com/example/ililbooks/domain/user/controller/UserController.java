@@ -72,12 +72,12 @@ public class UserController {
     /* 알림 수신 동의/거부 */
     @Secured(USER)
     @Operation(summary = "알림 수신 동의 및 거부", description = "예약 및 주문 알림 수신 동의/거부를 할 수 있습니다.")
-    @PatchMapping("alerts")
+    @PatchMapping("notifications")
     public Response<Void> updateAlert(
             @AuthenticationPrincipal AuthUser authUser,
-            @Valid @RequestBody UserUpdateAlertRequest userUpdateAlertRequest
+            @RequestParam(defaultValue = "false") boolean receive
     ) {
-        userService.updateAlert(authUser, userUpdateAlertRequest);
+        userService.updateAlert(authUser, receive);
         return Response.empty();
     }
 }
