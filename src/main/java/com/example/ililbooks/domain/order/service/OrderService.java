@@ -4,9 +4,14 @@ import com.example.ililbooks.domain.book.service.BookStockService;
 import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
 import com.example.ililbooks.domain.cart.service.CartService;
+import com.example.ililbooks.domain.limitedevent.entity.LimitedEvent;
+import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
+import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationReadService;
 import com.example.ililbooks.domain.order.dto.response.OrderHistoryResponse;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.entity.Order;
+import com.example.ililbooks.domain.order.enums.LimitedType;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.repository.OrderRepository;
 import com.example.ililbooks.domain.user.entity.Users;
@@ -21,6 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,8 +41,9 @@ public class OrderService {
     private final CartService cartService;
     private final OrderHistoryService orderHistoryService;
     private final BookStockService bookStockService;
+    private final LimitedReservationReadService limitedReservationReadService;
 
-    /* 주문 생성 */
+    /* 주문 생성 - 일반판 */
     @Transactional
     public OrderResponse createOrder(AuthUser authUser, Pageable pageable) {
 
@@ -51,12 +59,33 @@ public class OrderService {
 
         BigDecimal totalPrice = calculateTotalPrice(cartItemMap);
 
-        Order order = Order.of(Users.fromAuthUser(authUser), totalPrice);
+        Order order = Order.of(Users.fromAuthUser(authUser), totalPrice, LimitedType.REGULAR);
         orderRepository.save(order);
 
         orderHistoryService.saveOrderHistory(cartItemMap, order);
 
         cartService.clearCart(authUser);
+
+        return getOrderResponse(order, pageable);
+    }
+
+    /* 주문 생성 - 한정판 */
+    @Transactional
+    public OrderResponse createOrderFromReservation(AuthUser authUser, Long reservationId, Pageable pageable) {
+
+        LimitedReservation limitedReservation = validateReservation(authUser, reservationId);
+        LimitedEvent limitedEvent = limitedReservation.getLimitedEvent();
+
+        Map<Long, CartItem> cartItemMap = new HashMap<>();
+        cartItemMap.put(limitedEvent.getBook().getId(), CartItem.of(limitedEvent.getBook(), 1));
+
+        BigDecimal totalPrice = calculateTotalPrice(cartItemMap);
+
+        Order order = Order.of(Users.fromAuthUser(authUser), totalPrice, LimitedType.LIMITED);
+        limitedReservation.linkOrder(order);
+        orderRepository.save(order);
+
+        orderHistoryService.saveOrderHistory(cartItemMap, order);
 
         return getOrderResponse(order, pageable);
     }
@@ -137,5 +166,26 @@ public class OrderService {
     public Order findByIdOrElseThrow(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow( () -> new NotFoundException(NOT_FOUND_ORDER.getMessage()));
+    }
+
+    private LimitedReservation validateReservation(AuthUser authUser, Long reservationId) {
+        LimitedReservation limitedReservation = limitedReservationReadService.findReservationByIdOrElseThrow(reservationId);
+
+        if (!limitedReservation.getUsers().getId().equals(authUser.getUserId())) {
+            throw new BadRequestException(NO_PERMISSION.getMessage());
+        }
+
+        if (limitedReservation.getStatus() != LimitedReservationStatus.SUCCESS) {
+            throw new BadRequestException(RESERVATION_NOT_SUCCESS.getMessage());
+        }
+
+        if (limitedReservation.getExpiresAt().isBefore(Instant.now())) {
+            throw new BadRequestException(RESERVATION_EXPIRED.getMessage());
+        }
+
+        if (limitedReservation.hasOrder()) {
+            throw new BadRequestException(ALREADY_ORDERED.getMessage());
+        }
+        return limitedReservation;
     }
 }

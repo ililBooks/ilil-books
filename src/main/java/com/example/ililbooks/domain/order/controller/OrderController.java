@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.order.controller;
 
+import com.example.ililbooks.domain.order.dto.request.OrderLimitedRequest;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
 import com.example.ililbooks.domain.order.service.OrderDeliveryService;
@@ -9,6 +10,7 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,15 +30,27 @@ public class OrderController {
     private final OrderReadService orderReadService;
     private final OrderDeliveryService orderDeliveryService;
 
-    /* 주문 생성 */
+    /* 주문 생성 - 일반판 */
     @Operation(summary = "주문 생성", description = "장바구니에 담은 책들을 주문할 수 있습니다.")
     @Secured(USER)
-    @PostMapping
+    @PostMapping("/regular")
     public Response<OrderResponse> createOrder(
             @AuthenticationPrincipal AuthUser authUser,
             Pageable pageable
     ) {
         return Response.of(orderService.createOrder(authUser, pageable));
+    }
+
+    /* 주문 생성 - 한정판 */
+    @Operation(summary = "성공한 예약에 대한 주문 생성", description = "예약에 성공한 한정판 책을 주문할 수 있습니다.")
+    @Secured(USER)
+    @PostMapping("/limited")
+    public Response<OrderResponse> createOrderForReservation(
+            @AuthenticationPrincipal AuthUser authUser,
+            @Valid @RequestBody OrderLimitedRequest orderLimitedRequest,
+            Pageable pageable
+    ) {
+        return Response.of(orderService.createOrderFromReservation(authUser, orderLimitedRequest.reservationId(), pageable));
     }
 
     /* 주문 단건 조회 */
