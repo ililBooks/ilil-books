@@ -8,7 +8,6 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.ForbiddenException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +16,7 @@ import static com.example.ililbooks.global.exception.ErrorMessage.NOT_OWN_ORDER;
 
 @Service
 @RequiredArgsConstructor
-public class OrderGetService {
+public class OrderReadService {
 
     private final OrderService orderService;
     private final OrderRepository orderRepository;

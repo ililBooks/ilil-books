@@ -28,8 +28,9 @@ public class RedissonConfig {
                 .setRetryInterval(1500)
                 .setTimeout(3000);
 
-        if (redisProperties.getPassword() != null) {
-            config.useSingleServer().setPassword(redisProperties.getPassword());
+        String password = redisProperties.getPassword();
+        if (password != null && !password.isBlank()) {
+            config.useSingleServer().setPassword(password);
         }
 
         return Redisson.create(config);

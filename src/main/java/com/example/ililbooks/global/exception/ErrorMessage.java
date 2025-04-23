@@ -49,6 +49,7 @@ public enum ErrorMessage {
     CANNOT_DELETE_OTHERS_REVIEW("다른 사람의 리뷰를 삭제할 수 없습니다."),
     CANNOT_UPDATE_OTHERS_REVIEW_IMAGE("다른 사람의 리뷰에 이미지를 업로드할 수 없습니다."),
 
+    EVENT_REGISTRATION_ONLY_FOR_LIMITED_EDITION("한정판 책만 이벤트에 등록할 수 있습니다."),
     ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다."),
     ALREADY_RESERVED_EVENT("이미 예약된 행사입니다."),
     NOT_FOUND_USER("유저 확인 불가"),
@@ -82,19 +83,18 @@ public enum ErrorMessage {
     CANNOT_DELIVER_CANCELLED_ORDER("취소된 주문은 배송이 불가합니다."),
 
     NAVER_API_RESPONSE_FAILED("네이버 api 응답 실패"),
-    NAVER_PASING_FAILED("네이버 파싱 실패"),
+    NAVER_PARSING_FAILED("네이버 파싱 실패"),
     NOT_FOUND_PROFILE("프로필을 찾을 수 없습니다."),
     INVALID_STATE("CSRF 방지를 위한 state 값이 일치하지 않습니다."),
 
     GOOGLE_API_RESPONSE_FAILED("구글 API 응답 실패"),
-    GOOGLE_PASING_FAILED("구글 파싱 실패"),
+    GOOGLE_PARSING_FAILED("구글 파싱 실패"),
 
     REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
     REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패"),
 
     BOOK_ID_NOT_FOUND_IN_REDIS("해당 키에 해당하는 BOOK ID 존재하지 않음"),
-    PERIOD_TYPE_NOT_FOUND("PeriodType 조회 실패");
-
+    PERIOD_TYPE_NOT_FOUND("PeriodType 조회 실패"),
 
     REDISSON_LOCK_FAILED("락 획득에 실패했습니다."),
     REDISSON_LOCK_INTERRUPTED("Redisson 락 처리 중 인터럽트 발생");
