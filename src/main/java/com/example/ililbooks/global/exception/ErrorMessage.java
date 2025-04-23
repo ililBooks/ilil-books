@@ -81,12 +81,12 @@ public enum ErrorMessage {
     CANNOT_DELIVER_CANCELLED_ORDER("취소된 주문은 배송이 불가합니다."),
 
     NAVER_API_RESPONSE_FAILED("네이버 api 응답 실패"),
-    NAVER_PASING_FAILED("네이버 파싱 실패"),
+    NAVER_PARSING_FAILED("네이버 파싱 실패"),
     NOT_FOUND_PROFILE("프로필을 찾을 수 없습니다."),
     INVALID_STATE("CSRF 방지를 위한 state 값이 일치하지 않습니다."),
 
     GOOGLE_API_RESPONSE_FAILED("구글 API 응답 실패"),
-    GOOGLE_PASING_FAILED("구글 파싱 실패"),
+    GOOGLE_PARSING_FAILED("구글 파싱 실패"),
 
     REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
     REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패"),
