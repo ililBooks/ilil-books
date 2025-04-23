@@ -52,10 +52,10 @@ public class Users extends TimeStamped {
     @Temporal(TemporalType.TIMESTAMP)
     private boolean isDeleted;
 
-    private boolean notification;
+    private boolean isNotificationAgreed;
 
     @Builder
-    private Users(Long id, String email, String nickname, String password, String zipCode, String roadAddress, String detailedAddress, String contactNumber, LoginType loginType, UserRole userRole, boolean isDeleted, boolean notification) {
+    private Users(Long id, String email, String nickname, String password, String zipCode, String roadAddress, String detailedAddress, String contactNumber, LoginType loginType, UserRole userRole, boolean isDeleted, boolean isNotificationAgreed) {
         this.id = id;
         this.email = email;
         this.nickname = nickname;
@@ -67,7 +67,7 @@ public class Users extends TimeStamped {
         this.loginType = loginType;
         this.userRole = userRole;
         this.isDeleted = isDeleted;
-        this.notification = notification;
+        this.isNotificationAgreed = isNotificationAgreed;
     }
 
     public static Users fromAuthUser(AuthUser authUser) {
@@ -86,7 +86,7 @@ public class Users extends TimeStamped {
                 .password(encodedPassword)
                 .loginType(loginType)
                 .userRole(UserRole.of(userRole))
-                .notification(false)
+                .isNotificationAgreed(false)
                 .build();
     }
 
@@ -97,7 +97,7 @@ public class Users extends TimeStamped {
                 .contactNumber(contactNumber)
                 .loginType(loginType)
                 .userRole(ROLE_USER)
-                .notification(false)
+                .isNotificationAgreed(false)
                 .build();
     }
 
@@ -107,7 +107,7 @@ public class Users extends TimeStamped {
                 .nickname(nickname)
                 .loginType(loginType)
                 .userRole(ROLE_USER)
-                .notification(false)
+                .isNotificationAgreed(false)
                 .build();
     }
 
@@ -129,6 +129,11 @@ public class Users extends TimeStamped {
     }
 
     public void updateAlert(boolean receive) {
-        this.notification = receive;
+        this.isNotificationAgreed = receive;
     }
+
+    public boolean isNotificationAgreed() {
+        return this.isNotificationAgreed;
+    }
+
 }

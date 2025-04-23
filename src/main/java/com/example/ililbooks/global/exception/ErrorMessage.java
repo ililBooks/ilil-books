@@ -93,6 +93,7 @@ public enum ErrorMessage {
     REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
     REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패"),
 
+    FAILED_SEND_MAIL("메일 발송에 실패"),
     BOOK_ID_NOT_FOUND_IN_REDIS("해당 키에 해당하는 BOOK ID 존재하지 않음"),
     PERIOD_TYPE_NOT_FOUND("PeriodType 조회 실패"),
 

@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.order.service;
 
+import com.example.ililbooks.domain.bestseller.service.BestSellerService;
 import com.example.ililbooks.domain.book.service.BookStockService;
 import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
@@ -14,12 +15,13 @@ import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.enums.LimitedType;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.repository.OrderRepository;
-import com.example.ililbooks.domain.bestseller.service.BestSellerService;
 import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.ForbiddenException;
 import com.example.ililbooks.global.exception.NotFoundException;
+import com.example.ililbooks.global.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +46,8 @@ public class OrderService {
     private final BookStockService bookStockService;
     private final LimitedReservationReadService limitedReservationReadService;
     private final BestSellerService bestSellerService;
+    private final NotificationService notificationService;
+    private final UserService userService;
 
     /* 주문 생성 - 일반판 */
     @Transactional
@@ -69,6 +73,13 @@ public class OrderService {
         cartService.clearCart(authUser);
 
         bestSellerService.increaseBookSalesByQuantity(cartItemMap);
+
+        Users users = userService.findByIdOrElseThrow(authUser.getUserId());
+
+        //알림 수신 동의인 경우
+        if (users.isNotificationAgreed()) {
+            notificationService.sendOrderMail(authUser, order.getNumber(), order.getTotalPrice());
+        }
 
         return getOrderResponse(order, pageable);
     }
