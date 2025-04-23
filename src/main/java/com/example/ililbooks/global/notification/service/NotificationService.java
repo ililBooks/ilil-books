@@ -1,6 +1,5 @@
 package com.example.ililbooks.global.notification.service;
 
-import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

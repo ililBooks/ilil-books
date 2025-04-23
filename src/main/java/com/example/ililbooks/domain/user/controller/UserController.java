@@ -2,7 +2,6 @@ package com.example.ililbooks.domain.user.controller;
 
 import com.example.ililbooks.domain.auth.dto.response.AuthAccessTokenResponse;
 import com.example.ililbooks.domain.user.dto.request.UserDeleteRequest;
-import com.example.ililbooks.domain.user.dto.request.UserUpdateAlertRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.example.ililbooks.domain.user.dto.request.UserUpdateRequest;
 import com.example.ililbooks.domain.user.dto.response.UserResponse;
@@ -72,7 +71,7 @@ public class UserController {
     /* 알림 수신 동의/거부 */
     @Secured(USER)
     @Operation(summary = "알림 수신 동의 및 거부", description = "예약 및 주문 알림 수신 동의/거부를 할 수 있습니다.")
-    @PatchMapping("notifications")
+    @PatchMapping("/notifications")
     public Response<Void> updateAlert(
             @AuthenticationPrincipal AuthUser authUser,
             @RequestParam(defaultValue = "false") boolean receive
