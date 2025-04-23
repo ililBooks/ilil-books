@@ -5,7 +5,7 @@ import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventUpdateR
 import com.example.ililbooks.domain.limitedevent.dto.response.LimitedEventResponse;
 import com.example.ililbooks.domain.limitedevent.service.LimitedEventService;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationSummaryResponse;
-import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationQueryService;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationReadService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.validation.Valid;
@@ -24,7 +24,7 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.ADMIN;
 public class LimitedEventController {
 
     private final LimitedEventService limitedEventService;
-    private final LimitedReservationQueryService queryService;
+    private final LimitedReservationReadService queryService;
 
     /*/ 행사 등록 (PUBLISHER 만 가능) */
     @Secured(ADMIN)

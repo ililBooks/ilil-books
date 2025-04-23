@@ -6,7 +6,7 @@ import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReser
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationStatusHistoryResponse;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationStatusResponse;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationOrderService;
-import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationQueryService;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationReadService;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
 import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -29,7 +29,7 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.*;
 public class LimitedReservationController {
 
     private final LimitedReservationService reservationService;
-    private final LimitedReservationQueryService queryService;
+    private final LimitedReservationReadService queryService;
     private final LimitedReservationOrderService orderService;
 
     /*/ 예약 생성 */
@@ -55,7 +55,7 @@ public class LimitedReservationController {
     @Secured({ADMIN})
     @PostMapping("/status/limitedEvents")
     public Response<List<LimitedReservationResponse>> getReservationsByEventAndStatusWithFilter(
-            @RequestBody LimitedReservationStatusFilterRequest request
+            @Valid @RequestBody LimitedReservationStatusFilterRequest request
     ) {
         return Response.of(queryService.getReservationsByFilter(request));
     }
@@ -76,7 +76,7 @@ public class LimitedReservationController {
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long reservationId
     ) {
-        return Response.of(orderService.createOrderFroReservation(authUser, reservationId));
+        return Response.of(orderService.createOrderFromReservation(authUser, reservationId));
     }
 
     /*/ 예약 단건 조회 (USER 전용) */
@@ -92,7 +92,7 @@ public class LimitedReservationController {
     @Secured({ADMIN})
     @PostMapping("/events/status")
     public Response<List<LimitedReservationResponse>> getReservationsByEventAndStatus(
-            @RequestBody LimitedReservationStatusFilterRequest request
+            @Valid @RequestBody LimitedReservationStatusFilterRequest request
     ) {
         return Response.of(queryService.getReservationsByEventAndStatus(request.eventId(), request.statuses()));
     }

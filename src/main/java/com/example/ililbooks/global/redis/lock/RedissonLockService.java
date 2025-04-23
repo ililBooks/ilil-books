@@ -1,4 +1,4 @@
-package com.example.ililbooks.global.lock;
+package com.example.ililbooks.global.redis.lock;
 
 import com.example.ililbooks.global.exception.ErrorCode;
 import com.example.ililbooks.global.exception.HandledException;
@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+
+import static com.example.ililbooks.global.exception.ErrorMessage.REDISSON_LOCK_FAILED;
+import static com.example.ililbooks.global.exception.ErrorMessage.REDISSON_LOCK_INTERRUPTED;
 
 @Slf4j
 @Component
@@ -46,16 +49,16 @@ public class RedissonLockService {
                 if (fallback != null) {
                     return fallback.get();
                 }
-                throw new HandledException(ErrorCode.LOCK_ACQUISITION_FAILED, "Redisson 락 획득 실패 - key=" + lockKey);
+                throw new HandledException(ErrorCode.BAD_REQUEST, REDISSON_LOCK_FAILED.getMessage() + " - key=" + lockKey);
             }
 
             return supplier.get();
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new HandledException(ErrorCode.LOCK_INTERRUPTED, "Redisson 락 인터럽트 발생 - key=" + lockKey);
+            throw new HandledException(ErrorCode.INTERNAL_SERVER_ERROR, REDISSON_LOCK_INTERRUPTED.getMessage() + " - key=" + lockKey);
         } catch (Exception e) {
-            throw new HandledException(ErrorCode.INTERNAL_SERVER_ERROR, "Redisson 락 실행 예외 - key=" + lockKey + ", message=" + e.getMessage());
+            throw new HandledException(ErrorCode.INTERNAL_SERVER_ERROR, "락 처리 예외 - key=" + lockKey + ", cause=" + e.getMessage());
         } finally {
             if (isLocked && lock.isHeldByCurrentThread()) {
                 lock.unlock();

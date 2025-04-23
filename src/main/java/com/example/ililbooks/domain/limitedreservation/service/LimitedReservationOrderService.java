@@ -30,7 +30,7 @@ public class LimitedReservationOrderService {
      * 성공 예약 기반으로 주문 생성
      */
     @Transactional
-    public OrdersGetResponse createOrderFroReservation(AuthUser authUser, Long reservationId) {
+    public OrdersGetResponse createOrderFromReservation(AuthUser authUser, Long reservationId) {
         LimitedReservation reservation = validateReservation(authUser, reservationId);
         LimitedEvent limitedEvent = reservation.getLimitedEvent();
 

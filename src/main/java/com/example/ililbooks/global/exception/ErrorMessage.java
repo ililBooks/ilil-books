@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorMessage {
+
     NOT_INVALID_USER_ROLE("유효하지 않은 UserRole"),
     NOT_FOUND_TOKEN("토큰을 찾을 수 없습니다."),
     PASSWORD_CONFIRMATION_MISMATCH("비밀번호가 비밀번호 확인과 일치하지 않습니다."),
@@ -63,7 +64,7 @@ public enum ErrorMessage {
     NO_PERMISSION("권한이 없습니다."),
     RESERVATION_NOT_SUCCESS("예약이 성공하지 못했습니다."),
     RESERVATION_EXPIRED("예약시간이 만료되었습니다."),
-    ALREADY_ORDERED("이미 예약되었습니다."),
+    ALREADY_ORDERED("이미 주문하신 상품입니다."),
     DUPLICATE_POSITION_INDEX("이미 해당 위치에 이미지가 존재합니다."),
 
     NOT_EXIST_SHOPPING_CART("장바구니가 존재하지 않습니다."),
@@ -91,13 +92,7 @@ public enum ErrorMessage {
     REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패"),
 
     REDISSON_LOCK_FAILED("락 획득에 실패했습니다."),
-    REDISSON_LOCK_INTERRUPTED("Redisson 락 처리 중 인터럽트 발생"),
-    RESERVATION_ALREADY_EXISTS("이미 예약된 사용자입니다."),
-    RESERVATION_ALREADY_CANCELED("이미 취소된 예약입니다."),
-    EVENT_ALREADY_ENDED("이미 종료된 행사입니다."),
-    EVENT_DELETED("삭제된 행사입니다."),
-    ORDER_CREATION_FAILED("주문 생성에 실패했습니다."),
-    ORDER_ALREADY_EXISTS("이미 주문이 생성된 예약입니다.");
+    REDISSON_LOCK_INTERRUPTED("Redisson 락 처리 중 인터럽트 발생");
 
     private final String message;
 

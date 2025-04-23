@@ -23,7 +23,7 @@ import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class LimitedReservationQueryService {
+public class LimitedReservationReadService {
 
     private final LimitedReservationRepository reservationRepository;
     private final LimitedEventRepository eventRepository;
@@ -46,7 +46,7 @@ public class LimitedReservationQueryService {
     /*/ 예약 상태 변경 이력 조회 */
     @Transactional(readOnly = true)
     public List<LimitedReservationStatusHistoryResponse> getReservationStatusHistory(Long reservationId) {
-        findReservation(reservationId); // 존재 여부만 확인
+        findReservationByIdOrElseThrow(reservationId); // 존재 여부만 확인
         return historyRepository.findAllByReservationIdOrderByCreatedAtDesc(reservationId)
                 .stream()
                 .map(LimitedReservationStatusHistoryResponse::of)
@@ -56,7 +56,7 @@ public class LimitedReservationQueryService {
     /*/ 행사별 예약 전체 조회 */
     @Transactional(readOnly = true)
     public Page<LimitedReservationResponse> getReservationsByEvent(Long eventId, Pageable pageable) {
-        LimitedEvent event = findEvent(eventId);
+        LimitedEvent event = findEventByIdOrElseThrow(eventId);
         return reservationRepository.findAllByLimitedEvent(event, pageable)
                 .map(LimitedReservationResponse::of);
     }
@@ -64,7 +64,7 @@ public class LimitedReservationQueryService {
     /*/ 행사별 + 상태별 예약 리스트 조회 */
     @Transactional(readOnly = true)
     public List<LimitedReservationResponse> getReservationsByEventAndStatus(Long eventId, List<LimitedReservationStatus> statuses) {
-        LimitedEvent event = findEvent(eventId);
+        LimitedEvent event = findEventByIdOrElseThrow(eventId);
         return reservationRepository.findAllByLimitedEventAndStatusIn(event, statuses)
                 .stream()
                 .map(LimitedReservationResponse::of)
@@ -74,7 +74,7 @@ public class LimitedReservationQueryService {
     /*/ 예약 통계 조회 (출판사/관리자) */
     @Transactional(readOnly = true)
     public LimitedReservationSummaryResponse getReservationSummary(Long eventId) {
-        LimitedEvent event = findEvent(eventId);
+        LimitedEvent event = findEventByIdOrElseThrow(eventId);
 
         long success = reservationRepository.countByLimitedEventAndStatus(event, LimitedReservationStatus.SUCCESS);
         long waiting = reservationRepository.countByLimitedEventAndStatus(event, LimitedReservationStatus.WAITING);
@@ -99,19 +99,19 @@ public class LimitedReservationQueryService {
     // ---- 내부 메서드 ----
 
     private LimitedReservation findOwnReservation(Long id, Long userId) {
-        LimitedReservation reservation = findReservation(id);
+        LimitedReservation reservation = findReservationByIdOrElseThrow(id);
         if (!reservation.getUsers().getId().equals(userId)) {
             throw new BadRequestException(NOT_OWN_RESERVATION.getMessage());
         }
         return reservation;
     }
 
-    private LimitedReservation findReservation(Long id) {
+    private LimitedReservation findReservationByIdOrElseThrow(Long id) {
         return reservationRepository.findById(id).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage()));
     }
 
-    private LimitedEvent findEvent(Long id) {
+    private LimitedEvent findEventByIdOrElseThrow(Long id) {
         return eventRepository.findById(id).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_EVENT.getMessage()));
     }

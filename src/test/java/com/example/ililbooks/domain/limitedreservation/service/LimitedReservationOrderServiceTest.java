@@ -51,7 +51,7 @@ class LimitedReservationOrderServiceTest {
         given(userService.findByIdOrElseThrow(userId)).willReturn(user);
 
         // When
-        OrdersGetResponse response = limitedReservationOrderService.createOrderFroReservation(authUser, reservationId);
+        OrdersGetResponse response = limitedReservationOrderService.createOrderFromReservation(authUser, reservationId);
 
         // Then
         assertThat(response).isNotNull();
@@ -71,7 +71,7 @@ class LimitedReservationOrderServiceTest {
         given(limitedReservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
 
         // When & Then
-        assertThatThrownBy(() -> limitedReservationOrderService.createOrderFroReservation(authUser, reservationId))
+        assertThatThrownBy(() -> limitedReservationOrderService.createOrderFromReservation(authUser, reservationId))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("예약시간이 만료되었습니다.");
     }
@@ -90,7 +90,7 @@ class LimitedReservationOrderServiceTest {
         given(limitedReservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
 
         // When & Then
-        assertThatThrownBy(() -> limitedReservationOrderService.createOrderFroReservation(authUser, reservationId))
+        assertThatThrownBy(() -> limitedReservationOrderService.createOrderFromReservation(authUser, reservationId))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("이미 예약되었습니다.");
     }
@@ -108,7 +108,7 @@ class LimitedReservationOrderServiceTest {
         given(limitedReservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
 
         // When & Then
-        assertThatThrownBy(() -> limitedReservationOrderService.createOrderFroReservation(authUser, reservationId))
+        assertThatThrownBy(() -> limitedReservationOrderService.createOrderFromReservation(authUser, reservationId))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("재고가 부족합니다.");
     }
@@ -126,7 +126,7 @@ class LimitedReservationOrderServiceTest {
         given(limitedReservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
 
         // When & Then
-        assertThatThrownBy(() -> limitedReservationOrderService.createOrderFroReservation(authUser, reservationId))
+        assertThatThrownBy(() -> limitedReservationOrderService.createOrderFromReservation(authUser, reservationId))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("예약이 성공하지 못했습니다.");
     }
@@ -144,7 +144,7 @@ class LimitedReservationOrderServiceTest {
         given(limitedReservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
 
         // When & Then
-        assertThatThrownBy(() -> limitedReservationOrderService.createOrderFroReservation(authUser, reservationId))
+        assertThatThrownBy(() -> limitedReservationOrderService.createOrderFromReservation(authUser, reservationId))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("권한이 없습니다");
     }
