@@ -84,4 +84,12 @@ public class LimitedReservation extends TimeStamped {
     public boolean hasOrder() {
         return this.order != null;
     }
+
+    public void markSuccess() {
+        this.status =LimitedReservationStatus.SUCCESS;
+    }
+
+    public boolean isExpired() {
+        return Instant.now().isAfter(this.expiresAt);
+    }
 }
