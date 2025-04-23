@@ -140,5 +140,6 @@ public class Book extends TimeStamped {
         if (this.stock > 0 && this.saleStatus == SaleStatus.SOLD_OUT) {
             this.saleStatus = SaleStatus.ON_SALE;
         }
+        this.version++;
     }
 }

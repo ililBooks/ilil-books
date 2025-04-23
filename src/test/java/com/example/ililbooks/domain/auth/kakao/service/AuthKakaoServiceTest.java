@@ -77,20 +77,6 @@ class AuthKakaoServiceTest {
         assertThat(result).isNotNull();
     }
 
-//    @Test
-//    void 이메일_또는_닉네임_없을_경우_예외발생() {
-//        // given
-//        KakaoAccount emptyAccount = new KakaoAccount("",
-//                new Profile("", "profileImageUrl", "thumbnailUrl"),
-//                false, false, false);
-//
-//        when(kakaoClient.requestToken(code)).thenReturn(new AuthKakaoTokenResponse(accessToken, refreshToken));
-//        when(kakaoClient.requestUserInfo(accessToken)).thenReturn(new AuthKakaoResponse(anyLong(), emptyAccount));
-//
-//        // then
-//        assertThrows(BadRequestException.class, () -> authKakaoService.signIn(code), INVALID_USER_INFORMATION.getMessage());
-//    }
-
     @Test
     void 삭제된_사용자일_경우_예외발생() {
         // given

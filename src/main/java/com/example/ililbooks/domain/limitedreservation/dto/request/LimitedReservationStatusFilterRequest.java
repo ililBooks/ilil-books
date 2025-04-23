@@ -4,6 +4,7 @@ import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationS
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.Instant;
 import java.util.List;
 
 import static com.example.ililbooks.global.dto.ValidationMessage.NOT_EMPTY_RESERVATION_STATUS;
@@ -15,6 +16,9 @@ public record LimitedReservationStatusFilterRequest(
         Long eventId,
 
         @NotEmpty(message = NOT_EMPTY_RESERVATION_STATUS)
-        List<LimitedReservationStatus> statuses
+        List<LimitedReservationStatus> statuses,
 
+        Long userId,
+        Instant startDate,
+        Instant endDate
 ) {}
