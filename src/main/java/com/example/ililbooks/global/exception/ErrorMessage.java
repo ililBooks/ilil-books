@@ -48,6 +48,7 @@ public enum ErrorMessage {
     CANNOT_DELETE_OTHERS_REVIEW("다른 사람의 리뷰를 삭제할 수 없습니다."),
     CANNOT_UPDATE_OTHERS_REVIEW_IMAGE("다른 사람의 리뷰에 이미지를 업로드할 수 없습니다."),
 
+    EVENT_REGISTRATION_ONLY_FOR_LIMITED_EDITION("한정판 책만 이벤트에 등록할 수 있습니다."),
     ALREADY_STARTED_EVENT_DELETE_NOT_ALLOWED("이미 시작된 행사는 삭제할 수 없습니다."),
     ALREADY_RESERVED_EVENT("이미 예약된 행사입니다."),
     NOT_FOUND_USER("유저 확인 불가"),
