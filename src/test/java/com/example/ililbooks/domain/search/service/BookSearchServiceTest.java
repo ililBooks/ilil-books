@@ -43,7 +43,7 @@ class BookSearchServiceTest {
     private BookRepository bookRepository;
 
     @Mock
-    private TrendingSearchService trendingSearchService;
+    private TrendingKeywordService trendingKeywordService;
 
     @InjectMocks
     private BookSearchService bookSearchService;
