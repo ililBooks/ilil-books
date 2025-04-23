@@ -2,7 +2,7 @@ package com.example.ililbooks.domain.search.controller;
 
 import com.example.ililbooks.domain.search.dto.BookSearchResponse;
 import com.example.ililbooks.domain.search.service.BookSearchService;
-import com.example.ililbooks.domain.search.service.TrendingSearchService;
+import com.example.ililbooks.domain.search.service.TrendingKeywordService;
 import com.example.ililbooks.global.dto.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,7 +24,7 @@ import java.util.List;
 public class SearchControllerV2 {
 
     private final BookSearchService bookSearchService;
-    private final TrendingSearchService trendingSearchService;
+    private final TrendingKeywordService trendingKeywordService;
 
     @Operation(summary = "책 조회", description = "Elasticsearch 적용한 책 조회")
     @GetMapping
@@ -37,6 +37,6 @@ public class SearchControllerV2 {
 
     @GetMapping("/trending")
     public Response<List<String>> getTrendingChart() {
-        return Response.of(trendingSearchService.getTrendingChart());
+        return Response.of(trendingKeywordService.getTrendingChart());
     }
 }
