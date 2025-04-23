@@ -16,6 +16,7 @@ public record OrderResponse(
         String orderStatus,
         String deliveryStatus,
         String paymentStatus,
+        String limitedType,
         Instant createdAt,
         Instant modifiedAt
 ) {
@@ -32,6 +33,7 @@ public record OrderResponse(
                 .orderStatus(order.getOrderStatus().name())
                 .deliveryStatus(order.getDeliveryStatus().name())
                 .paymentStatus(order.getPaymentStatus().name())
+                .limitedType(order.getLimitedType().name())
                 .createdAt(order.getCreatedAt())
                 .modifiedAt(order.getModifiedAt())
                 .build();

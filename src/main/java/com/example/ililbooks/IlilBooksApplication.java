@@ -11,7 +11,6 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 @SpringBootApplication
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 @EnableElasticsearchRepositories(basePackages = "com.example.ililbooks.domain.search.repository")
-@EnableScheduling
 public class IlilBooksApplication {
     public static void main(String[] args) {
         SpringApplication.run(IlilBooksApplication.class, args);

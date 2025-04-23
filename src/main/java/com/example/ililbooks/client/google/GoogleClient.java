@@ -79,7 +79,7 @@ public class GoogleClient {
             return objectMapper.readValue(responseBody, GoogleApiResponse.class);
 
         } catch (Exception e) {
-            throw new RuntimeException(GOOGLE_PASING_FAILED.getMessage(), e);
+            throw new RuntimeException(GOOGLE_PARSING_FAILED.getMessage(), e);
         }
     }
 
@@ -110,7 +110,7 @@ public class GoogleClient {
 
             return googleApiProfileResponse;
         } catch (Exception e) {
-            throw new RuntimeException(GOOGLE_PASING_FAILED.getMessage(), e);
+            throw new RuntimeException(GOOGLE_PARSING_FAILED.getMessage(), e);
         }
     }
 }

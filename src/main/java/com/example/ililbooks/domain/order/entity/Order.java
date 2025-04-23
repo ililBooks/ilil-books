@@ -1,6 +1,7 @@
 package com.example.ililbooks.domain.order.entity;
 
 import com.example.ililbooks.domain.order.enums.DeliveryStatus;
+import com.example.ililbooks.domain.order.enums.LimitedType;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.enums.PaymentStatus;
 import com.example.ililbooks.domain.user.entity.Users;
@@ -44,8 +45,12 @@ public class Order extends TimeStamped {
     @Column(name = "payment_status", columnDefinition = "VARCHAR(50)")
     private PaymentStatus paymentStatus;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "limited_type", columnDefinition = "VARCHAR(50)")
+    private LimitedType limitedType;
+
     @Builder
-    private Order(Long id, Users users, String number, BigDecimal totalPrice, OrderStatus orderStatus, DeliveryStatus deliveryStatus, PaymentStatus paymentStatus) {
+    public Order(Long id, Users users, String number, BigDecimal totalPrice, OrderStatus orderStatus, DeliveryStatus deliveryStatus, PaymentStatus paymentStatus, LimitedType limitedType) {
         this.id = id;
         this.users = users;
         this.number = number;
@@ -53,9 +58,10 @@ public class Order extends TimeStamped {
         this.orderStatus = orderStatus;
         this.deliveryStatus = deliveryStatus;
         this.paymentStatus = paymentStatus;
+        this.limitedType = limitedType;
     }
 
-    public static Order of(Users users, BigDecimal totalPrice) {
+    public static Order of(Users users, BigDecimal totalPrice, LimitedType limitedType) {
         return Order.builder()
                 .users(users)
                 .number(UUID.randomUUID().toString())
@@ -63,6 +69,7 @@ public class Order extends TimeStamped {
                 .orderStatus(OrderStatus.PENDING)
                 .deliveryStatus(DeliveryStatus.READY)
                 .paymentStatus(PaymentStatus.PENDING)
+                .limitedType(limitedType)
                 .build();
     }
 
