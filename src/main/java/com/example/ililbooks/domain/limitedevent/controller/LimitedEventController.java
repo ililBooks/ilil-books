@@ -4,6 +4,8 @@ import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventCreateR
 import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventUpdateRequest;
 import com.example.ililbooks.domain.limitedevent.dto.response.LimitedEventResponse;
 import com.example.ililbooks.domain.limitedevent.service.LimitedEventService;
+import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationSummaryResponse;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationReadService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.validation.Valid;
@@ -15,7 +17,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.ADMIN;
-import static com.example.ililbooks.domain.user.enums.UserRole.Authority.PUBLISHER;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,9 +24,10 @@ import static com.example.ililbooks.domain.user.enums.UserRole.Authority.PUBLISH
 public class LimitedEventController {
 
     private final LimitedEventService limitedEventService;
+    private final LimitedReservationReadService queryService;
 
     /*/ 행사 등록 (PUBLISHER 만 가능) */
-    @Secured(PUBLISHER)
+    @Secured(ADMIN)
     @PostMapping
     public Response<LimitedEventResponse> createLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,
@@ -46,8 +48,17 @@ public class LimitedEventController {
         return Response.of(limitedEventService.getAllLimitedEvents(pageable));
     }
 
+    /*/ 예약 통계 요약 조회 */
+    @Secured({ADMIN})
+    @GetMapping("/summary/{limitedEventId}")
+    public Response<LimitedReservationSummaryResponse> getReservationSummary(
+            @PathVariable Long limitedEventId
+    ) {
+        return Response.of(queryService.getReservationSummary(limitedEventId));
+    }
+
     /*/ 행사 수정 (PUBLISHER 와 ADMIN 만 가능) */
-    @Secured({PUBLISHER, ADMIN})
+    @Secured({ADMIN})
     @PatchMapping("/{limitedEventId}")
     public Response<LimitedEventResponse> updateLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,
@@ -58,7 +69,7 @@ public class LimitedEventController {
     }
 
     /*/ 행사 삭제 (PUBLISHER 와 ADMIN 만 가능) */
-    @Secured({PUBLISHER, ADMIN})
+    @Secured({ADMIN})
     @DeleteMapping("/delete/{limitedEventId}")
     public Response<Void> deleteLimitedEvent(
             @AuthenticationPrincipal AuthUser authUser,

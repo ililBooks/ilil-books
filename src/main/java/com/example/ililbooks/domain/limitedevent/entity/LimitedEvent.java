@@ -119,4 +119,8 @@ public class LimitedEvent extends TimeStamped {
         }
         this.bookQuantity -= quantity;
     }
+
+    public void updateStatus(LimitedEventStatus newStatus) {
+        this.status = newStatus;
+    }
 }
