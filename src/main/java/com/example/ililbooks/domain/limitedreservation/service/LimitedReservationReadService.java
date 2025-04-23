@@ -106,7 +106,7 @@ public class LimitedReservationReadService {
         return reservation;
     }
 
-    private LimitedReservation findReservationByIdOrElseThrow(Long id) {
+    public LimitedReservation findReservationByIdOrElseThrow(Long id) {
         return reservationRepository.findById(id).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage()));
     }

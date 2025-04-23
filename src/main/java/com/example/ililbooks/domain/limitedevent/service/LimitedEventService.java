@@ -1,6 +1,7 @@
 package com.example.ililbooks.domain.limitedevent.service;
 
 import com.example.ililbooks.domain.book.entity.Book;
+import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.service.BookService;
 import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventCreateRequest;
 import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventUpdateRequest;
@@ -34,6 +35,10 @@ public class LimitedEventService {
     @Transactional
     public LimitedEventResponse createLimitedEvent(AuthUser authUser, LimitedEventCreateRequest request) {
         Book book = bookService.findBookByIdOrElseThrow(request.bookId());
+
+        if (book.getLimitedType() != LimitedType.LIMITED) {
+            throw new BadRequestException("한정판 책만 이벤트에 등록할 수 있습니다.");
+        }
 
         validateOwnership(authUser.getUserId(), book);
 

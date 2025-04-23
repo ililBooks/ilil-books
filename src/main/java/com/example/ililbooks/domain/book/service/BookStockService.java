@@ -42,7 +42,7 @@ public class BookStockService {
     @Transactional
     public void rollbackStock(Long bookId, int quantity) {
         Book book = bookService.findBookByIdOrElseThrow(bookId);
-        book.increaseStoke(quantity);
+        book.increaseStock(quantity);
     }
 
     @Recover

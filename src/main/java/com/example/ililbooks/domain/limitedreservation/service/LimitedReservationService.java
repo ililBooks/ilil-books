@@ -96,7 +96,7 @@ public class LimitedReservationService {
     @Transactional
     public void expireReservationAndPromote() {
         Instant now = Instant.now();
-        List<LimitedReservation> expired = reservationRepository.findAllByStatusAndExpiredAtBefore(LimitedReservationStatus.SUCCESS, now);
+        List<LimitedReservation> expired = reservationRepository.findAllByStatusAndExpiresAtBefore(LimitedReservationStatus.SUCCESS, now);
 
         for (LimitedReservation reservation : expired) {
             cancelAndPromote(reservation);

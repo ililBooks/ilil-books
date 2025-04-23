@@ -5,10 +5,8 @@ import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReserv
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationStatusHistoryResponse;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationStatusResponse;
-import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationOrderService;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationReadService;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
-import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
 import jakarta.validation.Valid;
@@ -30,7 +28,6 @@ public class LimitedReservationController {
 
     private final LimitedReservationService reservationService;
     private final LimitedReservationReadService queryService;
-    private final LimitedReservationOrderService orderService;
 
     /*/ 예약 생성 */
     @PostMapping
@@ -68,15 +65,6 @@ public class LimitedReservationController {
     ) {
         reservationService.cancelReservation(authUser, reservationId);
         return Response.empty();
-    }
-
-    /*/ 성공 예약 기반 주문 생성 (USER 전용) */
-    @PostMapping("/order/{reservationId}")
-    public Response<OrdersGetResponse> createOrderForReservation(
-            @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable Long reservationId
-    ) {
-        return Response.of(orderService.createOrderFromReservation(authUser, reservationId));
     }
 
     /*/ 예약 단건 조회 (USER 전용) */

@@ -39,7 +39,7 @@ public class LimitedReservation extends TimeStamped {
     @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
 
