@@ -61,7 +61,7 @@ public class NaverClient {
                     .block();
 
         } catch (Exception e) {
-            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
+            throw new RuntimeException(NAVER_PARSING_FAILED.getMessage(), e);
         }
     }
 
@@ -91,7 +91,7 @@ public class NaverClient {
             return profile;
 
         } catch (Exception e) {
-            throw new RuntimeException(NAVER_PASING_FAILED.getMessage(), e);
+            throw new RuntimeException(NAVER_PARSING_FAILED.getMessage(), e);
         }
     }
 

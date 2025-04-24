@@ -61,7 +61,8 @@ dependencies {
 
     // redis & redisson
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-//    implementation 'org.redisson:redisson:3.23.5'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.20.0'
+    implementation 'org.redisson:redisson:3.23.5'
 
     // retry
     implementation 'org.springframework.retry:spring-retry'
@@ -86,6 +87,9 @@ dependencies {
 
     // health check
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // SMTP
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 tasks.named('test') {

@@ -39,7 +39,7 @@ public class LimitedReservation extends TimeStamped {
     @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
 
@@ -83,5 +83,13 @@ public class LimitedReservation extends TimeStamped {
      */
     public boolean hasOrder() {
         return this.order != null;
+    }
+
+    public void markSuccess() {
+        this.status =LimitedReservationStatus.SUCCESS;
+    }
+
+    public boolean isExpired() {
+        return Instant.now().isAfter(this.expiresAt);
     }
 }

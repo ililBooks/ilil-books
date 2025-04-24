@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.example.ililbooks.global.exception.ErrorMessage.BLANK_KEYWORD_NOT_ALLOWED;
 import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_BOOK_DOCUMENT;
 
 @Service
@@ -23,7 +24,7 @@ public class BookSearchService {
 
     private final BookSearchRepository bookSearchRepository;
     private final BookRepository bookRepository;
-    private final TrendingSearchService trendingSearchService;
+    private final TrendingKeywordService trendingKeywordService;
 
     public void saveBookDocumentFromBook(Book book) {
         BookDocument document = BookDocument.toDocument(book);
@@ -36,17 +37,23 @@ public class BookSearchService {
     }
 
     public Page<BookSearchResponse> searchBooksV2(String keyword, Pageable pageable) {
+        if (keyword.isBlank()) {
+            throw new IllegalArgumentException(BLANK_KEYWORD_NOT_ALLOWED.getMessage());
+        }
         Page<BookDocument> bookDocuments = bookSearchRepository.findByMultiMatch(pageable, keyword);
 
-        trendingSearchService.increaseTrendingCount(keyword);
+        trendingKeywordService.increaseTrendingCount(keyword);
 
         return bookDocuments.map(BookSearchResponse::of);
     }
 
     public Page<BookSearchResponse> searchBooksV1(String keyword, Pageable pageable) {
+        if (keyword.isEmpty()) {
+            throw new IllegalArgumentException(BLANK_KEYWORD_NOT_ALLOWED.getMessage());
+        }
         Page<Book> books = bookRepository.findBooksByKeyword(keyword, pageable);
 
-        trendingSearchService.increaseTrendingCount(keyword);
+        trendingKeywordService.increaseTrendingCount(keyword);
 
         return books.map(BookSearchResponse::of);
     }
@@ -55,12 +62,14 @@ public class BookSearchService {
         BookDocument bookDocument = bookSearchRepository.findByIsbnOnSale(book.getIsbn())
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_BOOK_DOCUMENT.getMessage()));
         bookDocument.updateBookDocument(book);
+        bookSearchRepository.save(bookDocument);
     }
 
     public void deleteBookDocument(Book book) {
         BookDocument bookDocument = bookSearchRepository.findByIsbnOnSale(book.getIsbn())
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_BOOK_DOCUMENT.getMessage()));
         bookDocument.deleteBookDocument();
+        bookSearchRepository.save(bookDocument);
     }
 
 }

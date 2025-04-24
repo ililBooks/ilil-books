@@ -20,7 +20,8 @@ public interface BookSearchRepository extends ElasticsearchRepository<BookDocume
                     "  \"bool\": {" +
                     "    \"must\": [" +
                     "      {\"term\": {\"isbn\": \"?0\"}}," +
-                    "      {\"term\": {\"saleStatus\": \"true\"}}" +
+                    "      {\"term\": {\"saleStatus\": \"ON_SALE\"}}," +
+                    "      {\"term\": {\"isDeleted\": \"false\"}}" +
                     "    ]" +
                     "  }" +
                     "}"

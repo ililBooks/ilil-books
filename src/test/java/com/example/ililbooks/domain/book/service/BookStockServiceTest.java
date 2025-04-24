@@ -55,6 +55,6 @@ class BookStockServiceTest {
         bookStockService.rollbackStock(bookId, 5);
 
         // then
-        verify(book, times(1)).increaseStoke(5);
+        verify(book, times(1)).increaseStock(5);
     }
 }
