@@ -32,8 +32,8 @@ jobs:
       - name: Give permission to gradlew
         run: chmod +x ./gradlew
 
-      - name: Run tests with coverage
-        run: ./gradlew clean test jacocoTestReport
+      - name: Run tests with coverage verification
+        run: ./gradlew clean testCoverage
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
