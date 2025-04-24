@@ -4,14 +4,13 @@ on:
   push:
     branches:
       - dev
-      # - feat/ci_cd # 테스트 용
+#      - feat/ci_cd # 테스트용
 
   pull_request:
     branches:
       - dev
     types:
       - closed
-
 
 jobs:
   test:
@@ -45,7 +44,7 @@ jobs:
 
   notify:
     name: Send Notification
-    needs: test # job
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
