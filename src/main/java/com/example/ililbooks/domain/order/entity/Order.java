@@ -31,6 +31,8 @@ public class Order extends TimeStamped {
 
     private String number;
 
+    private String name;
+
     private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
@@ -50,10 +52,11 @@ public class Order extends TimeStamped {
     private LimitedType limitedType;
 
     @Builder
-    public Order(Long id, Users users, String number, BigDecimal totalPrice, OrderStatus orderStatus, DeliveryStatus deliveryStatus, PaymentStatus paymentStatus, LimitedType limitedType) {
+    public Order(Long id, Users users, String number, String name, BigDecimal totalPrice, OrderStatus orderStatus, DeliveryStatus deliveryStatus, PaymentStatus paymentStatus, LimitedType limitedType) {
         this.id = id;
         this.users = users;
         this.number = number;
+        this.name = name;
         this.totalPrice = totalPrice;
         this.orderStatus = orderStatus;
         this.deliveryStatus = deliveryStatus;
@@ -61,10 +64,11 @@ public class Order extends TimeStamped {
         this.limitedType = limitedType;
     }
 
-    public static Order of(Users users, BigDecimal totalPrice, LimitedType limitedType) {
-        return Order.builder()
+    public static Order of(Users users, String name, BigDecimal totalPrice, LimitedType limitedType) {
+        return com.example.ililbooks.domain.order.entity.Order.builder()
                 .users(users)
                 .number(UUID.randomUUID().toString())
+                .name(name)
                 .totalPrice(totalPrice)
                 .orderStatus(OrderStatus.PENDING)
                 .deliveryStatus(DeliveryStatus.READY)

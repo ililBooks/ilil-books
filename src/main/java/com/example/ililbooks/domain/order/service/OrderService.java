@@ -64,8 +64,9 @@ public class OrderService {
         decreaseStocks(cartItemMap);
 
         BigDecimal totalPrice = calculateTotalPrice(cartItemMap);
+        String orderName = generateOrderName(cartItemMap);
 
-        Order order = Order.of(Users.fromAuthUser(authUser), totalPrice, LimitedType.REGULAR);
+        Order order = Order.of(Users.fromAuthUser(authUser), orderName, totalPrice, LimitedType.REGULAR);
         orderRepository.save(order);
 
         orderHistoryService.saveOrderHistory(cartItemMap, order);
@@ -95,8 +96,9 @@ public class OrderService {
         cartItemMap.put(limitedEvent.getBook().getId(), CartItem.of(limitedEvent.getBook(), 1));
 
         BigDecimal totalPrice = calculateTotalPrice(cartItemMap);
+        String orderName = generateOrderName(cartItemMap);
 
-        Order order = Order.of(Users.fromAuthUser(authUser), totalPrice, LimitedType.LIMITED);
+        Order order = Order.of(Users.fromAuthUser(authUser), orderName, totalPrice, LimitedType.REGULAR);
         limitedReservation.linkOrder(order);
         orderRepository.save(order);
 
@@ -202,5 +204,28 @@ public class OrderService {
             throw new BadRequestException(ALREADY_ORDERED.getMessage());
         }
         return limitedReservation;
+    }
+
+    private String generateOrderName(Map<Long, CartItem> cartItemMap) {
+        int totalCount = cartItemMap.size();
+
+        CartItem representativeItem = cartItemMap.entrySet()
+                .stream()
+                .findFirst()
+                .map(Map.Entry::getValue)
+                .orElseThrow();
+
+        String baseTitle = representativeItem.getTitle();
+        int baseTitleLengthLimit = 30; // 줄일 경우 최대 길이 (예: 30자)
+
+        if (totalCount == 1) {
+            return baseTitle;
+        }
+
+        String trimmedTitle = baseTitle.length() > baseTitleLengthLimit
+                ? baseTitle.substring(0, baseTitleLengthLimit) + "..."
+                : baseTitle;
+
+        return String.format("%s 외 %d권", trimmedTitle, totalCount - 1);
     }
 }
