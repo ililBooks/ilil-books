@@ -35,6 +35,14 @@ spring:
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQLDialect
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    template:
+      exchange: order.mail.exchange #producer가 데이터를 보낼 교환소
+
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}

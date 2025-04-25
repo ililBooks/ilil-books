@@ -91,6 +91,9 @@ dependencies {
     // SMTP
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
+    //RabbitMQ
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
     // iamport(portone)
@@ -100,10 +103,6 @@ dependencies {
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
-}
-
-dependencies {
-
 }
 
 tasks.named('test') {
