@@ -3,6 +3,7 @@ package com.example.ililbooks.domain.order.controller;
 import com.example.ililbooks.domain.order.dto.request.OrderLimitedRequest;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.dto.response.OrdersGetResponse;
+import com.example.ililbooks.domain.order.service.OrderCancelService;
 import com.example.ililbooks.domain.order.service.OrderDeliveryService;
 import com.example.ililbooks.domain.order.service.OrderReadService;
 import com.example.ililbooks.domain.order.service.OrderService;
@@ -29,6 +30,7 @@ public class OrderController {
     private final OrderService orderService;
     private final OrderReadService orderReadService;
     private final OrderDeliveryService orderDeliveryService;
+    private final OrderCancelService orderCancelService;
 
     /* 주문 생성 - 일반판 */
     @Operation(summary = "주문 생성", description = "장바구니에 담은 책들을 주문할 수 있습니다.")
@@ -85,7 +87,7 @@ public class OrderController {
             @AuthenticationPrincipal AuthUser authUser,
             Pageable pageable
     ) {
-        return Response.of(orderService.cancelOrder(authUser, orderId, pageable));
+        return Response.of(orderCancelService.cancelOrder(authUser, orderId, pageable));
     }
 
     /* 배송 상태 변경 (배송 대기 -> 배송 중 -> 배송완료+주문완료) */

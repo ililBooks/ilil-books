@@ -51,8 +51,7 @@ public class PaymentService {
             throw new BadRequestException(CANNOT_CREATE_PAYMENT.getMessage());
         }
 
-        Optional<Payment> latestPaymentOpt = paymentRepository
-                .findTopByOrderIdOrderByCreatedAtDesc(orderId);
+        Optional<Payment> latestPaymentOpt = getTopByOrderIdOrderByCreatedAtDesc(orderId);
 
         if (latestPaymentOpt.isPresent()) {
             PayStatus payStatus = latestPaymentOpt.get().getPayStatus();
@@ -143,5 +142,9 @@ public class PaymentService {
         return order.getOrderStatus() == OrderStatus.PENDING
                 && (order.getPaymentStatus() == PaymentStatus.PENDING || order.getPaymentStatus() == PaymentStatus.FAILED)
                 && order.getDeliveryStatus() == DeliveryStatus.READY;
+    }
+
+    public Optional<Payment> getTopByOrderIdOrderByCreatedAtDesc(Long orderId) {
+        return paymentRepository.findTopByOrderIdOrderByCreatedAtDesc(orderId);
     }
 }
