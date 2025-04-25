@@ -1,48 +1,33 @@
 package com.example.ililbooks.global.notification.service;
 
+import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
-import static com.example.ililbooks.global.exception.ErrorMessage.FAILED_SEND_MAIL;
-
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
-    private final JavaMailSender javaMailSender;
+    private final AsyncNotificationService asyncNotificationService;
+    private final UserService userService;
 
-    public void sendOrderMail(AuthUser authUser, String orderNumber, BigDecimal totalPrice) {
-        //텍스트로 메일 보내기
-        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+    // @Async 비동기 처리
+    @Transactional(readOnly = true)
+    public void sendPromotionEmail() {
+        List<Users> users = userService.findAllByNotificationAgreed();
 
-        try {
-            //메일을 받을 수신자 설정
-            simpleMailMessage.setTo(authUser.getEmail());
+        users.forEach(user ->
+                        asyncNotificationService.sendPromotionEmail(user.getEmail(), user.getNickname())
+                );
+    }
 
-            //메일 제목
-            simpleMailMessage.setSubject("주문이 완료되었습니다.");
-
-            //메일 내용
-            simpleMailMessage.setText(
-                    "주문 정보\n" +
-                    "-------------------------\n" +
-                    "닉네임: " + authUser.getNickname() + "\n" +
-                    "주문 번호: " + orderNumber + "\n" +
-                    "총 가격: " + totalPrice + "\n"
-            );
-
-            //메일 전송
-            javaMailSender.send(simpleMailMessage);
-
-        } catch (Exception e) {
-            //메일 전송이 실패하더라도 주문은 성공
-            log.error(FAILED_SEND_MAIL.getMessage(), e);
-        }
+    // @Async 비동기 처리
+    public void sendOrderMail(AuthUser authUser, String orderNumber, BigDecimal price) {
+        asyncNotificationService.sendOrderMail(authUser, orderNumber, price);
     }
 }
