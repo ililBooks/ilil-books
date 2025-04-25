@@ -14,11 +14,17 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "payments")
+@Table(
+        name = "payments",
+        indexes = {
+                @Index(name = "idx_merchant_uid", columnList = "merchantUid")
+        }
+)
 public class Payment extends TimeStamped {
 
     @Id @GeneratedValue
@@ -69,7 +75,7 @@ public class Payment extends TimeStamped {
         return Payment.builder()
                 .order(order)
                 .impUid(impUid)
-                .merchantUid(order.getNumber())
+                .merchantUid("merchantUid_" + UUID.randomUUID().toString().substring(0,8))
                 .pg(pg)
                 .paymentMethod(paymentMethod)
                 .buyerEmail(order.getUsers().getEmail())
@@ -80,10 +86,15 @@ public class Payment extends TimeStamped {
                 .build();
     }
 
-    public void updateSuccessPayment(String impUid, PayStatus payStatus) {
+    public void updateSuccessPayment(String impUid) {
         this.impUid = impUid;
-        this.payStatus = payStatus;
+        this.payStatus = PayStatus.PAID;
         this.paidAt = Instant.now();
+    }
+
+    public void updateFailPayment(String impUid) {
+        this.impUid = impUid;
+        this.payStatus = PayStatus.FAILED;
     }
 }
 
