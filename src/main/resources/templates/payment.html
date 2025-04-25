@@ -39,19 +39,17 @@
             buyer_email: paymentData.buyer_email,
             buyer_name: paymentData.buyer_name,
         }, function (rsp) {
+            console.log("✅ 결제 응답 객체:", rsp); // 여기에 imp_uid, merchant_uid, paid_amount 다 들어있음
             if (rsp.success) {
-                $.ajax({
-                    type: 'POST',
-                    url: '/api/v1/payment/validation/' + rsp.imp_uid
-                }).done(function (data) {
-                    if (rsp.paid_amount === data.response.amount) {
-                        alert(":흰색_확인_표시: 결제 성공!\n고유ID: " + rsp.imp_uid + "\n상점거래ID: " + rsp.merchant_uid + "\n결제금액: " + rsp.paid_amount);
-                    } else {
-                        alert(":x: 결제 금액 불일치. 관리자에게 문의하세요.");
-                    }
-                }).fail(function () {
-                    alert(":x: 결제 검증 실패. 관리자에게 문의하세요.");
-                });
+                alert(
+                    "복사해서 Postman에 붙여 넣으세요:\n\n" +
+                    JSON.stringify({
+                        impUid: rsp.imp_uid,
+                        merchantUid: rsp.merchant_uid,
+                        amount: rsp.paid_amount
+                    }, null, 4)
+                );
+
             } else {
                 alert(":x: 결제 실패: " + rsp.error_msg);
             }

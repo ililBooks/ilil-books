@@ -1,6 +1,7 @@
 package com.example.ililbooks.domain.payment.entity;
 
 import com.example.ililbooks.domain.order.entity.Order;
+import com.example.ililbooks.domain.order.enums.PaymentStatus;
 import com.example.ililbooks.domain.payment.enums.PGProvider;
 import com.example.ililbooks.domain.payment.enums.PayStatus;
 import com.example.ililbooks.domain.payment.enums.PaymentMethod;
@@ -77,6 +78,12 @@ public class Payment extends TimeStamped {
                 .payStatus(PayStatus.READY)
                 .paidAt(null)
                 .build();
+    }
+
+    public void updatePayment(String impUid, PayStatus payStatus) {
+        this.impUid = impUid;
+        this.payStatus = payStatus;
+        this.paidAt = LocalDateTime.now();
     }
 }
 
