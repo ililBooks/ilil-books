@@ -11,6 +11,7 @@ public record OrdersGetResponse(
 
         Long orderId,
         String number,
+        String orderName,
         BigDecimal totalPrice,
         String orderStatus,
         String deliveryStatus,
@@ -27,6 +28,7 @@ public record OrdersGetResponse(
         return OrdersGetResponse.builder()
                 .orderId(order.getId())
                 .number(order.getNumber())
+                .orderName(order.getName())
                 .totalPrice(order.getTotalPrice())
                 .orderStatus(order.getOrderStatus().name())
                 .deliveryStatus(order.getDeliveryStatus().name())
