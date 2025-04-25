@@ -1,7 +1,6 @@
 package com.example.ililbooks.domain.payment.entity;
 
 import com.example.ililbooks.domain.order.entity.Order;
-import com.example.ililbooks.domain.order.enums.PaymentStatus;
 import com.example.ililbooks.domain.payment.enums.PGProvider;
 import com.example.ililbooks.domain.payment.enums.PayStatus;
 import com.example.ililbooks.domain.payment.enums.PaymentMethod;
@@ -13,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -48,10 +48,10 @@ public class Payment extends TimeStamped {
     @Column(name = "pay_status", columnDefinition = "VARCHAR(50)")
     private PayStatus payStatus;
 
-    private LocalDateTime paidAt;
+    private Instant paidAt;
 
     @Builder
-    private Payment(Long id, Order order, String impUid, String merchantUid, PGProvider pg, PaymentMethod paymentMethod, String buyerEmail, String buyerName, BigDecimal amount, PayStatus payStatus, LocalDateTime paidAt) {
+    private Payment(Long id, Order order, String impUid, String merchantUid, PGProvider pg, PaymentMethod paymentMethod, String buyerEmail, String buyerName, BigDecimal amount, PayStatus payStatus, Instant paidAt) {
         this.id = id;
         this.order = order;
         this.impUid = impUid;
@@ -80,10 +80,10 @@ public class Payment extends TimeStamped {
                 .build();
     }
 
-    public void updatePayment(String impUid, PayStatus payStatus) {
+    public void updateSuccessPayment(String impUid, PayStatus payStatus) {
         this.impUid = impUid;
         this.payStatus = payStatus;
-        this.paidAt = LocalDateTime.now();
+        this.paidAt = Instant.now();
     }
 }
 

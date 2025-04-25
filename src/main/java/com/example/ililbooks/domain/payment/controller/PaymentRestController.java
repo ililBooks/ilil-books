@@ -1,7 +1,7 @@
 package com.example.ililbooks.domain.payment.controller;
 
-import com.example.ililbooks.domain.payment.dto.request.PaymentRequest;
-import com.example.ililbooks.domain.payment.dto.request.PaymentVerificationDto;
+import com.example.ililbooks.domain.payment.dto.request.PaymentVerificationRequest;
+import com.example.ililbooks.domain.payment.dto.response.PaymentResponse;
 import com.example.ililbooks.domain.payment.service.PaymentService;
 import com.example.ililbooks.global.dto.response.Response;
 import com.siot.IamportRestClient.exception.IamportResponseException;
@@ -19,17 +19,15 @@ public class PaymentRestController {
 
     private final PaymentService paymentService;
 
-    /**
-     * 결제 준비: 결제 정보 미리 저장
-     * - 프론트에서 "결제하기" 버튼 누르면 호출
-     */
+    /* 결제 준비 */
     @PostMapping("/prepare/{orderId}")
-    public Long preparePayment(@PathVariable Long orderId) throws IamportResponseException, IOException {
-        return paymentService.prepareOrder(orderId);
+    public Response<PaymentResponse> preparePayment(@PathVariable Long orderId) throws IamportResponseException, IOException {
+        return Response.of(paymentService.prepareOrder(orderId));
     }
 
+    /* 결제 검증 */
     @PostMapping("/verify")
-    public ResponseEntity<String> verifyPayment(@RequestBody PaymentVerificationDto verificationDto) {
+    public ResponseEntity<String> verifyPayment(@RequestBody PaymentVerificationRequest verificationDto) {
         try {
             // 결제 검증 처리
             paymentService.verifyPayment(verificationDto);

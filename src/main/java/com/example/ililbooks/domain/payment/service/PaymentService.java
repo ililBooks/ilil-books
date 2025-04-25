@@ -1,10 +1,10 @@
 package com.example.ililbooks.domain.payment.service;
 
 import com.example.ililbooks.domain.order.entity.Order;
-import com.example.ililbooks.domain.order.enums.PaymentStatus;
 import com.example.ililbooks.domain.order.service.OrderService;
 import com.example.ililbooks.domain.payment.dto.request.PaymentRequest;
-import com.example.ililbooks.domain.payment.dto.request.PaymentVerificationDto;
+import com.example.ililbooks.domain.payment.dto.request.PaymentVerificationRequest;
+import com.example.ililbooks.domain.payment.dto.response.PaymentResponse;
 import com.example.ililbooks.domain.payment.entity.Payment;
 import com.example.ililbooks.domain.payment.enums.PGProvider;
 import com.example.ililbooks.domain.payment.enums.PayStatus;
@@ -20,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_PAYMENT;
 
@@ -35,17 +33,17 @@ public class PaymentService {
 
     /* 결제 준비 및 결제 정보 저장 */
     @Transactional
-    public Long prepareOrder(Long orderId) throws IamportResponseException, IOException {
+    public PaymentResponse prepareOrder(Long orderId) throws IamportResponseException, IOException {
         Order order = orderService.findByIdOrElseThrow(orderId);
 
-        String TempImpUid = "Imp_" + System.currentTimeMillis();
-        Payment payment = Payment.of(order, TempImpUid, PGProvider.KG, PaymentMethod.CARD);
+        String tempImpUid = "tempImpUid_" + System.currentTimeMillis();
+        Payment payment = Payment.of(order, tempImpUid, PGProvider.KG, PaymentMethod.CARD);
         paymentRepository.save(payment);
 
         // 아임포트 사전 검증 추가
         iamportClient.postPrepare(createPrepareData(payment));
 
-        return payment.getId();
+        return PaymentResponse.of(payment);
     }
 
     /* 결제 요청 정보 전달 */
@@ -53,13 +51,13 @@ public class PaymentService {
     public PaymentRequest findPaymentRequestDataByOrderId(Long paymentId) {
         Payment payment = findByIdOrElseThrow(paymentId);
 
-        String orderName = "OrderNumber_" + payment.getMerchantUid();
+        String orderName = payment.getOrder().getName();
 
         return PaymentRequest.of(payment, orderName);
     }
 
     @Transactional
-    public void verifyPayment(PaymentVerificationDto verificationDto) throws IamportResponseException, IOException {
+    public void verifyPayment(PaymentVerificationRequest verificationDto) throws IamportResponseException, IOException {
         // Iamport 결제 검증
         IamportResponse<com.siot.IamportRestClient.response.Payment> iamportResponse = iamportClient.paymentByImpUid(verificationDto.impUid());
         com.siot.IamportRestClient.response.Payment iamportPayment = iamportResponse.getResponse();
@@ -68,7 +66,7 @@ public class PaymentService {
             // 결제 완료 처리
             Payment payment = findByMerchantUidOrElseThrow(verificationDto.merchantUid());
 
-            payment.updatePayment(verificationDto.impUid(), PayStatus.PAID);
+            payment.updateSuccessPayment(verificationDto.impUid(), PayStatus.PAID);
         } else {
             throw new IllegalArgumentException("결제 금액이 일치하지 않습니다.");
         }

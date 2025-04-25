@@ -18,8 +18,8 @@
         merchant_uid: /*[[${paymentRequest.merchantUid}]]*/ "",
         name: /*[[${paymentRequest.name}]]*/ "",
         amount: /*[[${paymentRequest.amount != null ? paymentRequest.amount.doubleValue() : 0}]]*/, // 숫자는 따옴표 없이
-        buyer_email: /*[[${paymentRequest.buyEmail}]]*/ "",
-        buyer_name: /*[[${paymentRequest.buyName}]]*/ ""
+        buyer_email: /*[[${paymentRequest.buyerEmail}]]*/ "",
+        buyer_name: /*[[${paymentRequest.buyerName}]]*/ ""
     };
 
     // 🔍 디버깅용 로그 추가

@@ -11,8 +11,8 @@ public record PaymentRequest(
         String merchantUid,
         String name,
         BigDecimal amount,
-        String buyEmail,
-        String buyName
+        String buyerEmail,
+        String buyerName
 ) {
     @Builder
     public PaymentRequest {
@@ -25,8 +25,8 @@ public record PaymentRequest(
                 .merchantUid(payment.getMerchantUid())
                 .name(name)
                 .amount(payment.getAmount())
-                .buyEmail(payment.getBuyerEmail())
-                .buyName(payment.getBuyerName())
+                .buyerEmail(payment.getBuyerEmail())
+                .buyerName(payment.getBuyerName())
                 .build();
     }
 }

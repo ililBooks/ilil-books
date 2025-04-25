@@ -4,12 +4,12 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 
-public record PaymentVerificationDto(
+public record PaymentVerificationRequest(
         String impUid,
         String merchantUid,
         BigDecimal amount
 ) {
     @Builder
-    public PaymentVerificationDto {
+    public PaymentVerificationRequest {
     }
 }
