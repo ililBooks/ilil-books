@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sample Payment</title>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <!-- iamport.payment.js -->
+    <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
+</head>
+<body>
+<h1>아임포트 결제 예제</h1>
+<button onclick="requestPay()">결제하기</button>
+<script th:inline="javascript">
+    const paymentData = {
+        pg: /*[[${paymentRequest.pg}]]*/ "",  // 문자열은 "" 없이 렌더링되니 감싸줍니다
+        pay_method: /*[[${paymentRequest.payMethod}]]*/ "",
+        merchant_uid: /*[[${paymentRequest.merchantUid}]]*/ "",
+        name: /*[[${paymentRequest.name}]]*/ "",
+        amount: /*[[${paymentRequest.amount != null ? paymentRequest.amount.doubleValue() : 0}]]*/, // 숫자는 따옴표 없이
+        buyer_email: /*[[${paymentRequest.buyEmail}]]*/ "",
+        buyer_name: /*[[${paymentRequest.buyName}]]*/ ""
+    };
+
+    // 🔍 디버깅용 로그 추가
+    console.log("결제 PG사:", paymentData.pg);
+    console.log("전체 결제 데이터:", paymentData);
+</script>
+<script>
+    function requestPay() {
+        const IMP = window.IMP;
+        IMP.init("imp61075032"); // 본인 가맹점 식별코드로 변경
+        IMP.request_pay({
+            pg: paymentData.pg,
+            pay_method: paymentData.pay_method,
+            merchant_uid: paymentData.merchant_uid,
+            name: paymentData.name,
+            amount: paymentData.amount,
+            buyer_email: paymentData.buyer_email,
+            buyer_name: paymentData.buyer_name,
+        }, function (rsp) {
+            if (rsp.success) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/v1/payment/validation/' + rsp.imp_uid
+                }).done(function (data) {
+                    if (rsp.paid_amount === data.response.amount) {
+                        alert(":흰색_확인_표시: 결제 성공!\n고유ID: " + rsp.imp_uid + "\n상점거래ID: " + rsp.merchant_uid + "\n결제금액: " + rsp.paid_amount);
+                    } else {
+                        alert(":x: 결제 금액 불일치. 관리자에게 문의하세요.");
+                    }
+                }).fail(function () {
+                    alert(":x: 결제 검증 실패. 관리자에게 문의하세요.");
+                });
+            } else {
+                alert(":x: 결제 실패: " + rsp.error_msg);
+            }
+        });
+    }
+</script>
+</body>
+</html>

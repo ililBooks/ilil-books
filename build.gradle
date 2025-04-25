@@ -90,6 +90,20 @@ dependencies {
 
     // SMTP
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // iamport(portone)
+    implementation 'com.github.iamport:iamport-rest-client-java:0.2.23'
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+
 }
 
 tasks.named('test') {

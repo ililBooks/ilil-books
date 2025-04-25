@@ -31,9 +31,11 @@ public class Payment extends TimeStamped {
     private String merchantUid;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "pg", columnDefinition = "VARCHAR(50)")
     private PGProvider pg;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method", columnDefinition = "VARCHAR(50)")
     private PaymentMethod paymentMethod;
 
     private String buyerEmail;
@@ -42,6 +44,7 @@ public class Payment extends TimeStamped {
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "pay_status", columnDefinition = "VARCHAR(50)")
     private PayStatus payStatus;
 
     private LocalDateTime paidAt;
@@ -59,6 +62,21 @@ public class Payment extends TimeStamped {
         this.amount = amount;
         this.payStatus = payStatus;
         this.paidAt = paidAt;
+    }
+
+    public static Payment of(Order order, String impUid, PGProvider pg, PaymentMethod paymentMethod) {
+        return Payment.builder()
+                .order(order)
+                .impUid(impUid)
+                .merchantUid(order.getNumber())
+                .pg(pg)
+                .paymentMethod(paymentMethod)
+                .buyerEmail(order.getUsers().getEmail())
+                .buyerName(order.getUsers().getNickname())
+                .amount(order.getTotalPrice())
+                .payStatus(PayStatus.READY)
+                .paidAt(null)
+                .build();
     }
 }
 

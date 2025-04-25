@@ -82,6 +82,8 @@ public enum ErrorMessage {
     COMPLETE_DELIVERY("배송 완료 상태입니다."),
     CANNOT_DELIVER_CANCELLED_ORDER("취소된 주문은 배송이 불가합니다."),
 
+    NOT_FOUND_PAYMENT("결제를 찾을 수 없습니다."),
+
     NAVER_API_RESPONSE_FAILED("네이버 api 응답 실패"),
     NAVER_PARSING_FAILED("네이버 파싱 실패"),
     NOT_FOUND_PROFILE("프로필을 찾을 수 없습니다."),
