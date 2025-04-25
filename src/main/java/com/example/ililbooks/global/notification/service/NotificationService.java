@@ -2,7 +2,9 @@ package com.example.ililbooks.global.notification.service;
 
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
-import com.example.ililbooks.global.asynchronous.rabbitmq.dto.request.MessageRequest;
+import com.example.ililbooks.global.asynchronous.rabbitmq.dto.request.MessagePromotionRequest;
+import com.example.ililbooks.global.asynchronous.rabbitmq.dto.request.MessageOrderRequest;
+import com.example.ililbooks.global.asynchronous.rabbitmq.service.RabbitMqService;
 import com.example.ililbooks.global.dto.AuthUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import java.util.List;
 public class NotificationService {
     private final AsyncNotificationService asyncNotificationService;
     private final RabbitMqNotificationService rabbitMqNotificationService;
+    private final RabbitMqService rabbitMqService;
     private final UserService userService;
 
     // @Async 비동기 처리
@@ -37,16 +40,29 @@ public class NotificationService {
     }
 
     /**
+     * Consumer (queue에서 데이터를 가져와 메일 발송)
      * RabbitMQ 비동기 처리
-     * consumer (queue에서 데이터를 가져와 메일 발송)
      */
-    @RabbitListener(queues = "${spring.rabbitmq.template.default-receive-queue}")
-    public void sendOrderMail(MessageRequest messageRequest) {
+    @RabbitListener(queues = "order-mail-queue")
+    public void sendOrderMail(MessageOrderRequest messageOrderRequest) {
         rabbitMqNotificationService.sendOrderMail(
-                messageRequest.email(),
-                messageRequest.nickName(),
-                messageRequest.orderNumber(),
-                messageRequest.totalPrice()
+                messageOrderRequest.email(),
+                messageOrderRequest.nickName(),
+                messageOrderRequest.orderNumber(),
+                messageOrderRequest.totalPrice()
+        );
+    }
+
+    /**
+     * RabbitMQ 비동기 처리
+     */
+    @Transactional(readOnly = true)
+    public void sendPromotionEmailWithRabbitMq() {
+        List<Users> users = userService.findAllByNotificationAgreed();
+
+        users.forEach(user ->
+                rabbitMqService.sendPromotionMessage(MessagePromotionRequest.of(user.getEmail(), user.getNickname()))
         );
     }
 }
+

@@ -21,7 +21,7 @@ import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.ForbiddenException;
 import com.example.ililbooks.global.exception.NotFoundException;
-import com.example.ililbooks.global.asynchronous.rabbitmq.dto.request.MessageRequest;
+import com.example.ililbooks.global.asynchronous.rabbitmq.dto.request.MessageOrderRequest;
 import com.example.ililbooks.global.asynchronous.rabbitmq.service.RabbitMqService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -79,7 +79,7 @@ public class OrderService {
 
         //알림 수신 동의인 경우
         if (users.isNotificationAgreed()) {
-            rabbitMqService.send(MessageRequest.of(authUser.getEmail(), authUser.getNickname(), order.getNumber(), order.getTotalPrice()));
+            rabbitMqService.sendOrderMessage(MessageOrderRequest.of(authUser.getEmail(), authUser.getNickname(), order.getNumber(), order.getTotalPrice()));
         }
 
         return getOrderResponse(order, pageable);

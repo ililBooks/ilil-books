@@ -14,25 +14,28 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMqConfig {
-    @Value("${spring.rabbitmq.template.default-receive-queue}")
-    private String queueName;
 
     @Value("${spring.rabbitmq.template.exchange}")
     private String exchange;
 
-    @Value("${spring.rabbitmq.template.routing-key}")
-    private String routingKey;
-
     /**
-     * producer가 데이터를 보낼 Queue 선언 (주문 관련 데이터를 담는 Queue)
+     * 주문 관련 데이터를 담는 Queue
      */
     @Bean
-    public Queue queue() {
-        return new Queue(queueName);
+    public Queue orderQueue() {
+        return new Queue("order-mail-queue");
     }
 
     /**
-     * direcrt, topic, .., fanout 중 direct 교환소 선언
+     * promotion 관련 데이터를 담는 Queue
+     */
+    @Bean
+    public Queue promotionQueue() {
+        return new Queue("promotion-mail-queue");
+    }
+
+    /**
+     * direct 교환소 선언
      */
     @Bean
     public DirectExchange directExchange() {
@@ -40,14 +43,19 @@ public class RabbitMqConfig {
     }
 
     /**
-     * 주어진 queue와 exchange를 바인딩 (교환소에 큐 등록)
-     * 여러 queue가 있다면 routingKey를 통해 어떤 queue에 보낼지 선택할 수 있다.
-     *
-     * 만약, queue에 해당하는 routingkey가 아니라면 보내지지 않는다.
+     * exchange에 주문 queue 등록 (routingKey: order.mail)
      */
     @Bean
-    public Binding binding(Queue queue, DirectExchange directExchange) {
-        return BindingBuilder.bind(queue).to(directExchange).with(routingKey);
+    public Binding orderQueueBinding(Queue orderQueue, DirectExchange directExchange) {
+        return BindingBuilder.bind(orderQueue).to(directExchange).with("order.mail");
+    }
+
+    /**
+     * exchange에 프로모션 queue 등록 (routingKey: promotion.mail)
+     */
+    @Bean
+    public Binding promotionQueueBinding(Queue promotionQueue, DirectExchange directExchange) {
+        return BindingBuilder.bind(promotionQueue).to(directExchange).with("promotion.mail");
     }
 
     /**
