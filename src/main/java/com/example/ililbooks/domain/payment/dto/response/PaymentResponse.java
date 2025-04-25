@@ -16,7 +16,7 @@ public record PaymentResponse(
         String buyerEmail,
         String buyerName,
         BigDecimal amount,
-        String paymentStatus,
+        String payStatus,
         Instant paidAt
 ) {
     @Builder
@@ -34,7 +34,7 @@ public record PaymentResponse(
                 .buyerEmail(payment.getBuyerEmail())
                 .buyerName(payment.getBuyerName())
                 .amount(payment.getAmount())
-                .paymentStatus(payment.getPayStatus().name())
+                .payStatus(payment.getPayStatus().name())
                 .paidAt(payment.getPaidAt())
                 .build();
     }

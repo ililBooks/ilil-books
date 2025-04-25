@@ -15,10 +15,10 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    /* 결제 요청 */
+    /* 결제 요청 정보 요청 */
     @GetMapping("/request/{paymentId}")
-    public String getPaymentRequestData(@PathVariable Long paymentId, Model model) {
-        PaymentRequest paymentRequest = paymentService.findPaymentRequestDataByOrderId(paymentId);
+    public String findPaymentRequestData(@PathVariable Long paymentId, Model model) {
+        PaymentRequest paymentRequest = paymentService.findPaymentRequestData(paymentId);
         model.addAttribute("paymentRequest", paymentRequest);
         return "payment";
     }
