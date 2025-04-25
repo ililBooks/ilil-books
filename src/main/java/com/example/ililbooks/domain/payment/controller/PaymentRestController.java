@@ -30,11 +30,12 @@ public class PaymentRestController {
         return Response.of(paymentService.prepareOrder(authUser, orderId));
     }
 
-    /* 결제 검증 */
+    /* 결제 성공 실패 검증 및 주문 승인 */
     @PostMapping("/verify")
     public MessageResponse<PaymentResponse> verifyPayment(
+            @AuthenticationPrincipal AuthUser authUser,
             @RequestBody PaymentVerificationRequest verificationDto) throws IamportResponseException, IOException {
-        PaymentResponse paymentResponse = paymentService.verifyPayment(verificationDto);
+        PaymentResponse paymentResponse = paymentService.verifyPayment(authUser, verificationDto);
         String message = PayStatus.PAID.name().equals(paymentResponse.payStatus()) ? "결제 성공" : "결제 실패";
 
         return MessageResponse.of(message, paymentResponse);

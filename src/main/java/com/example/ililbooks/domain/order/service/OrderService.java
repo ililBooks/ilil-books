@@ -108,25 +108,6 @@ public class OrderService {
         return getOrderResponse(order, pageable);
     }
 
-    /* 주문 상태 변경(취소) */
-    @Transactional
-    public OrderResponse cancelOrder(AuthUser authUser, Long orderId, Pageable pageable) {
-        Order order = findByIdOrElseThrow(orderId);
-
-        if (!authUser.getUserId().equals(order.getUsers().getId())) {
-            throw new ForbiddenException(NOT_OWN_ORDER.getMessage());
-        }
-
-        if (!canCancelOrder(order)) {
-            throw new BadRequestException(CANNOT_CANCEL_ORDER.getMessage());
-        }
-
-        order.updateOrder(OrderStatus.CANCELLED);
-
-        rollbackStocks(order);
-        return getOrderResponse(order, pageable);
-    }
-
     /* 주문 상태 변경(승인) */
     @Transactional
     public OrderResponse updateOrderStatus(AuthUser authUser, Long orderId, Pageable pageable) {

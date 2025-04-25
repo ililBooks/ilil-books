@@ -1,15 +1,20 @@
 package com.example.ililbooks.domain.payment.service;
 
 import com.example.ililbooks.domain.order.entity.Order;
+import com.example.ililbooks.domain.order.enums.DeliveryStatus;
+import com.example.ililbooks.domain.order.enums.OrderStatus;
+import com.example.ililbooks.domain.order.enums.PaymentStatus;
 import com.example.ililbooks.domain.order.service.OrderService;
 import com.example.ililbooks.domain.payment.dto.request.PaymentRequest;
 import com.example.ililbooks.domain.payment.dto.request.PaymentVerificationRequest;
 import com.example.ililbooks.domain.payment.dto.response.PaymentResponse;
 import com.example.ililbooks.domain.payment.entity.Payment;
 import com.example.ililbooks.domain.payment.enums.PGProvider;
+import com.example.ililbooks.domain.payment.enums.PayStatus;
 import com.example.ililbooks.domain.payment.enums.PaymentMethod;
 import com.example.ililbooks.domain.payment.repository.PaymentRepository;
 import com.example.ililbooks.global.dto.AuthUser;
+import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.ForbiddenException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.siot.IamportRestClient.IamportClient;
@@ -21,9 +26,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Optional;
 
-import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_PAYMENT;
-import static com.example.ililbooks.global.exception.ErrorMessage.NOT_OWN_ORDER;
+import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +47,21 @@ public class PaymentService {
             throw new ForbiddenException(NOT_OWN_ORDER.getMessage());
         }
 
+        if (!canCreatePayment(order)) {
+            throw new BadRequestException(CANNOT_CREATE_PAYMENT.getMessage());
+        }
+
+        Optional<Payment> latestPaymentOpt = paymentRepository
+                .findTopByOrderIdOrderByCreatedAtDesc(orderId);
+
+        if (latestPaymentOpt.isPresent()) {
+            PayStatus payStatus = latestPaymentOpt.get().getPayStatus();
+
+            if (payStatus != PayStatus.FAILED) {
+                throw new BadRequestException(CANNOT_CREATE_PAYMENT.getMessage());
+            }
+        }
+
         String tempImpUid = "tempImpUid_" + System.currentTimeMillis();
         Payment payment = Payment.of(order, tempImpUid, PGProvider.KG, PaymentMethod.CARD);
         paymentRepository.save(payment);
@@ -56,9 +76,41 @@ public class PaymentService {
     public PaymentRequest findPaymentRequestData(Long paymentId) {
         Payment payment = findByIdOrElseThrow(paymentId);
 
+        if (payment.getPayStatus() != PayStatus.READY) {
+            throw new BadRequestException(CANNOT_REQUEST_PAYMENT.getMessage());
+        }
+
         String orderName = payment.getOrder().getName();
 
         return PaymentRequest.of(payment, orderName);
+    }
+
+    /* 결제 요청 검증 */
+    @Transactional
+    public PaymentResponse verifyPayment(
+            AuthUser authUser,
+            PaymentVerificationRequest verificationDto) throws IamportResponseException, IOException {
+        IamportResponse<com.siot.IamportRestClient.response.Payment> iamportResponse =
+                iamportClient.paymentByImpUid(verificationDto.impUid());
+        com.siot.IamportRestClient.response.Payment iamportPayment = iamportResponse.getResponse();
+
+        Payment payment = findByMerchantUidOrElseThrow(verificationDto.merchantUid());
+        Order order = payment.getOrder();
+
+        if (!authUser.getUserId().equals(order.getUsers().getId())) {
+            throw new ForbiddenException(NOT_OWN_PAYMENT.getMessage());
+        }
+
+        if (iamportPayment.getAmount().equals(verificationDto.amount())) {
+            // 주문 승인
+            payment.updateSuccessPayment(verificationDto.impUid());
+            order.updatePayment(PaymentStatus.PAID);
+            order.updateOrder(OrderStatus.ORDERED);
+        } else {
+            payment.updateFailPayment(verificationDto.impUid());
+            order.updatePayment(PaymentStatus.FAILED);
+        }
+        return PaymentResponse.of(payment);
     }
 
     /* 결제 조회 */
@@ -67,24 +119,7 @@ public class PaymentService {
         Payment payment = findByIdOrElseThrow(paymentId);
 
         if (!authUser.getUserId().equals(payment.getOrder().getUsers().getId())) {
-            throw new ForbiddenException(NOT_OWN_ORDER.getMessage());
-        }
-        return PaymentResponse.of(payment);
-    }
-
-    /* 결제 요청 검증 */
-    @Transactional
-    public PaymentResponse verifyPayment(PaymentVerificationRequest verificationDto) throws IamportResponseException, IOException {
-        IamportResponse<com.siot.IamportRestClient.response.Payment> iamportResponse =
-                iamportClient.paymentByImpUid(verificationDto.impUid());
-        com.siot.IamportRestClient.response.Payment iamportPayment = iamportResponse.getResponse();
-
-        Payment payment = findByMerchantUidOrElseThrow(verificationDto.merchantUid());
-
-        if (iamportPayment.getAmount().equals(verificationDto.amount())) {
-            payment.updateSuccessPayment(verificationDto.impUid());
-        } else {
-            payment.updateFailPayment(verificationDto.impUid());
+            throw new ForbiddenException(NOT_OWN_PAYMENT.getMessage());
         }
         return PaymentResponse.of(payment);
     }
@@ -102,5 +137,11 @@ public class PaymentService {
 
     private PrepareData createPrepareData(Payment payment) {
         return new PrepareData(payment.getMerchantUid(),payment.getAmount());
+    }
+
+    private boolean canCreatePayment(Order order) {
+        return order.getOrderStatus() == OrderStatus.PENDING
+                && (order.getPaymentStatus() == PaymentStatus.PENDING || order.getPaymentStatus() == PaymentStatus.FAILED)
+                && order.getDeliveryStatus() == DeliveryStatus.READY;
     }
 }

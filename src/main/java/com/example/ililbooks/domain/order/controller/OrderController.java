@@ -88,18 +88,6 @@ public class OrderController {
         return Response.of(orderService.cancelOrder(authUser, orderId, pageable));
     }
 
-    /* 주문 상태 변경 (주문 대기 -> 주문 완료)
-    * todo: 추후 기술 고도화 결제에서 변경 예정 */
-    @Operation(summary = "주문 상태 변경", description = "주문 상태를 주문 대기에서 완료 상태로 변경할 수 있습니다.")
-    @PatchMapping("/order/{orderId}")
-    public Response<OrderResponse> updateOrderStatus(
-            @PathVariable Long orderId,
-            @AuthenticationPrincipal AuthUser authUser,
-            Pageable pageable
-    ) {
-        return Response.of(orderService.updateOrderStatus(authUser, orderId, pageable));
-    }
-
     /* 배송 상태 변경 (배송 대기 -> 배송 중 -> 배송완료+주문완료) */
     @Operation(summary = "배송 상태 변경", description = "주문의 배송 상태를 배송 대기에서 배송 중으로 변경, 배송 중을 배송 완료 및 주문 완료로 변경합니다.")
     @Secured(ADMIN)

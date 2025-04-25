@@ -18,7 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import static com.example.ililbooks.global.exception.ErrorMessage.CANNOT_DELIVER_CANCELLED_ORDER;
+import static com.example.ililbooks.global.exception.ErrorMessage.CANNOT_DELIVERY_CANCELLED_ORDER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -80,7 +80,7 @@ class OrderDeliveryServiceTest {
         // when & then
         BadRequestException badRequestException = assertThrows(BadRequestException.class,
                 () -> orderDeliveryService.updateDeliveryStatus(orderId, pageable));
-        assertEquals(badRequestException.getMessage(), CANNOT_DELIVER_CANCELLED_ORDER.getMessage());
+        assertEquals(badRequestException.getMessage(), CANNOT_DELIVERY_CANCELLED_ORDER.getMessage());
     }
 
     /* --- 성공 케이스 --- */

@@ -19,12 +19,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(
-        name = "payments",
-        indexes = {
-                @Index(name = "idx_merchant_uid", columnList = "merchantUid")
-        }
-)
+@Table(name = "payments")
 public class Payment extends TimeStamped {
 
     @Id @GeneratedValue
@@ -34,7 +29,10 @@ public class Payment extends TimeStamped {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    @Column(unique = true)
     private String impUid;
+
+    @Column(unique = true)
     private String merchantUid;
 
     @Enumerated(EnumType.STRING)

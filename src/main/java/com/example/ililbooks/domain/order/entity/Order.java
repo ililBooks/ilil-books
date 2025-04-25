@@ -81,6 +81,10 @@ public class Order extends TimeStamped {
         this.orderStatus = orderStatus;
     }
 
+    public void updatePayment(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
     public void updateDelivery(DeliveryStatus deliveryStatus) {
         this.deliveryStatus = deliveryStatus;
     }

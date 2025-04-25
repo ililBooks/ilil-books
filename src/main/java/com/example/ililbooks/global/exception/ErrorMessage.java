@@ -80,9 +80,13 @@ public enum ErrorMessage {
     CANNOT_CHANGE_ORDER("주문 대기 상태만 주문 승인 할 수 있습니다."),
     CANNOT_START_DELIVERY("주문 승인 상태만 배송할 수 있습니다."),
     COMPLETE_DELIVERY("배송 완료 상태입니다."),
-    CANNOT_DELIVER_CANCELLED_ORDER("취소된 주문은 배송이 불가합니다."),
+    CANNOT_DELIVERY_CANCELLED_ORDER("취소된 주문은 배송이 불가합니다."),
+    CANNOT_DELIVERY_ORDER("결제 승인 상태가 아니라 배송이 불가합니다."),
 
     NOT_FOUND_PAYMENT("결제를 찾을 수 없습니다."),
+    CANNOT_CREATE_PAYMENT("주문 대기 상태가 아니라 결제를 생성할 수 없습니다."),
+    NOT_OWN_PAYMENT("본인 외 결제 접근 불가"),
+    CANNOT_REQUEST_PAYMENT("결제 준비 상태가 아니라 결제를 요청할 수 없습니다."),
 
     NAVER_API_RESPONSE_FAILED("네이버 api 응답 실패"),
     NAVER_PARSING_FAILED("네이버 파싱 실패"),
