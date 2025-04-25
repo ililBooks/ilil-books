@@ -11,11 +11,13 @@ import com.example.ililbooks.domain.payment.service.PaymentService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.ForbiddenException;
+import com.siot.IamportRestClient.exception.IamportResponseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +35,7 @@ public class OrderCancelService {
 
     /* 주문 상태 취소 및 결제 취소 */
     @Transactional
-    public OrderResponse cancelOrder(AuthUser authUser, Long orderId, Pageable pageable) {
+    public OrderResponse cancelOrder(AuthUser authUser, Long orderId, Pageable pageable) throws IamportResponseException, IOException {
         Order order = orderService.findByIdOrElseThrow(orderId);
 
         if (!authUser.getUserId().equals(order.getUsers().getId())) {
@@ -50,7 +52,7 @@ public class OrderCancelService {
             Payment payment = paymentOpt.get();
 
             if (payment.getPayStatus() == PayStatus.PAID) {
-//                paymentService.cancelPayment(payment);
+                paymentService.cancelPayment(authUser, payment.getId());
             }
         }
 

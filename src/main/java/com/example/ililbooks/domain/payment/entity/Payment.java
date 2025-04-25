@@ -94,5 +94,9 @@ public class Payment extends TimeStamped {
         this.impUid = impUid;
         this.payStatus = PayStatus.FAILED;
     }
+
+    public void updateCancelPayment() {
+        this.payStatus = PayStatus.CANCELLED;
+    }
 }
 

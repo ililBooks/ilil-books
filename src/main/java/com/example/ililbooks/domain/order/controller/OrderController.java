@@ -9,6 +9,7 @@ import com.example.ililbooks.domain.order.service.OrderReadService;
 import com.example.ililbooks.domain.order.service.OrderService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.dto.response.Response;
+import com.siot.IamportRestClient.exception.IamportResponseException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -18,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 import static com.example.ililbooks.domain.user.enums.UserRole.Authority.*;
 
@@ -86,7 +89,7 @@ public class OrderController {
             @PathVariable Long orderId,
             @AuthenticationPrincipal AuthUser authUser,
             Pageable pageable
-    ) {
+    ) throws IamportResponseException, IOException {
         return Response.of(orderCancelService.cancelOrder(authUser, orderId, pageable));
     }
 

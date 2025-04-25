@@ -19,6 +19,7 @@ import com.example.ililbooks.global.exception.ForbiddenException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
+import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.request.PrepareData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
@@ -89,6 +91,7 @@ public class PaymentService {
     public PaymentResponse verifyPayment(
             AuthUser authUser,
             PaymentVerificationRequest verificationDto) throws IamportResponseException, IOException {
+
         IamportResponse<com.siot.IamportRestClient.response.Payment> iamportResponse =
                 iamportClient.paymentByImpUid(verificationDto.impUid());
         com.siot.IamportRestClient.response.Payment iamportPayment = iamportResponse.getResponse();
@@ -122,6 +125,35 @@ public class PaymentService {
         }
         return PaymentResponse.of(payment);
     }
+
+    /* 결제 취소 */
+    @Transactional
+    public void cancelPayment(AuthUser authUser, Long paymentId) throws IamportResponseException, IOException {
+        Payment payment = findByIdOrElseThrow(paymentId);
+        Order order = payment.getOrder();
+
+        if (!authUser.getUserId().equals(order.getUsers().getId())) {
+            throw new ForbiddenException(NOT_OWN_PAYMENT.getMessage());
+        }
+
+        if (payment.getPayStatus() != PayStatus.PAID) {
+            throw new BadRequestException(CANNOT_CANCEL_PAYMENT.getMessage());
+        }
+
+        // 전액 환불(결제 취소)
+        CancelData cancelData = new CancelData(payment.getImpUid(), true);
+        IamportResponse<com.siot.IamportRestClient.response.Payment> cancelResponse =
+                iamportClient.cancelPaymentByImpUid(cancelData);
+
+        if (cancelResponse.getResponse() == null) {
+            throw new RuntimeException(CANCEL_PAYMENT_FAILED.getMessage());
+        }
+
+        payment.updateCancelPayment();
+        order.updatePayment(PaymentStatus.CANCELLED);
+        order.updateOrder(OrderStatus.CANCELLED);
+    }
+
 
     private Payment findByMerchantUidOrElseThrow(String merchantUid) {
         return paymentRepository.findByMerchantUid(merchantUid).orElseThrow(
