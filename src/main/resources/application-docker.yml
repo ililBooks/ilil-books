@@ -41,9 +41,7 @@ spring:
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
     template:
-      default-receive-queue: order-mail-queue # queue 이름
       exchange: order.mail.exchange #producer가 데이터를 보낼 교환소
-      routing-key: order.mail
 
 jwt:
   secret:
