@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,7 +82,7 @@ public class PaymentService {
             throw new BadRequestException(CANNOT_REQUEST_PAYMENT.getMessage());
         }
 
-        String orderName = payment.getOrder().getName();
+        String orderName = payment.getOrder().getName() + Instant.now();
 
         return PaymentRequest.of(payment, orderName);
     }

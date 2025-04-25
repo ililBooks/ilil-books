@@ -9,7 +9,6 @@
     <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
 </head>
 <body>
-<h1>아임포트 결제 예제</h1>
 <button onclick="requestPay()">결제하기</button>
 <script th:inline="javascript">
     const paymentData = {
@@ -21,10 +20,6 @@
         buyer_email: /*[[${paymentRequest.buyerEmail}]]*/ "",
         buyer_name: /*[[${paymentRequest.buyerName}]]*/ ""
     };
-
-    // 🔍 디버깅용 로그 추가
-    console.log("결제 PG사:", paymentData.pg);
-    console.log("전체 결제 데이터:", paymentData);
 </script>
 <script>
     function requestPay() {
@@ -39,22 +34,24 @@
             buyer_email: paymentData.buyer_email,
             buyer_name: paymentData.buyer_name,
         }, function (rsp) {
-            console.log("✅ 결제 응답 객체:", rsp); // 여기에 imp_uid, merchant_uid, paid_amount 다 들어있음
-            if (rsp.success) {
-                alert(
-                    "복사해서 Postman에 붙여 넣으세요:\n\n" +
-                    JSON.stringify({
-                        impUid: rsp.imp_uid,
-                        merchantUid: rsp.merchant_uid,
-                        amount: rsp.paid_amount
-                    }, null, 4)
-                );
+            console.log("결제 응답 객체:", rsp);
 
+            const resultContainer = document.getElementById("paymentResult");
+
+            if (rsp.success) {
+                const resultJson = JSON.stringify({
+                    impUid: rsp.imp_uid,
+                    merchantUid: rsp.merchant_uid,
+                    amount: rsp.paid_amount
+                }, null, 4);
+
+                resultContainer.innerText = resultJson;
             } else {
-                alert(":x: 결제 실패: " + rsp.error_msg);
+                resultContainer.innerText = "결제 실패: " + rsp.error_msg;
             }
         });
     }
 </script>
+<div id="paymentResult" style="margin-top: 20px; white-space: pre-wrap;"></div>
 </body>
 </html>
