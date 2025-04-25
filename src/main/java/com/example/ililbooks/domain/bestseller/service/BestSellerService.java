@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.*;
 import java.util.*;
 
+import static com.example.ililbooks.domain.bestseller.enums.PeriodType.*;
 import static com.example.ililbooks.global.exception.ErrorMessage.BOOK_ID_NOT_FOUND_IN_REDIS;
-import static com.example.ililbooks.global.exception.ErrorMessage.PERIOD_TYPE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -34,12 +34,12 @@ public class BestSellerService {
 
 
     @Transactional(readOnly = true)
-    public List<BestSellerChartResponse> getBestSellerChart(String type, String date) {
+    public List<BestSellerChartResponse> getBestSellerChart(PeriodType type, String date) {
         LocalDate localDate = LocalDate.parse(date);
 
         Instant instant = convertToInstant(type, localDate);
 
-        List<BestSeller> bestSellersFromDB = bestSellerRepository.findAllByPeriodTypeAndDate(PeriodType.valueOf(type.toUpperCase()), instant);
+        List<BestSeller> bestSellersFromDB = bestSellerRepository.findAllByPeriodTypeAndDate(type, instant);
 
         if (!bestSellersFromDB.isEmpty()) {
             return bestSellersFromDB.stream()
@@ -96,9 +96,9 @@ public class BestSellerService {
 
     private void increaseBookSales(Long bookId, int quantity) {
         LocalDate now = LocalDate.now();
-        String dailyKey = generateKey("daily", now);
-        String monthlyKey = generateKey("monthly", now);
-        String yearlyKey = generateKey("yearly", now);
+        String dailyKey = generateKey(DAILY, now);
+        String monthlyKey = generateKey(MONTHLY, now);
+        String yearlyKey = generateKey(YEARLY, now);
 
         for (int i = 0; i < quantity; i++) {
             redisTemplate.opsForZSet().incrementScore(dailyKey, bookId.toString(), 1);
@@ -118,21 +118,19 @@ public class BestSellerService {
         }
     }
 
-    private String generateKey(String type, LocalDate date) {
+    private String generateKey(PeriodType type, LocalDate date) {
         return switch (type) {
-            case "daily" -> "bestseller:daily:" + date;
-            case "monthly" -> "bestseller:monthly:" + YearMonth.from(date);
-            case "yearly" -> "bestseller:yearly:" + Year.from(date);
-            default -> throw new IllegalArgumentException(PERIOD_TYPE_NOT_FOUND.getMessage());
+            case DAILY -> "bestseller:daily:" + date;
+            case MONTHLY -> "bestseller:monthly:" + YearMonth.from(date);
+            case YEARLY -> "bestseller:yearly:" + Year.from(date);
         };
     }
 
-    private Instant convertToInstant(String type, LocalDate date) {
+    private Instant convertToInstant(PeriodType type, LocalDate date) {
         return switch (type) {
-            case "daily" -> date.atStartOfDay().toInstant(ZoneOffset.UTC);
-            case "monthly" -> YearMonth.from(date).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC);
-            case "yearly" -> Year.from(date).atMonth(1).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC);
-            default -> throw new IllegalArgumentException(PERIOD_TYPE_NOT_FOUND.getMessage());
+            case DAILY -> date.atStartOfDay().toInstant(ZoneOffset.UTC);
+            case MONTHLY -> YearMonth.from(date).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+            case YEARLY -> Year.from(date).atMonth(1).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC);
         };
     }
 }

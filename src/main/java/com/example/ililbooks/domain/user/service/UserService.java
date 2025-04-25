@@ -21,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
 @Service
@@ -142,5 +144,9 @@ public class UserService {
                                 .userRole(userRole)
                                 .build()
                 ));
+    }
+
+    public List<Users> findAllByNotificationAgreed() {
+        return userRepository.findAllByNotificationAgreed();
     }
 }

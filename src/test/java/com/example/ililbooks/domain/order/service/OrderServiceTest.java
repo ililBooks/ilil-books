@@ -16,6 +16,7 @@ import com.example.ililbooks.domain.order.enums.PaymentStatus;
 import com.example.ililbooks.domain.order.repository.OrderRepository;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.UserRole;
+import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.ForbiddenException;
@@ -57,11 +58,15 @@ class OrderServiceTest {
     private BookStockService bookStockService;
     @Mock
     private BestSellerService bestSellerService;
+    @Mock
+    private UserService userService;
+
 
     @InjectMocks
     private OrderService orderService;
 
     private AuthUser authUser;
+    private Users users;
     private Users adminUsers;
     private final Pageable pageable = PageRequest.of(0, 10);
     private Book book1, book2;
@@ -77,10 +82,18 @@ class OrderServiceTest {
                 .role(UserRole.ROLE_USER)
                 .build();
 
+        users = Users.builder()
+                .email("email@email.com")
+                .nickname("nickname")
+                .userRole(UserRole.ROLE_USER)
+                .isNotificationAgreed(false)
+                .build();
+
         adminUsers = Users.builder()
                 .email("admin@email.com")
                 .nickname("adminNickname")
                 .userRole(UserRole.ROLE_ADMIN)
+                .isNotificationAgreed(false)
                 .build();
 
         book1 = Book.builder()
@@ -137,6 +150,7 @@ class OrderServiceTest {
 
         given(cartService.findByUserIdOrElseNewCart(anyLong())).willReturn(cart);
         willDoNothing().given(bestSellerService).increaseBookSalesByQuantity(anyMap());
+        given(userService.findByIdOrElseThrow(anyLong())).willReturn(users);
 
         // When
         OrderResponse result = orderService.createOrder(authUser, pageable);
