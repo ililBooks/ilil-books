@@ -4,6 +4,7 @@ import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.enums.DeliveryStatus;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
+import com.example.ililbooks.domain.order.enums.PaymentStatus;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.CANNOT_DELIVERY_CANCELLED_ORDER;
+import static com.example.ililbooks.global.exception.ErrorMessage.CANNOT_DELIVERY_ORDER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -83,12 +85,43 @@ class OrderDeliveryServiceTest {
         assertEquals(badRequestException.getMessage(), CANNOT_DELIVERY_CANCELLED_ORDER.getMessage());
     }
 
+    @Test
+    void 주문_배송_변경_주문_승인_상태가_아니라_실패() {
+        // given
+        Long orderId = 1L;
+        ReflectionTestUtils.setField(order, "orderStatus", OrderStatus.PENDING);
+        ReflectionTestUtils.setField(order, "paymentStatus", PaymentStatus.PAID);
+
+        given(orderService.findByIdOrElseThrow(anyLong())).willReturn(order);
+
+        // when & then
+        BadRequestException badRequestException = assertThrows(BadRequestException.class,
+                () -> orderDeliveryService.updateDeliveryStatus(orderId, pageable));
+        assertEquals(badRequestException.getMessage(), CANNOT_DELIVERY_ORDER.getMessage());
+    }
+
+    @Test
+    void 주문_배송_변경_결제_성공_상태가_아니라_실패() {
+        // given
+        Long orderId = 1L;
+        ReflectionTestUtils.setField(order, "orderStatus", OrderStatus.ORDERED);
+        ReflectionTestUtils.setField(order, "paymentStatus", PaymentStatus.PENDING);
+
+        given(orderService.findByIdOrElseThrow(anyLong())).willReturn(order);
+
+        // when & then
+        BadRequestException badRequestException = assertThrows(BadRequestException.class,
+                () -> orderDeliveryService.updateDeliveryStatus(orderId, pageable));
+        assertEquals(badRequestException.getMessage(), CANNOT_DELIVERY_ORDER.getMessage());
+    }
+
     /* --- 성공 케이스 --- */
     @Test
     void 주문_배송_변경_배송_대기에서_배송중_상태로_변경_성공() {
         // given
         Long orderId = 1L;
         ReflectionTestUtils.setField(order, "orderStatus", OrderStatus.ORDERED);
+        ReflectionTestUtils.setField(order, "paymentStatus", PaymentStatus.PAID);
         ReflectionTestUtils.setField(order, "deliveryStatus", DeliveryStatus.READY);
 
         given(orderService.findByIdOrElseThrow(anyLong())).willReturn(order);
@@ -107,6 +140,7 @@ class OrderDeliveryServiceTest {
         // given
         Long orderId = 1L;
         ReflectionTestUtils.setField(order, "orderStatus", OrderStatus.ORDERED);
+        ReflectionTestUtils.setField(order, "paymentStatus", PaymentStatus.PAID);
         ReflectionTestUtils.setField(order, "deliveryStatus", DeliveryStatus.IN_TRANSIT);
 
         given(orderService.findByIdOrElseThrow(anyLong())).willReturn(order);
