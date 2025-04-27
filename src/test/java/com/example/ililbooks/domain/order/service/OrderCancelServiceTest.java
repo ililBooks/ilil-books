@@ -2,7 +2,6 @@ package com.example.ililbooks.domain.order.service;
 
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.service.BookStockService;
-import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.entity.Order;
@@ -32,7 +31,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 

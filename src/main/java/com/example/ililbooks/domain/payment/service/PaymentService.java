@@ -55,10 +55,10 @@ public class PaymentService {
             throw new BadRequestException(CANNOT_CREATE_PAYMENT.getMessage());
         }
 
-        Optional<Payment> latestPaymentOpt = getTopByOrderIdOrderByCreatedAtDesc(orderId);
+        Optional<Payment> paymentOpt = getTopByOrderIdOrderByCreatedAtDesc(orderId);
 
-        if (latestPaymentOpt.isPresent()) {
-            PayStatus payStatus = latestPaymentOpt.get().getPayStatus();
+        if (paymentOpt.isPresent()) {
+            PayStatus payStatus = paymentOpt.get().getPayStatus();
 
             if (payStatus != PayStatus.FAILED) {
                 throw new BadRequestException(CANNOT_CREATE_PAYMENT.getMessage());
@@ -157,6 +157,9 @@ public class PaymentService {
         order.updateOrder(OrderStatus.CANCELLED);
     }
 
+    private PrepareData createPrepareData(Payment payment) {
+        return new PrepareData(payment.getMerchantUid(), payment.getAmount());
+    }
 
     private Payment findByMerchantUidOrElseThrow(String merchantUid) {
         return paymentRepository.findByMerchantUid(merchantUid).orElseThrow(
@@ -167,10 +170,6 @@ public class PaymentService {
         return paymentRepository.findById(paymentId).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_PAYMENT.getMessage())
         );
-    }
-
-    private PrepareData createPrepareData(Payment payment) {
-        return new PrepareData(payment.getMerchantUid(),payment.getAmount());
     }
 
     private boolean canCreatePayment(Order order) {
