@@ -63,8 +63,10 @@ public class OrderCancelService {
     }
 
     private boolean canCancelOrder(Order order) {
-        return order.getOrderStatus().canCancel() && order.getDeliveryStatus().canCancel()
-                && order.getPaymentStatus().canCancel() && order.getLimitedType().canCancel();
+        return order.getOrderStatus().canCancel()
+                && order.getDeliveryStatus().canCancel()
+                && order.getPaymentStatus().canCancel()
+                && order.getLimitedType().canCancel();
     }
 
     /* 취소 시 재고 감소 롤백 */
