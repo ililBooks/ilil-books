@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
@@ -65,7 +66,8 @@ public class PaymentService {
         }
 
         String tempImpUid = "tempImpUid_" + System.currentTimeMillis();
-        Payment payment = Payment.of(order, tempImpUid, PGProvider.KG, PaymentMethod.CARD);
+        String merchantUid = "merchantUid_" + UUID.randomUUID().toString().substring(0,8);
+        Payment payment = Payment.of(order, merchantUid, tempImpUid, PGProvider.KG, PaymentMethod.CARD, authUser);
         paymentRepository.save(payment);
 
         iamportClient.postPrepare(createPrepareData(payment));

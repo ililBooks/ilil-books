@@ -65,7 +65,7 @@ public class Order extends TimeStamped {
     }
 
     public static Order of(Users users, String name, BigDecimal totalPrice, LimitedType limitedType) {
-        return com.example.ililbooks.domain.order.entity.Order.builder()
+        return Order.builder()
                 .users(users)
                 .number(UUID.randomUUID().toString())
                 .name(name)

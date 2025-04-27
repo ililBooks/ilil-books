@@ -4,6 +4,7 @@ import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.payment.enums.PGProvider;
 import com.example.ililbooks.domain.payment.enums.PayStatus;
 import com.example.ililbooks.domain.payment.enums.PaymentMethod;
+import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.entity.TimeStamped;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -69,15 +70,15 @@ public class Payment extends TimeStamped {
         this.paidAt = paidAt;
     }
 
-    public static Payment of(Order order, String impUid, PGProvider pg, PaymentMethod paymentMethod) {
+    public static Payment of(Order order, String impUid, String merchantUid, PGProvider pg, PaymentMethod paymentMethod, AuthUser authUser) {
         return Payment.builder()
                 .order(order)
                 .impUid(impUid)
-                .merchantUid("merchantUid_" + UUID.randomUUID().toString().substring(0,8))
+                .merchantUid(merchantUid)
                 .pg(pg)
                 .paymentMethod(paymentMethod)
-                .buyerEmail(order.getUsers().getEmail())
-                .buyerName(order.getUsers().getNickname())
+                .buyerEmail(authUser.getEmail())
+                .buyerName(authUser.getNickname())
                 .amount(order.getTotalPrice())
                 .payStatus(PayStatus.READY)
                 .paidAt(null)
