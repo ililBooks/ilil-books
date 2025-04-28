@@ -12,10 +12,13 @@ import com.siot.IamportRestClient.exception.IamportResponseException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+
+import static com.example.ililbooks.domain.user.enums.UserRole.Authority.USER;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +30,8 @@ public class PaymentRestController {
 
     /* 결제 준비 */
     @Operation(summary = "결제 준비", description = "주문 생성 후 결제 정보를 저장합니다.")
-    @PostMapping("/prepare/{orderId}")
+    @Secured(USER)
+    @PostMapping("/prepare")
     public Response<PaymentResponse> preparePayment(
             @AuthenticationPrincipal AuthUser authUser,
             @RequestBody PaymentOrderRequest paymentOrderRequest
@@ -36,8 +40,9 @@ public class PaymentRestController {
     }
 
     /* 결제 성공 실패 검증 및 주문 승인 */
-    @PostMapping("/verify")
     @Operation(summary = "결제 승인", description = "결제 요청을 바탕으로 결제 성공 및 실패를 판단합니다.")
+    @Secured(USER)
+    @PostMapping("/verify")
     public MessageResponse<PaymentResponse> verifyPayment(
             @AuthenticationPrincipal AuthUser authUser,
             @RequestBody PaymentVerificationRequest verificationDto
@@ -50,6 +55,7 @@ public class PaymentRestController {
 
     /* 결제 조회 */
     @Operation(summary = "결제 조회", description = "결제 상태를 조회할 수 있습니다.")
+    @Secured(USER)
     @GetMapping("/{paymentId}")
     public Response<PaymentResponse> findPaymentById(
             @AuthenticationPrincipal AuthUser authUser,
