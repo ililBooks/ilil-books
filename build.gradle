@@ -96,6 +96,16 @@ dependencies {
 
     //RabbitMQ
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // iamport(portone)
+    implementation 'com.github.iamport:iamport-rest-client-java:0.2.23'
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 tasks.named('test') {

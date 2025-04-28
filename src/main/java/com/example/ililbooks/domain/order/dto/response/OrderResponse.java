@@ -10,7 +10,9 @@ import java.time.LocalDateTime;
 
 public record OrderResponse(
 
+        Long orderId,
         String number,
+        String orderName,
         Page<OrderHistoryResponse> orderHistoryResponsePage,
         BigDecimal totalPrice,
         String orderStatus,
@@ -27,7 +29,9 @@ public record OrderResponse(
 
     public static OrderResponse of(Order order, Page<OrderHistoryResponse> orderHistoryResponsePage) {
         return OrderResponse.builder()
+                .orderId(order.getId())
                 .number(order.getNumber())
+                .orderName(order.getName())
                 .orderHistoryResponsePage(orderHistoryResponsePage)
                 .totalPrice(order.getTotalPrice())
                 .orderStatus(order.getOrderStatus().name())
