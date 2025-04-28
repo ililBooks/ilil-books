@@ -26,8 +26,8 @@ spring:
 
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/ililbooks}
-    username: ${DB_USER:root}
-    password: ${DB_PASSWORD:Cej4268@}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
