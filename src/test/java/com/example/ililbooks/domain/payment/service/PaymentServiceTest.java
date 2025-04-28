@@ -1,7 +1,8 @@
 package com.example.ililbooks.domain.payment.service;
 
-import com.example.ililbooks.domain.book.entity.Book;
-import com.example.ililbooks.domain.order.dto.response.OrderResponse;
+import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
+import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationReadService;
 import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.enums.DeliveryStatus;
 import com.example.ililbooks.domain.order.enums.LimitedType;
@@ -54,12 +55,14 @@ class PaymentServiceTest {
     private PaymentRepository paymentRepository;
     @Mock
     private IamportClient iamportClient;
+    @Mock
+    private LimitedReservationReadService limitedReservationReadService;
 
     @InjectMocks
     private PaymentService paymentService;
 
     private AuthUser authUser, anotherUser;
-    private Order order;
+    private Order order, limitedOrder;
     private Payment paidPayment, pendingPayment, failedPayment;
     private PaymentVerificationRequest paymentVerificationRequest;
 
@@ -84,6 +87,13 @@ class PaymentServiceTest {
                 .users(Users.fromAuthUser(authUser))
                 .number("order-number")
                 .limitedType(LimitedType.REGULAR)
+                .build();
+
+        limitedOrder = Order.builder()
+                .id(1L)
+                .users(Users.fromAuthUser(authUser))
+                .number("limited-order-number")
+                .limitedType(LimitedType.LIMITED)
                 .build();
 
         paidPayment = Payment.builder()
@@ -307,6 +317,31 @@ class PaymentServiceTest {
         assertEquals(forbiddenException.getMessage(), NOT_OWN_PAYMENT.getMessage());
     }
 
+    @Test
+    void 결제_요청_검증_한정판_예약_결제_대기_상태가_아니라_실패() throws IamportResponseException, IOException {
+        // given
+        IamportResponse<com.siot.IamportRestClient.response.Payment> iamportResponse = new IamportResponse<>();
+        com.siot.IamportRestClient.response.Payment iamportResponsePayment = new com.siot.IamportRestClient.response.Payment();
+
+        ReflectionTestUtils.setField(iamportResponsePayment, "amount", new BigDecimal(100));
+        ReflectionTestUtils.setField(iamportResponse, "response", iamportResponsePayment);
+
+        LimitedReservation limitedReservation = LimitedReservation.builder()
+                .order(limitedOrder)
+                .status(LimitedReservationStatus.CANCELED)
+                .build();
+        ReflectionTestUtils.setField(pendingPayment, "order", limitedOrder);
+
+        given(iamportClient.paymentByImpUid(anyString())).willReturn(iamportResponse);
+        given(paymentRepository.findByMerchantUid(anyString())).willReturn(Optional.of(pendingPayment));
+        given(limitedReservationReadService.findReservationByOrderIdOrElseThrow(anyLong())).willReturn(limitedReservation);
+
+        // when & then
+        BadRequestException badRequestException = assertThrows(BadRequestException.class,
+                () -> paymentService.verifyPayment(authUser, paymentVerificationRequest));
+        assertEquals(badRequestException.getMessage(), INVALID_RESERVATION_STATUS_FOR_PAYMENT.getMessage());
+    }
+
     /* --- 성공 케이스 --- */
     @Test
     void 결제_요청_검증_동일한_금액이라_주문_승인_성공() throws IamportResponseException, IOException {
@@ -346,6 +381,33 @@ class PaymentServiceTest {
         // then
         assertNotNull(result);
         assertEquals(PayStatus.FAILED.name(), result.payStatus());
+    }
+
+    @Test
+    void 결제_요청_검증_한정판_예약_결제_성공() throws IamportResponseException, IOException {
+        // given
+        IamportResponse<com.siot.IamportRestClient.response.Payment> iamportResponse = new IamportResponse<>();
+        com.siot.IamportRestClient.response.Payment iamportResponsePayment = new com.siot.IamportRestClient.response.Payment();
+
+        ReflectionTestUtils.setField(iamportResponsePayment, "amount", new BigDecimal(100));
+        ReflectionTestUtils.setField(iamportResponse, "response", iamportResponsePayment);
+
+        LimitedReservation limitedReservation = LimitedReservation.builder()
+                .order(limitedOrder)
+                .status(LimitedReservationStatus.RESERVED)
+                .build();
+        ReflectionTestUtils.setField(pendingPayment, "order", limitedOrder);
+
+        given(iamportClient.paymentByImpUid(anyString())).willReturn(iamportResponse);
+        given(paymentRepository.findByMerchantUid(anyString())).willReturn(Optional.of(pendingPayment));
+        given(limitedReservationReadService.findReservationByOrderIdOrElseThrow(anyLong())).willReturn(limitedReservation);
+
+        // when
+        PaymentResponse result = paymentService.verifyPayment(authUser, paymentVerificationRequest);
+
+        // then
+        assertNotNull(result);
+        assertEquals(PayStatus.PAID.name(), result.payStatus());
     }
 
     /* findPaymentById */

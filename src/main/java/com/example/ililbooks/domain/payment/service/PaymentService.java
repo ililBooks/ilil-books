@@ -120,11 +120,10 @@ public class PaymentService {
             if (order.getLimitedType() == LimitedType.LIMITED) {
                 LimitedReservation limitedReservation = limitedReservationReadService.findReservationByOrderIdOrElseThrow(order.getId());
 
-                if (limitedReservation.getStatus() == LimitedReservationStatus.RESERVED) {
-                    limitedReservation.updateLimitedReservationStatus(LimitedReservationStatus.SUCCESS);
-                } else {
+                if (limitedReservation.getStatus() != LimitedReservationStatus.RESERVED) {
                     throw new BadRequestException(INVALID_RESERVATION_STATUS_FOR_PAYMENT.getMessage());
                 }
+                limitedReservation.updateLimitedReservationStatus(LimitedReservationStatus.SUCCESS);
             }
         } else {
             payment.updateFailPayment(verificationDto.impUid());
