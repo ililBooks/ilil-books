@@ -84,6 +84,9 @@ cloud:
       access-key: ${AWS_ACCESS_KEY_ID}
     s3:
       bucket: ${AWS_S3_BUCKET_NAME}
+    ses:
+      access-key: ${AWS_SES_ACCESS_KEY}
+      secret-key: ${AWS_SES_SECRET_KEY}
 
 client:
   naver:

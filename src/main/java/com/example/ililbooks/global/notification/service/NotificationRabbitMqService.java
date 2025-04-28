@@ -6,7 +6,6 @@ import com.example.ililbooks.domain.bestseller.service.BestSellerService;
 import com.example.ililbooks.global.asynchronous.rabbitmq.dto.request.MessagePromotionRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ import static com.example.ililbooks.global.exception.ErrorMessage.FAILED_SEND_MA
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RabbitMqNotificationService {
+public class NotificationRabbitMqService {
     private final JavaMailSender javaMailSender;
     private final BestSellerService bestSellerService;
 
@@ -54,7 +53,6 @@ public class RabbitMqNotificationService {
         }
     }
 
-    @RabbitListener(queues = "promotion-mail-queue")
     public void sendPromotionEmail(MessagePromotionRequest messagePromotionRequest) {
         log.info("queue에 들어온 메세지 정보를 바탕으로 프로모션 메일 보내기");
         List<BestSellerChartResponse> bestSellerChart = bestSellerService.getBestSellerChart(PeriodType.MONTHLY, LocalDate.now().toString());
