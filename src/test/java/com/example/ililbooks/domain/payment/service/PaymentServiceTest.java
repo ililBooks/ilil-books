@@ -2,7 +2,7 @@ package com.example.ililbooks.domain.payment.service;
 
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
 import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
-import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationReadService;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
 import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.enums.DeliveryStatus;
 import com.example.ililbooks.domain.order.enums.LimitedType;
@@ -56,7 +56,7 @@ class PaymentServiceTest {
     @Mock
     private IamportClient iamportClient;
     @Mock
-    private LimitedReservationReadService limitedReservationReadService;
+    private LimitedReservationService limitedReservationService;
 
     @InjectMocks
     private PaymentService paymentService;
@@ -334,7 +334,7 @@ class PaymentServiceTest {
 
         given(iamportClient.paymentByImpUid(anyString())).willReturn(iamportResponse);
         given(paymentRepository.findByMerchantUid(anyString())).willReturn(Optional.of(pendingPayment));
-        given(limitedReservationReadService.findReservationByOrderIdOrElseThrow(anyLong())).willReturn(limitedReservation);
+        given(limitedReservationService.findReservationByOrderIdOrElseThrow(anyLong())).willReturn(limitedReservation);
 
         // when & then
         BadRequestException badRequestException = assertThrows(BadRequestException.class,
@@ -400,7 +400,7 @@ class PaymentServiceTest {
 
         given(iamportClient.paymentByImpUid(anyString())).willReturn(iamportResponse);
         given(paymentRepository.findByMerchantUid(anyString())).willReturn(Optional.of(pendingPayment));
-        given(limitedReservationReadService.findReservationByOrderIdOrElseThrow(anyLong())).willReturn(limitedReservation);
+        given(limitedReservationService.findReservationByOrderIdOrElseThrow(anyLong())).willReturn(limitedReservation);
 
         // when
         PaymentResponse result = paymentService.verifyPayment(authUser, paymentVerificationRequest);

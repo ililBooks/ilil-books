@@ -96,7 +96,7 @@ public class OrderService {
         BigDecimal totalPrice = calculateTotalPrice(cartItemMap);
         String orderName = generateOrderName(cartItemMap);
 
-        Order order = Order.of(Users.fromAuthUser(authUser), orderName, totalPrice, LimitedType.REGULAR);
+        Order order = Order.of(Users.fromAuthUser(authUser), orderName, totalPrice, LimitedType.LIMITED);
         limitedReservation.linkOrder(order);
         orderRepository.save(order);
 

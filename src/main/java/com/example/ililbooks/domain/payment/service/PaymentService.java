@@ -2,7 +2,9 @@ package com.example.ililbooks.domain.payment.service;
 
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
 import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
+import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationReadService;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
 import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.enums.DeliveryStatus;
 import com.example.ililbooks.domain.order.enums.LimitedType;
@@ -45,7 +47,7 @@ public class PaymentService {
     private final OrderService orderService;
     private final PaymentRepository paymentRepository;
     private final IamportClient iamportClient;
-    private final LimitedReservationReadService limitedReservationReadService;
+    private final LimitedReservationService limitedReservationService;
 
     /* 결제 준비 및 결제 정보 저장 */
     @Transactional
@@ -118,7 +120,7 @@ public class PaymentService {
             order.updateOrder(OrderStatus.ORDERED);
 
             if (order.getLimitedType() == LimitedType.LIMITED) {
-                LimitedReservation limitedReservation = limitedReservationReadService.findReservationByOrderIdOrElseThrow(order.getId());
+                LimitedReservation limitedReservation = limitedReservationService.findReservationByOrderIdOrElseThrow(order.getId());
 
                 if (limitedReservation.getStatus() != LimitedReservationStatus.RESERVED) {
                     throw new BadRequestException(INVALID_RESERVATION_STATUS_FOR_PAYMENT.getMessage());

@@ -151,4 +151,10 @@ public class LimitedReservationService {
         return reservationRepository.findById(reservationId).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage()));
     }
+
+    public LimitedReservation findReservationByOrderIdOrElseThrow(Long orderId) {
+        return reservationRepository.findByOrderId(orderId).orElseThrow(
+                () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage())
+        );
+    }
 }
