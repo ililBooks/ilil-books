@@ -19,8 +19,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
-    private final AsyncNotificationService asyncNotificationService;
-    private final RabbitMqNotificationService rabbitMqNotificationService;
+    private final NotificationAsyncService notificationAsyncService;
+    private final NotificationRabbitMqService notificationRabbitMqService;
     private final RabbitMqService rabbitMqService;
     private final UserService userService;
 
@@ -30,13 +30,13 @@ public class NotificationService {
         List<Users> users = userService.findAllByNotificationAgreed();
 
         users.forEach(user ->
-                        asyncNotificationService.sendPromotionEmail(user.getEmail(), user.getNickname())
+                        notificationAsyncService.sendPromotionEmail(user.getEmail(), user.getNickname())
                 );
     }
 
     // @Async 비동기 처리
     public void sendOrderMail(AuthUser authUser, String orderNumber, BigDecimal price) {
-        asyncNotificationService.sendOrderMail(authUser, orderNumber, price);
+        notificationAsyncService.sendOrderMail(authUser, orderNumber, price);
     }
 
     /**
@@ -45,7 +45,7 @@ public class NotificationService {
      */
     @RabbitListener(queues = "order-mail-queue")
     public void sendOrderMail(MessageOrderRequest messageOrderRequest) {
-        rabbitMqNotificationService.sendOrderMail(
+        notificationRabbitMqService.sendOrderMail(
                 messageOrderRequest.email(),
                 messageOrderRequest.nickName(),
                 messageOrderRequest.orderNumber(),
