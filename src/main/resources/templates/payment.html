@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sample Payment</title>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <!-- iamport.payment.js -->
+    <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
+</head>
+<body>
+<button onclick="requestPay()">결제하기</button>
+<script th:inline="javascript">
+    const paymentData = {
+        pg: /*[[${paymentRequest.pg}]]*/ "",  // 문자열은 "" 없이 렌더링되니 감싸줍니다
+        pay_method: /*[[${paymentRequest.payMethod}]]*/ "",
+        merchant_uid: /*[[${paymentRequest.merchantUid}]]*/ "",
+        name: /*[[${paymentRequest.name}]]*/ "",
+        amount: /*[[${paymentRequest.amount != null ? paymentRequest.amount.doubleValue() : 0}]]*/, // 숫자는 따옴표 없이
+        buyer_email: /*[[${paymentRequest.buyerEmail}]]*/ "",
+        buyer_name: /*[[${paymentRequest.buyerName}]]*/ ""
+    };
+</script>
+<script>
+    function requestPay() {
+        const IMP = window.IMP;
+        IMP.init("imp61075032"); // 본인 가맹점 식별코드로 변경
+        IMP.request_pay({
+            pg: paymentData.pg,
+            pay_method: paymentData.pay_method,
+            merchant_uid: paymentData.merchant_uid,
+            name: paymentData.name,
+            amount: paymentData.amount,
+            buyer_email: paymentData.buyer_email,
+            buyer_name: paymentData.buyer_name,
+        }, function (rsp) {
+            console.log("결제 응답 객체:", rsp);
+
+            const resultContainer = document.getElementById("paymentResult");
+
+            if (rsp.success) {
+                const resultJson = JSON.stringify({
+                    impUid: rsp.imp_uid,
+                    merchantUid: rsp.merchant_uid,
+                    amount: rsp.paid_amount
+                }, null, 4);
+
+                resultContainer.innerText = resultJson;
+            } else {
+                resultContainer.innerText = "결제 실패: " + rsp.error_msg;
+            }
+        });
+    }
+</script>
+<div id="paymentResult" style="margin-top: 20px; white-space: pre-wrap;"></div>
+</body>
+</html>

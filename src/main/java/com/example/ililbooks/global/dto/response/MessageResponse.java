@@ -5,14 +5,22 @@ import lombok.Getter;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MessageResponse {
-    String message;
+public class MessageResponse<T> implements Response<T> {
+    private final String message;
+    private final T data;
 
-    private MessageResponse(String message) {
+    private MessageResponse(String message, T data) {
         this.message = message;
+        this.data = data;
     }
 
-    public static MessageResponse of(String message) {
-        return new MessageResponse(message);
+    public static <T> MessageResponse<T> of(String message, T data) {
+        return new MessageResponse<>(message, data);
+    }
+
+    @Override
+    public T getData() {
+        return data;
     }
 }
+
