@@ -97,6 +97,8 @@ public enum ErrorMessage {
     BOOK_ID_NOT_FOUND_IN_REDIS("해당 키에 해당하는 BOOK ID 존재하지 않음"),
     PERIOD_TYPE_NOT_FOUND("PeriodType 조회 실패"),
 
+    LOG_NOT_FOUND("로그를 찾을 수 없습니다."),
+
     REDISSON_LOCK_FAILED("락 획득에 실패했습니다."),
     REDISSON_LOCK_INTERRUPTED("Redisson 락 처리 중 인터럽트 발생");
 

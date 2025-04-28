@@ -19,18 +19,16 @@ public class RedissonConfig {
     @Bean
     public RedissonClient redissonClient() {
         Config config = new Config();
-
         config.useSingleServer()
-                .setAddress("redis://" + redisProperties.getHost() + ":" + redisProperties.getPort())
+                .setAddress("redis://" + redisProperties.getHost() + ":" + redisProperties.getPort())  // <-- 여기
                 .setConnectionMinimumIdleSize(1)
                 .setConnectionPoolSize(10)
                 .setRetryAttempts(3)
                 .setRetryInterval(1500)
                 .setTimeout(3000);
 
-        String password = redisProperties.getPassword();
-        if (password != null && !password.isBlank()) {
-            config.useSingleServer().setPassword(password);
+        if (redisProperties.getPassword() != null && !redisProperties.getPassword().isBlank()) {
+            config.useSingleServer().setPassword(redisProperties.getPassword());
         }
 
         return Redisson.create(config);

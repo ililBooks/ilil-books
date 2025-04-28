@@ -49,6 +49,8 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .rememberMe(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        // test-cloudwatch POST만 허용
+                        .requestMatchers(HttpMethod.POST, "/api/v1/system-logs/test-cloudwatch").permitAll()
                         .requestMatchers(HttpMethod.GET).permitAll()
                         .requestMatchers(request -> request.getRequestURI().startsWith("/api/v1/auth")).permitAll()
                         .requestMatchers(SWAGGER_URI).permitAll()
@@ -56,5 +58,4 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 ).build();
     }
-
 }
