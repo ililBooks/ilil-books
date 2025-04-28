@@ -1,7 +1,11 @@
 package com.example.ililbooks.domain.payment.service;
 
+import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
+import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationReadService;
 import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.enums.DeliveryStatus;
+import com.example.ililbooks.domain.order.enums.LimitedType;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.enums.PaymentStatus;
 import com.example.ililbooks.domain.order.service.OrderService;
@@ -41,6 +45,7 @@ public class PaymentService {
     private final OrderService orderService;
     private final PaymentRepository paymentRepository;
     private final IamportClient iamportClient;
+    private final LimitedReservationReadService limitedReservationReadService;
 
     /* 결제 준비 및 결제 정보 저장 */
     @Transactional
@@ -111,6 +116,16 @@ public class PaymentService {
             payment.updateSuccessPayment(verificationDto.impUid());
             order.updatePayment(PaymentStatus.PAID);
             order.updateOrder(OrderStatus.ORDERED);
+
+            if (order.getLimitedType() == LimitedType.LIMITED) {
+                LimitedReservation limitedReservation = limitedReservationReadService.findReservationByOrderIdOrElseThrow(order.getId());
+
+                if (limitedReservation.getStatus() == LimitedReservationStatus.RESERVED) {
+                    limitedReservation.updateLimitedReservationStatus(LimitedReservationStatus.SUCCESS);
+                } else {
+                    throw new BadRequestException(INVALID_RESERVATION_STATUS_FOR_PAYMENT.getMessage());
+                }
+            }
         } else {
             payment.updateFailPayment(verificationDto.impUid());
             order.updatePayment(PaymentStatus.FAILED);

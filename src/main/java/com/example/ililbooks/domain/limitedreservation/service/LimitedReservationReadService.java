@@ -76,7 +76,7 @@ public class LimitedReservationReadService {
     public LimitedReservationSummaryResponse getReservationSummary(Long eventId) {
         LimitedEvent event = findEventByIdOrElseThrow(eventId);
 
-        long success = reservationRepository.countByLimitedEventAndStatus(event, LimitedReservationStatus.SUCCESS);
+        long success = reservationRepository.countByLimitedEventAndStatus(event, LimitedReservationStatus.RESERVED);
         long waiting = reservationRepository.countByLimitedEventAndStatus(event, LimitedReservationStatus.WAITING);
         long canceled = reservationRepository.countByLimitedEventAndStatus(event, LimitedReservationStatus.CANCELED);
 
@@ -114,5 +114,11 @@ public class LimitedReservationReadService {
     private LimitedEvent findEventByIdOrElseThrow(Long id) {
         return eventRepository.findById(id).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_EVENT.getMessage()));
+    }
+
+    public LimitedReservation findReservationByOrderIdOrElseThrow(Long orderId) {
+        return reservationRepository.findByOrderId(orderId).orElseThrow(
+                () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage())
+        );
     }
 }

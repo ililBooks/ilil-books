@@ -13,16 +13,11 @@ import com.example.ililbooks.domain.order.dto.response.OrderHistoryResponse;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.enums.LimitedType;
-import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.repository.OrderRepository;
-import com.example.ililbooks.domain.payment.entity.Payment;
-import com.example.ililbooks.domain.payment.enums.PayStatus;
-import com.example.ililbooks.domain.payment.service.PaymentService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
-import com.example.ililbooks.global.exception.ForbiddenException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.example.ililbooks.global.asynchronous.rabbitmq.dto.request.MessageOrderRequest;
 import com.example.ililbooks.global.asynchronous.rabbitmq.service.RabbitMqService;
@@ -35,9 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
@@ -148,7 +141,7 @@ public class OrderService {
             throw new BadRequestException(NO_PERMISSION.getMessage());
         }
 
-        if (limitedReservation.getStatus() != LimitedReservationStatus.SUCCESS) {
+        if (limitedReservation.getStatus() != LimitedReservationStatus.RESERVED) {
             throw new BadRequestException(RESERVATION_NOT_SUCCESS.getMessage());
         }
 
