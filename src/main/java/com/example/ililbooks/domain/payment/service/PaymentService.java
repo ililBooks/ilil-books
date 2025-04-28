@@ -74,7 +74,7 @@ public class PaymentService {
 
         String tempImpUid = "tempImpUid_" + System.currentTimeMillis();
         String merchantUid = "merchantUid_" + UUID.randomUUID().toString().substring(0,8);
-        Payment payment = Payment.of(order, merchantUid, tempImpUid, PGProvider.KG, PaymentMethod.CARD, authUser);
+        Payment payment = Payment.of(order, tempImpUid, merchantUid, PGProvider.KG, PaymentMethod.CARD, authUser);
         paymentRepository.save(payment);
 
         iamportClient.postPrepare(createPrepareData(payment));
