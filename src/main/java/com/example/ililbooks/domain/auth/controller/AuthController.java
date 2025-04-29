@@ -56,7 +56,6 @@ public class AuthController {
 
     /* 토큰 재발급 (로그인 기간 연장) */
     @Operation(summary = "토큰 재발급", description = "Access 및 Refresh Token 재발급에 대한 API입니다.")
-    @Secured({USER, PUBLISHER, ADMIN})
     @GetMapping("/refresh")
     public Response<AuthAccessTokenResponse> refresh(
             @RefreshToken String refreshToken,

@@ -75,6 +75,9 @@ dependencies {
     implementation platform('software.amazon.awssdk:bom:2.27.21')
     implementation 'software.amazon.awssdk:s3'
 
+    // ses
+    implementation("software.amazon.awssdk:ses:2.31.30")
+
     // Elasticsearch
     implementation "org.springframework.boot:spring-boot-starter-data-elasticsearch"
 //    implementation 'co.elastic.clients:elasticsearch-java:8.11.0'
@@ -87,6 +90,22 @@ dependencies {
 
     // health check
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // SMTP
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    //RabbitMQ
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // iamport(portone)
+    implementation 'com.github.iamport:iamport-rest-client-java:0.2.23'
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 tasks.named('test') {

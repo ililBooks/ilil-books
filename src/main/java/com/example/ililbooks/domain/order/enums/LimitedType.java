@@ -2,5 +2,9 @@ package com.example.ililbooks.domain.order.enums;
 
 public enum LimitedType {
     LIMITED,
-    REGULAR
+    REGULAR;
+
+    public boolean canCancel() {
+        return this == REGULAR;
+    }
 }

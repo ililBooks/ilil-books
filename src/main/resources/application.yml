@@ -25,13 +25,24 @@ spring:
     redis:
       host: localhost
       port: 6379
-      password: ${REDIS_PASSWORD}
+#      password: ${REDIS_PASSWORD}
     elasticsearch:
       uris: http://localhost:9200
       repositories:
         enabled: true
   application:
     name: ilil-books
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
   datasource:
     url: ${DB_URL}
@@ -48,6 +59,14 @@ spring:
         format_sql: true
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    template:
+      exchange: mail.exchange #producer가 데이터를 보낼 교환소
 
 jwt:
   secret:
@@ -79,3 +98,7 @@ client:
     client-id: ${KAKAO_CLIENT_ID}
     client-secret: ${KAKAO_CLIENT_SECRET}
     redirect-uri: ${KAKAO_REDIRECT_URI}
+
+portone:
+  api-key: ${PORTONE_API_KEY}
+  api-secret: ${PORTONE_API_SECRET}

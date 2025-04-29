@@ -13,7 +13,7 @@ public interface Response<T> {
     }
 
     @ResponseStatus(value = HttpStatus.CREATED)
-    static <T> Response<T>  created(T data) {
+    static <T> Response<T> created(T data) {
         return new DefaultResponse<>(data);
     }
 

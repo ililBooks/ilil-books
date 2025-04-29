@@ -80,7 +80,15 @@ public enum ErrorMessage {
     CANNOT_CHANGE_ORDER("주문 대기 상태만 주문 승인 할 수 있습니다."),
     CANNOT_START_DELIVERY("주문 승인 상태만 배송할 수 있습니다."),
     COMPLETE_DELIVERY("배송 완료 상태입니다."),
-    CANNOT_DELIVER_CANCELLED_ORDER("취소된 주문은 배송이 불가합니다."),
+    CANNOT_DELIVERY_CANCELLED_ORDER("취소된 주문은 배송이 불가합니다."),
+    CANNOT_DELIVERY_ORDER("결제 승인 상태가 아니라 배송이 불가합니다."),
+
+    NOT_FOUND_PAYMENT("결제를 찾을 수 없습니다."),
+    CANNOT_CREATE_PAYMENT("주문 대기 상태가 아니라 결제를 생성할 수 없습니다."),
+    NOT_OWN_PAYMENT("본인 외 결제 접근 불가"),
+    CANNOT_REQUEST_PAYMENT("결제 준비 상태가 아니라 결제를 요청할 수 없습니다."),
+    CANNOT_CANCEL_PAYMENT("결제 상태가 아니라 결제를 취소할 수 없습니다."),
+    CANCEL_PAYMENT_FAILED("결제 취소를 실패했습니다."),
 
     NAVER_API_RESPONSE_FAILED("네이버 api 응답 실패"),
     NAVER_PARSING_FAILED("네이버 파싱 실패"),
@@ -93,6 +101,7 @@ public enum ErrorMessage {
     REDIS_PARSING_FAILED("Redis 정보 파싱 실패"),
     REDIS_SERIALIZE_FAILED("Redis 정보 직렬화 실패"),
 
+    FAILED_SEND_MAIL("메일 발송에 실패"),
     BOOK_ID_NOT_FOUND_IN_REDIS("해당 키에 해당하는 BOOK ID 존재하지 않음"),
     PERIOD_TYPE_NOT_FOUND("PeriodType 조회 실패"),
 

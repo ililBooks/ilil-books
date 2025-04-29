@@ -1,5 +1,6 @@
 package com.example.ililbooks.domain.order.service;
 
+import com.example.ililbooks.domain.bestseller.service.BestSellerService;
 import com.example.ililbooks.domain.book.service.BookStockService;
 import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
@@ -14,12 +15,17 @@ import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.enums.LimitedType;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.repository.OrderRepository;
-import com.example.ililbooks.domain.bestseller.service.BestSellerService;
+import com.example.ililbooks.domain.payment.entity.Payment;
+import com.example.ililbooks.domain.payment.enums.PayStatus;
+import com.example.ililbooks.domain.payment.service.PaymentService;
 import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.ForbiddenException;
 import com.example.ililbooks.global.exception.NotFoundException;
+import com.example.ililbooks.global.asynchronous.rabbitmq.dto.request.MessageOrderRequest;
+import com.example.ililbooks.global.asynchronous.rabbitmq.service.RabbitMqService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +37,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 
@@ -44,6 +51,8 @@ public class OrderService {
     private final BookStockService bookStockService;
     private final LimitedReservationReadService limitedReservationReadService;
     private final BestSellerService bestSellerService;
+    private final RabbitMqService rabbitMqService;
+    private final UserService userService;
 
     /* 주문 생성 - 일반판 */
     @Transactional
@@ -60,8 +69,9 @@ public class OrderService {
         decreaseStocks(cartItemMap);
 
         BigDecimal totalPrice = calculateTotalPrice(cartItemMap);
+        String orderName = generateOrderName(cartItemMap);
 
-        Order order = Order.of(Users.fromAuthUser(authUser), totalPrice, LimitedType.REGULAR);
+        Order order = Order.of(Users.fromAuthUser(authUser), orderName, totalPrice, LimitedType.REGULAR);
         orderRepository.save(order);
 
         orderHistoryService.saveOrderHistory(cartItemMap, order);
@@ -69,6 +79,13 @@ public class OrderService {
         cartService.clearCart(authUser);
 
         bestSellerService.increaseBookSalesByQuantity(cartItemMap);
+
+        Users users = userService.findByIdOrElseThrow(authUser.getUserId());
+
+        //알림 수신 동의인 경우
+        if (users.isNotificationAgreed()) {
+            rabbitMqService.sendOrderMessage(MessageOrderRequest.of(authUser.getEmail(), authUser.getNickname(), order.getNumber(), order.getTotalPrice()));
+        }
 
         return getOrderResponse(order, pageable);
     }
@@ -84,49 +101,14 @@ public class OrderService {
         cartItemMap.put(limitedEvent.getBook().getId(), CartItem.of(limitedEvent.getBook(), 1));
 
         BigDecimal totalPrice = calculateTotalPrice(cartItemMap);
+        String orderName = generateOrderName(cartItemMap);
 
-        Order order = Order.of(Users.fromAuthUser(authUser), totalPrice, LimitedType.LIMITED);
+        Order order = Order.of(Users.fromAuthUser(authUser), orderName, totalPrice, LimitedType.REGULAR);
         limitedReservation.linkOrder(order);
         orderRepository.save(order);
 
         orderHistoryService.saveOrderHistory(cartItemMap, order);
 
-        return getOrderResponse(order, pageable);
-    }
-
-    /* 주문 상태 변경(취소) */
-    @Transactional
-    public OrderResponse cancelOrder(AuthUser authUser, Long orderId, Pageable pageable) {
-        Order order = findByIdOrElseThrow(orderId);
-
-        if (!authUser.getUserId().equals(order.getUsers().getId())) {
-            throw new ForbiddenException(NOT_OWN_ORDER.getMessage());
-        }
-
-        if (!canCancelOrder(order)) {
-            throw new BadRequestException(CANNOT_CANCEL_ORDER.getMessage());
-        }
-
-        order.updateOrder(OrderStatus.CANCELLED);
-
-        rollbackStocks(order);
-        return getOrderResponse(order, pageable);
-    }
-
-    /* 주문 상태 변경(승인) */
-    @Transactional
-    public OrderResponse updateOrderStatus(AuthUser authUser, Long orderId, Pageable pageable) {
-        Order order = findByIdOrElseThrow(orderId);
-
-        if (!authUser.getUserId().equals(order.getUsers().getId())) {
-            throw new ForbiddenException(NOT_OWN_ORDER.getMessage());
-        }
-
-        if (!order.getOrderStatus().equals(OrderStatus.PENDING)) {
-            throw new BadRequestException(CANNOT_CHANGE_ORDER.getMessage());
-        }
-
-        order.updateOrder(OrderStatus.ORDERED);
         return getOrderResponse(order, pageable);
     }
 
@@ -148,23 +130,10 @@ public class OrderService {
         }
     }
 
-    /* 취소 시 재고 감소 롤백 */
-    private void rollbackStocks(Order order) {
-        List<CartItem> cartItemList = orderHistoryService.getCartItemListByOrderId(order.getId());
-
-        for (CartItem cartItem : cartItemList) {
-            bookStockService.rollbackStock(cartItem.getBookId(), cartItem.getQuantity());
-        }
-    }
-
     public OrderResponse getOrderResponse(Order order, Pageable pageable) {
         Page<OrderHistoryResponse> orderHistories = orderHistoryService.getOrderHistories(order.getId(), pageable);
 
         return OrderResponse.of(order, orderHistories);
-    }
-
-    private boolean canCancelOrder(Order order) {
-        return order.getOrderStatus().canCancel() && order.getDeliveryStatus().canCancel();
     }
 
     public Order findByIdOrElseThrow(Long orderId) {
@@ -191,5 +160,28 @@ public class OrderService {
             throw new BadRequestException(ALREADY_ORDERED.getMessage());
         }
         return limitedReservation;
+    }
+
+    private String generateOrderName(Map<Long, CartItem> cartItemMap) {
+        int totalCount = cartItemMap.size();
+
+        CartItem representativeItem = cartItemMap.entrySet()
+                .stream()
+                .findFirst()
+                .map(Map.Entry::getValue)
+                .orElseThrow();
+
+        String baseTitle = representativeItem.getTitle();
+        int baseTitleLengthLimit = 30;
+
+        if (totalCount == 1) {
+            return baseTitle;
+        }
+
+        String trimmedTitle = baseTitle.length() > baseTitleLengthLimit
+                ? baseTitle.substring(0, baseTitleLengthLimit) + "..."
+                : baseTitle;
+
+        return String.format("%s 외 %d권", trimmedTitle, totalCount - 1);
     }
 }
