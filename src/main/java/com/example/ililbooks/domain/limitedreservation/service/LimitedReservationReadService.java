@@ -76,7 +76,7 @@ public class LimitedReservationReadService {
     public LimitedReservationSummaryResponse getReservationSummary(Long eventId) {
         LimitedEvent event = findEventByIdOrElseThrow(eventId);
 
-        long success = reservationRepository.countByLimitedEventAndStatus(event, LimitedReservationStatus.SUCCESS);
+        long success = reservationRepository.countByLimitedEventAndStatus(event, LimitedReservationStatus.RESERVED);
         long waiting = reservationRepository.countByLimitedEventAndStatus(event, LimitedReservationStatus.WAITING);
         long canceled = reservationRepository.countByLimitedEventAndStatus(event, LimitedReservationStatus.CANCELED);
 

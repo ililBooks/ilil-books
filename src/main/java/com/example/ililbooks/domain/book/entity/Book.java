@@ -130,7 +130,6 @@ public class Book extends TimeStamped {
             this.saleStatus = SaleStatus.SOLD_OUT;
         }
         this.stock -= quantity;
-        this.version++;
     }
 
     public void increaseStock(int quantity) {
@@ -139,6 +138,5 @@ public class Book extends TimeStamped {
         if (this.stock > 0 && this.saleStatus == SaleStatus.SOLD_OUT) {
             this.saleStatus = SaleStatus.ON_SALE;
         }
-        this.version++;
     }
 }

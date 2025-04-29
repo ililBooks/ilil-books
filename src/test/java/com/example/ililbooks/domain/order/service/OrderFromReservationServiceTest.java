@@ -26,7 +26,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 import static com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus.CANCELED;
-import static com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus.SUCCESS;
+import static com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus.RESERVED;
 import static com.example.ililbooks.global.exception.ErrorMessage.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,7 +60,7 @@ class OrderFromReservationServiceTest {
         AuthUser authUser = createAuthUser(userId);
         Users users = createTestUserWithId(2L);
         LimitedEvent limitedEvent = createTestEventWithId(1L, 5);
-        LimitedReservation reservation = createTestReservationWithId(reservationId, users, limitedEvent, Instant.now().plusSeconds(3600), SUCCESS);
+        LimitedReservation reservation = createTestReservationWithId(reservationId, users, limitedEvent, Instant.now().plusSeconds(3600), RESERVED);
 
         given(limitedReservationReadService.findReservationByIdOrElseThrow(anyLong())).willReturn(reservation);
 
@@ -96,7 +96,7 @@ class OrderFromReservationServiceTest {
         AuthUser authUser = createAuthUser(userId);
         Users users = createTestUserWithId(userId);
         LimitedEvent limitedEvent = createTestEventWithId(1L, 5);
-        LimitedReservation reservation = createTestReservationWithId(reservationId, users, limitedEvent, Instant.now().minusSeconds(3600), SUCCESS);
+        LimitedReservation reservation = createTestReservationWithId(reservationId, users, limitedEvent, Instant.now().minusSeconds(3600), RESERVED);
 
         given(limitedReservationReadService.findReservationByIdOrElseThrow(anyLong())).willReturn(reservation);
 
@@ -114,7 +114,7 @@ class OrderFromReservationServiceTest {
         AuthUser authUser = createAuthUser(userId);
         Users users = createTestUserWithId(userId);
         LimitedEvent limitedEvent = createTestEventWithId(1L, 5);
-        LimitedReservation reservation = createTestReservationWithId(reservationId, users, limitedEvent, Instant.now().plusSeconds(3600), SUCCESS);
+        LimitedReservation reservation = createTestReservationWithId(reservationId, users, limitedEvent, Instant.now().plusSeconds(3600), RESERVED);
 
         reservation.linkOrder(Order.builder()
                 .id(1L)
@@ -140,7 +140,7 @@ class OrderFromReservationServiceTest {
 
         LimitedEvent limitedEvent = createTestEventWithId(1L, 100);
         LimitedReservation reservation = createTestReservationWithId(
-                reservationId, users, limitedEvent, Instant.now().plusSeconds(3600), SUCCESS
+                reservationId, users, limitedEvent, Instant.now().plusSeconds(3600), RESERVED
         );
 
         given(limitedReservationReadService.findReservationByIdOrElseThrow(reservationId)).willReturn(reservation);

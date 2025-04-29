@@ -64,6 +64,8 @@ class OrderServiceTest {
     private RabbitMqService rabbitMqService;
     @Mock
     private UserService userService;
+    @Mock
+    private OrderHistoryService orderHistoryService;
 
     @InjectMocks
     private OrderService orderService;
@@ -163,6 +165,8 @@ class OrderServiceTest {
         verify(bookStockService, times(2)).decreaseStock(anyLong(), anyInt());
         verify(orderRepository, times(1)).save(any(Order.class));
         verify(cartService, times(1)).clearCart(authUser);
+        verify(orderHistoryService, times(1)).saveOrderHistory(anyMap(), any(Order.class));
+        verify(bestSellerService, times(1)).increaseBookSalesByQuantity(anyMap());
     }
 
     @Test
@@ -187,6 +191,8 @@ class OrderServiceTest {
         verify(bookStockService, times(2)).decreaseStock(anyLong(), anyInt());
         verify(orderRepository, times(1)).save(any(Order.class));
         verify(cartService, times(1)).clearCart(authUser);
+        verify(orderHistoryService, times(1)).saveOrderHistory(anyMap(), any(Order.class));
+        verify(bestSellerService, times(1)).increaseBookSalesByQuantity(anyMap());
         verify(rabbitMqService, times(1)).sendOrderMessage(any(MessageOrderRequest.class));
     }
 
@@ -213,6 +219,34 @@ class OrderServiceTest {
         verify(bookStockService, times(2)).decreaseStock(anyLong(), anyInt());
         verify(orderRepository, times(1)).save(any(Order.class));
         verify(cartService, times(1)).clearCart(authUser);
+        verify(orderHistoryService, times(1)).saveOrderHistory(anyMap(), any(Order.class));
+        verify(bestSellerService, times(1)).increaseBookSalesByQuantity(anyMap());
+        verify(rabbitMqService, times(1)).sendOrderMessage(any(MessageOrderRequest.class));
+    }
+
+    @Test
+    void 주문_생성_알림_수신_동의_및_주문_이름_책_하나_성공() {
+        // Given
+        int book1originalQuantity = 2;
+        ReflectionTestUtils.setField(users, "isNotificationAgreed", true);
+        ReflectionTestUtils.setField(book1, "title", "book-title-over-30-word-abcdefghijkimnopqrstu");
+
+        cart.getItems().put(book1.getId(), CartItem.of(book1, book1originalQuantity));
+
+        given(cartService.findByUserIdOrElseNewCart(anyLong())).willReturn(cart);
+        willDoNothing().given(bestSellerService).increaseBookSalesByQuantity(anyMap());
+        given(userService.findByIdOrElseThrow(anyLong())).willReturn(users);
+
+        // When
+        OrderResponse result = orderService.createOrder(authUser, pageable);
+
+        // Then
+        assertThat(result.totalPrice()).isEqualTo(new BigDecimal("40000")); // (20000*2)
+        verify(bookStockService, times(1)).decreaseStock(anyLong(), anyInt());
+        verify(orderRepository, times(1)).save(any(Order.class));
+        verify(cartService, times(1)).clearCart(authUser);
+        verify(orderHistoryService, times(1)).saveOrderHistory(anyMap(), any(Order.class));
+        verify(bestSellerService, times(1)).increaseBookSalesByQuantity(anyMap());
         verify(rabbitMqService, times(1)).sendOrderMessage(any(MessageOrderRequest.class));
     }
 
