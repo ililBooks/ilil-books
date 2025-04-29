@@ -34,9 +34,14 @@ import static org.mockito.BDDMockito.*;
 @ExtendWith(MockitoExtension.class)
 class LimitedEventServiceTest {
 
-    @Mock private BookService bookService;
-    @Mock private LimitedEventRepository limitedEventRepository;
-    @InjectMocks private LimitedEventService limitedEventService;
+    @Mock
+    private BookService bookService;
+
+    @Mock
+    private LimitedEventRepository limitedEventRepository;
+
+    @InjectMocks
+    private LimitedEventService limitedEventService;
 
     private Users admin;
     private Book limitedBook;
