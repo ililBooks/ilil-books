@@ -66,7 +66,8 @@ public class BookServiceTest {
             "프로그래밍",
             50,
             "isbn",
-            "문예 한국사"
+            "문예 한국사",
+            "LIMITED"
     );
 
     public static final BookUpdateRequest BOOK_UPDATE_REQUEST = new BookUpdateRequest(

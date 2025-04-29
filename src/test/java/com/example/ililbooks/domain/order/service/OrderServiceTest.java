@@ -6,13 +6,9 @@ import com.example.ililbooks.domain.book.service.BookStockService;
 import com.example.ililbooks.domain.cart.entity.Cart;
 import com.example.ililbooks.domain.cart.entity.CartItem;
 import com.example.ililbooks.domain.cart.service.CartService;
-import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationReadService;
 import com.example.ililbooks.domain.order.dto.response.OrderResponse;
 import com.example.ililbooks.domain.order.entity.Order;
-import com.example.ililbooks.domain.order.enums.DeliveryStatus;
 import com.example.ililbooks.domain.order.enums.LimitedType;
-import com.example.ililbooks.domain.order.enums.OrderStatus;
-import com.example.ililbooks.domain.order.enums.PaymentStatus;
 import com.example.ililbooks.domain.order.repository.OrderRepository;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.UserRole;
@@ -20,8 +16,6 @@ import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.asynchronous.rabbitmq.dto.request.MessageOrderRequest;
 import com.example.ililbooks.global.asynchronous.rabbitmq.service.RabbitMqService;
 import com.example.ililbooks.global.dto.AuthUser;
-import com.example.ililbooks.global.exception.BadRequestException;
-import com.example.ililbooks.global.exception.ForbiddenException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,12 +28,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
-import static com.example.ililbooks.global.exception.ErrorMessage.*;
+import static com.example.ililbooks.domain.book.enums.LimitedType.REGULAR;
+import static com.example.ililbooks.global.exception.ErrorMessage.NOT_EXIST_SHOPPING_CART;
+import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_ORDER;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -108,6 +102,7 @@ class OrderServiceTest {
                 .stock(100)
                 .price(new BigDecimal(20000))
                 .publisher("publisher1")
+                .limitedType(REGULAR)
                 .build();
 
         book2 = Book.builder()
@@ -117,6 +112,7 @@ class OrderServiceTest {
                 .stock(200)
                 .price(new BigDecimal(30000))
                 .publisher("publisher2")
+                .limitedType(REGULAR)
                 .build();
 
         cart = Cart.builder()
