@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
 import java.time.Instant;
 
@@ -29,4 +30,15 @@ public record LimitedEventCreateRequest (
 
     @Min(value = 1, message = INVALID_EVENT_QUANTITY)
     Integer bookQuantity
-) {}
+) {
+
+    @Builder
+    public LimitedEventCreateRequest(Long bookId, String title, Instant startTime, Instant endTime, String contents, Integer bookQuantity) {
+        this.bookId = bookId;
+        this.title = title;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.contents = contents;
+        this.bookQuantity = bookQuantity;
+    }
+}

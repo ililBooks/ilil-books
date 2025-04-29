@@ -1,117 +1,175 @@
-//package com.example.ililbooks.domain.limitedevent.service;
-//
-//import com.example.ililbooks.domain.book.entity.Book;
-//import com.example.ililbooks.domain.book.repository.BookRepository;
-//import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventCreateRequest;
-//import com.example.ililbooks.domain.limitedevent.dto.response.LimitedEventResponse;
-//import com.example.ililbooks.domain.limitedevent.entity.LimitedEvent;
-//import com.example.ililbooks.domain.user.entity.Users;
-//import com.example.ililbooks.domain.user.enums.LoginType;
-//import com.example.ililbooks.domain.user.enums.UserRole;
-//import com.example.ililbooks.domain.limitedevent.repository.LimitedEventRepository;
-//import com.example.ililbooks.global.dto.AuthUser;
-//import com.example.ililbooks.global.exception.BadRequestException;
-//import com.example.ililbooks.global.exception.NotFoundException;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//import org.springframework.test.util.ReflectionTestUtils;
-//
-//import java.math.BigDecimal;
-//import java.time.Instant;
-//import java.util.Optional;
-//
-//import static org.assertj.core.api.Assertions.*;
-//import static org.mockito.BDDMockito.*;
-//
-//@ExtendWith(MockitoExtension.class)
-//class LimitedEventServiceTest {
-//
-//    @Mock
-//    private LimitedEventRepository limitedEventRepository;
-//
-//    @Mock
-//    private BookRepository bookRepository;
-//
-//    @InjectMocks
-//    private LimitedEventService limitedEventService;
-//
-//    @Test
-//    void 한정판행사_등록성공() {
-//        // Given
-//        Long userId= 1L;
-//        Long bookId = 100L;
-//        AuthUser authUser = createAuthUser(userId);
-//        Users user = createTestUser(userId);
-//        Book book = createTestBook(bookId, user);
-//        LimitedEventCreateRequest request = new LimitedEventCreateRequest(bookId, "한정판 행사", Instant.now().plusSeconds(60), Instant.now().plusSeconds(3600), "행사내용", 50);
-//
-//        given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
-//
-//        // When
-//        LimitedEventResponse response = limitedEventService.createLimitedEvent(authUser, request);
-//
-//        // Then
-//        assertThat(response).isNotNull();
-//        assertThat(response.title()).isEqualTo("한정판 행사");
-//        then(limitedEventRepository).should().save(any(LimitedEvent.class));
-//    }
-//
-//    @Test
-//    void 한정판행사_등록실패_권한없음() {
-//        // Given
-//        Long userId = 1L;
-//        Long bookId = 100L;
-//        Users otherUser = createTestUser(2L);
-//        Book book = createTestBook(bookId, otherUser);
-//        AuthUser authUser = createAuthUser(userId);
-//        LimitedEventCreateRequest request = new LimitedEventCreateRequest(bookId, "한정판 행사", Instant.now().plusSeconds(60), Instant.now().plusSeconds(3600), "행사내용", 50);
-//
-//        given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
-//
-//        // When & Then
-//        assertThatThrownBy(() -> limitedEventService.createLimitedEvent(authUser, request))
-//                .isInstanceOf(BadRequestException.class)
-//                .hasMessageContaining("권한이 없습니다.");
-//    }
-//
-//    @Test
-//    void 한정판행사_등록실패_책없음() {
-//        // Given
-//        Long bookId = 200L;
-//        AuthUser authUser =createAuthUser(1L);
-//        LimitedEventCreateRequest request = new LimitedEventCreateRequest(bookId, "한정판 행사", Instant.now().plusSeconds(60), Instant.now().plusSeconds(3600), "행사내용", 50);
-//
-//        given(bookRepository.findById(bookId)).willReturn(Optional.empty());
-//
-//        // When & Then
-//        assertThatThrownBy(() -> limitedEventService.createLimitedEvent(authUser, request))
-//                .isInstanceOf(NotFoundException.class)
-//                .hasMessageContaining("책을 찾을 수 없습니다.");
-//    }
-//
-//    // ----- 헬퍼 메서드 -----
-//
-//    private AuthUser createAuthUser(Long id) {
-//        return AuthUser.builder()
-//                .userId(id)
-//                .email("user" + id + "@example.com")
-//                .nickname("user" + id)
-//                .role(UserRole.ROLE_PUBLISHER)
-//                .build();
-//    }
-//
-//    private Users createTestUser(Long id) {
-//        Users user = Users.of("user" + id + "@example.com", "user" + id, "010-0000-0000", LoginType.EMAIL);
-//        ReflectionTestUtils.setField(user, "id", id);
-//        return user;
-//    }
-//
-//    private Book createTestBook(Long bookId, Users user) {
-//        Book book = Book.of(user, "책 제목", "저자", BigDecimal.valueOf(10000), "소설", 100, "ISBN123", "출판사");
-//        ReflectionTestUtils.setField(book, "id", bookId);
-//        return book;
-//    }
-//}
+package com.example.ililbooks.domain.limitedevent.service;
+
+import com.example.ililbooks.domain.book.entity.Book;
+import com.example.ililbooks.domain.book.enums.LimitedType;
+import com.example.ililbooks.domain.book.service.BookService;
+import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventCreateRequest;
+import com.example.ililbooks.domain.limitedevent.dto.request.LimitedEventUpdateRequest;
+import com.example.ililbooks.domain.limitedevent.dto.response.LimitedEventResponse;
+import com.example.ililbooks.domain.limitedevent.entity.LimitedEvent;
+import com.example.ililbooks.domain.limitedevent.repository.LimitedEventRepository;
+import com.example.ililbooks.domain.user.entity.Users;
+import com.example.ililbooks.domain.user.enums.UserRole;
+import com.example.ililbooks.global.dto.AuthUser;
+import com.example.ililbooks.global.exception.BadRequestException;
+import com.example.ililbooks.global.exception.NotFoundException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.*;
+
+
+@ExtendWith(MockitoExtension.class)
+class LimitedEventServiceTest {
+
+    @Mock private BookService bookService;
+    @Mock private LimitedEventRepository limitedEventRepository;
+    @InjectMocks private LimitedEventService limitedEventService;
+
+    private Users admin;
+    private Book limitedBook;
+    private AuthUser authUser;
+    private LimitedEventCreateRequest createRequest;
+    private LimitedEventUpdateRequest updateRequest;
+
+    @BeforeEach
+    void setUp() {
+        admin = Users.builder()
+                .id(1L)
+                .nickname("관리자")
+                .userRole(UserRole.ROLE_ADMIN)
+                .build();
+
+        limitedBook = Book.builder()
+                .id(1L)
+                .title("한정판 책")
+                .limitedType(LimitedType.LIMITED)
+                .users(admin)
+                .build();
+
+        authUser = AuthUser.builder()
+                .userId(1L)
+                .email("admin@example.com")
+                .nickname("관리자")
+                .role(UserRole.ROLE_ADMIN)
+                .build();
+
+        createRequest = LimitedEventCreateRequest.builder()
+                .bookId(1L)
+                .title("한정 이벤트")
+                .startTime(Instant.now().plusSeconds(3600))
+                .endTime(Instant.now().plusSeconds(7200))
+                .contents("한정 내용")
+                .bookQuantity(10)
+                .build();
+
+        updateRequest = LimitedEventUpdateRequest.builder()
+                .title("수정된 제목")
+                .startTime(Instant.now().plusSeconds(7200))
+                .endTime(Instant.now().plusSeconds(10800))
+                .contents("수정된 내용")
+                .bookQuantity(5)
+                .build();
+    }
+
+    @Test
+    void 한정판_행사_생성_성공() {
+        // Given
+        given(bookService.findBookByIdOrElseThrow(1L)).willReturn(limitedBook);
+        given(limitedEventRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        LimitedEventResponse response = limitedEventService.createLimitedEvent(authUser, createRequest);
+
+        // Then
+        assertThat(response.title()).isEqualTo(createRequest.title());
+        verify(limitedEventRepository).save(any());
+    }
+
+    @Test
+    void 한정판_행사_조회_성공() {
+        // given
+        LimitedEvent limitedEvent = LimitedEvent.of(limitedBook, "제목", Instant.now(), Instant.now().plusSeconds(3600), "내용", 10);
+        given(limitedEventRepository.findByIdWithBookAndUser(anyLong())).willReturn(Optional.of(limitedEvent));
+
+        // when
+        LimitedEventResponse result = limitedEventService.getLimitedEvent(1L);
+
+        // then
+        assertThat(result.title()).isEqualTo("제목");
+        verify(limitedEventRepository).findByIdWithBookAndUser(1L);
+    }
+
+    @Test
+    void 존재하지_않는_행사_조회_실패() {
+        // given
+        given(limitedEventRepository.findByIdWithBookAndUser(anyLong())).willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(NotFoundException.class, () -> limitedEventService.getLimitedEvent(1L));
+    }
+
+    @Test
+    void 한정판_행사_전체_조회() {
+        // given
+        Pageable pageable = PageRequest.of(0, 5);
+        LimitedEvent limitedEvent = LimitedEvent.of(limitedBook, "이벤트", Instant.now(), Instant.now().plusSeconds(3600), "내용", 10);
+        given(limitedEventRepository.findAllByIsDeletedFalse(pageable)).willReturn(new PageImpl<>(List.of(limitedEvent)));
+
+        // when
+        var result = limitedEventService.getAllLimitedEvents(pageable);
+
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        verify(limitedEventRepository).findAllByIsDeletedFalse(pageable);
+    }
+
+    @Test
+    void 한정판_행사_수정_성공() {
+        // given
+        LimitedEvent limitedEvent = LimitedEvent.of(limitedBook, "기존제목", Instant.now(), Instant.now().plusSeconds(3600), "내용", 10);
+        given(limitedEventRepository.findByIdWithBookAndUser(1L)).willReturn(Optional.of(limitedEvent));
+
+        // when
+        LimitedEventResponse response = limitedEventService.updateLimitedEvent(authUser, 1L, updateRequest);
+
+        // then
+        assertThat(response.title()).isEqualTo("수정된 제목");
+    }
+
+    @Test
+    void 한정판_행사_삭제_성공() {
+        // given
+        LimitedEvent limitedEvent = LimitedEvent.of(limitedBook, "제목", Instant.now(), Instant.now().plusSeconds(3600), "내용", 10);
+        given(limitedEventRepository.findByIdWithBookAndUser(1L)).willReturn(Optional.of(limitedEvent));
+
+        // when
+        limitedEventService.deleteLimitedEvent(authUser, 1L);
+
+        // then
+        assertThat(limitedEvent.isDeleted()).isTrue();
+    }
+
+    @Test
+    void 활성화_상태인_행사_삭제_실패() {
+        // given
+        LimitedEvent limitedEvent = LimitedEvent.of(limitedBook, "제목", Instant.now(), Instant.now().plusSeconds(3600), "내용", 10);
+        limitedEvent.activate();
+        given(limitedEventRepository.findByIdWithBookAndUser(1L)).willReturn(Optional.of(limitedEvent));
+
+        // when & then
+        assertThrows(BadRequestException.class, () -> limitedEventService.deleteLimitedEvent(authUser, 1L));
+    }
+}
