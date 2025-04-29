@@ -7,6 +7,7 @@ import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.global.entity.TimeStamped;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -43,25 +44,39 @@ public class LimitedReservation extends TimeStamped {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    @Builder
+    private LimitedReservation(Long id, Users users, LimitedEvent limitedEvent, LimitedReservationStatus status, Instant expiresAt, Order order) {
+        this.id = id;
+        this.users = users;
+        this.limitedEvent = limitedEvent;
+        this.status = status;
+        this.expiresAt = expiresAt;
+        this.order = order;
+    }
+
     /*
      * 정적 생성 메서드
      */
     public static LimitedReservation of(Users users, LimitedEvent limitedEvent, LimitedReservationStatus status, Instant expiresAt) {
-        LimitedReservation reservation = new LimitedReservation();
-        reservation.users = users;
-        reservation.limitedEvent = limitedEvent;
-        reservation.status = status;
-        reservation.expiresAt = expiresAt;
-        return reservation;
+        return LimitedReservation.builder()
+                .users(users)
+                .limitedEvent(limitedEvent)
+                .status(status)
+                .expiresAt(expiresAt)
+                .build();
     }
 
     /*
      * 정적 생성 메서드 (주문 포함)
      */
-    public static LimitedReservation createWithOrder(Users users, LimitedEvent limitedEvent, LimitedReservationStatus status, Instant expiredAt, Order order) {
-        LimitedReservation reservation = of(users, limitedEvent, status, expiredAt);
-        reservation.order = order;
-        return reservation;
+    public static LimitedReservation createWithOrder(Users users, LimitedEvent limitedEvent, LimitedReservationStatus status, Instant expiresAt, Order order) {
+        return LimitedReservation.builder()
+                .users(users)
+                .limitedEvent(limitedEvent)
+                .status(status)
+                .expiresAt(expiresAt)
+                .order(order)
+                .build();
     }
 
     /*
@@ -86,10 +101,14 @@ public class LimitedReservation extends TimeStamped {
     }
 
     public void markSuccess() {
-        this.status =LimitedReservationStatus.SUCCESS;
+        this.status =LimitedReservationStatus.RESERVED;
     }
 
     public boolean isExpired() {
         return Instant.now().isAfter(this.expiresAt);
+    }
+
+    public void updateLimitedReservationStatus(LimitedReservationStatus status) {
+        this.status = status;
     }
 }

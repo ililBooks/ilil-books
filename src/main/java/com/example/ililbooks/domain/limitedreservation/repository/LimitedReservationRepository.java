@@ -47,4 +47,6 @@ public interface LimitedReservationRepository extends JpaRepository<LimitedReser
             Instant startDate,
             Instant endDate
     );
+
+    Optional<LimitedReservation> findByOrderId(Long orderId);
 }

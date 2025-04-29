@@ -46,6 +46,11 @@ public final class ValidationMessage {
     public static final String NOT_NULL_EVENT_ID = "예약할 한정판 행사 ID는 필수입니다.";
     public static final String NOT_EMPTY_RESERVATION_STATUS = "행사 상태는 필수입니다.";
     public static final String NOT_NULL_RESERVATION_ID = "예약 ID는 필수 입력값입니다.";
+    public static final String NOT_NULL_ORDER_ID = "주문 ID는 필수 입력값입니다.";
+
+    public static final String NOT_BLANK_IMP_UID = "impUid는 필수 입력값입니다.";
+    public static final String NOT_BLANK_MERCHANT_UID = "merchantUid는 필수 입력값입니다.";
+    public static final String NOT_NULL_AMOUNT = "amount는 필수 입력값입니다.";
 
     public static final String NOT_NULL_IMAGE_URL = "ImageUrl은 필수 입력 값입니다.";
     public static final String NOT_NULL_FILENAME = "fileName은 필수 입력 값입니다.";

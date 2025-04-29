@@ -37,7 +37,7 @@ public class LimitedReservationService {
     private final RedissonLockService redissonLockService;
     private final LimitedReservationStatusHistoryRepository historyRepository;
 
-    private static final int EXPIRATION_HOURS = 24;
+    private static final int EXPIRATION_MINUTE = 10;
 
     /*/ 예약 생성 */
     @Transactional
@@ -53,13 +53,13 @@ public class LimitedReservationService {
         validateNotAlreadyReserved(authUser.getUserId(), event);
 
         Users user = userService.findByIdOrElseThrow(authUser.getUserId());
-        Instant expiresAt = Instant.now().plus(EXPIRATION_HOURS, ChronoUnit.HOURS);
+        Instant expiresAt = Instant.now().plus(EXPIRATION_MINUTE, ChronoUnit.MINUTES);
 
-        long successCount = reservationRepository.countByLimitedEventAndStatus(event, LimitedReservationStatus.SUCCESS);
+        long successCount = reservationRepository.countByLimitedEventAndStatus(event, LimitedReservationStatus.RESERVED);
         boolean isReservable = event.canAcceptReservation(successCount);
 
         LimitedReservation reservation = isReservable ?
-                LimitedReservation.of(user, event, LimitedReservationStatus.SUCCESS, expiresAt) :
+                LimitedReservation.of(user, event, LimitedReservationStatus.RESERVED, expiresAt) :
                 LimitedReservation.of(user, event, LimitedReservationStatus.WAITING, expiresAt);
 
         reservationRepository.save(reservation);
@@ -96,7 +96,7 @@ public class LimitedReservationService {
     @Transactional
     public void expireReservationAndPromote() {
         Instant now = Instant.now();
-        List<LimitedReservation> expired = reservationRepository.findAllByStatusAndExpiresAtBefore(LimitedReservationStatus.SUCCESS, now);
+        List<LimitedReservation> expired = reservationRepository.findAllByStatusAndExpiresAtBefore(LimitedReservationStatus.RESERVED, now);
 
         for (LimitedReservation reservation : expired) {
             cancelAndPromote(reservation);
@@ -108,7 +108,7 @@ public class LimitedReservationService {
     public void expireReservationAndPromoteOne(Long reservationId) {
         LimitedReservation reservation = findReservation(reservationId);
 
-        if (reservation.getStatus() != LimitedReservationStatus.SUCCESS || !reservation.isExpired()) return;
+        if (reservation.getStatus() != LimitedReservationStatus.RESERVED || !reservation.isExpired()) return;
         cancelAndPromote(reservation);
     }
 
@@ -150,5 +150,11 @@ public class LimitedReservationService {
     private LimitedReservation findReservation(Long reservationId) {
         return reservationRepository.findById(reservationId).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage()));
+    }
+
+    public LimitedReservation findReservationByOrderIdOrElseThrow(Long orderId) {
+        return reservationRepository.findByOrderId(orderId).orElseThrow(
+                () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage())
+        );
     }
 }

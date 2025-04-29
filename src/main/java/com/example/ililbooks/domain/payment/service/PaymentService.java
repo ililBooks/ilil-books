@@ -1,7 +1,13 @@
 package com.example.ililbooks.domain.payment.service;
 
+import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
+import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
+import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationReadService;
+import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
 import com.example.ililbooks.domain.order.entity.Order;
 import com.example.ililbooks.domain.order.enums.DeliveryStatus;
+import com.example.ililbooks.domain.order.enums.LimitedType;
 import com.example.ililbooks.domain.order.enums.OrderStatus;
 import com.example.ililbooks.domain.order.enums.PaymentStatus;
 import com.example.ililbooks.domain.order.service.OrderService;
@@ -41,6 +47,7 @@ public class PaymentService {
     private final OrderService orderService;
     private final PaymentRepository paymentRepository;
     private final IamportClient iamportClient;
+    private final LimitedReservationService limitedReservationService;
 
     /* 결제 준비 및 결제 정보 저장 */
     @Transactional
@@ -67,7 +74,7 @@ public class PaymentService {
 
         String tempImpUid = "tempImpUid_" + System.currentTimeMillis();
         String merchantUid = "merchantUid_" + UUID.randomUUID().toString().substring(0,8);
-        Payment payment = Payment.of(order, merchantUid, tempImpUid, PGProvider.KG, PaymentMethod.CARD, authUser);
+        Payment payment = Payment.of(order, tempImpUid, merchantUid, PGProvider.KG, PaymentMethod.CARD, authUser);
         paymentRepository.save(payment);
 
         iamportClient.postPrepare(createPrepareData(payment));
@@ -111,6 +118,15 @@ public class PaymentService {
             payment.updateSuccessPayment(verificationDto.impUid());
             order.updatePayment(PaymentStatus.PAID);
             order.updateOrder(OrderStatus.ORDERED);
+
+            if (order.getLimitedType() == LimitedType.LIMITED) {
+                LimitedReservation limitedReservation = limitedReservationService.findReservationByOrderIdOrElseThrow(order.getId());
+
+                if (limitedReservation.getStatus() != LimitedReservationStatus.RESERVED) {
+                    throw new BadRequestException(INVALID_RESERVATION_STATUS_FOR_PAYMENT.getMessage());
+                }
+                limitedReservation.updateLimitedReservationStatus(LimitedReservationStatus.SUCCESS);
+            }
         } else {
             payment.updateFailPayment(verificationDto.impUid());
             order.updatePayment(PaymentStatus.FAILED);

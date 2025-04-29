@@ -89,6 +89,7 @@ public enum ErrorMessage {
     CANNOT_REQUEST_PAYMENT("결제 준비 상태가 아니라 결제를 요청할 수 없습니다."),
     CANNOT_CANCEL_PAYMENT("결제 상태가 아니라 결제를 취소할 수 없습니다."),
     CANCEL_PAYMENT_FAILED("결제 취소를 실패했습니다."),
+    INVALID_RESERVATION_STATUS_FOR_PAYMENT("예약이 결제 대기 상태가 아닐 경우 결제를 할 수 없습니다."),
 
     NAVER_API_RESPONSE_FAILED("네이버 api 응답 실패"),
     NAVER_PARSING_FAILED("네이버 파싱 실패"),
