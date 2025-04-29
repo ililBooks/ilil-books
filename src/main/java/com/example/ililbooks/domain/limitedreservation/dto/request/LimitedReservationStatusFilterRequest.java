@@ -3,6 +3,7 @@ package com.example.ililbooks.domain.limitedreservation.dto.request;
 import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
 import java.time.Instant;
 import java.util.List;
@@ -21,4 +22,14 @@ public record LimitedReservationStatusFilterRequest(
         Long userId,
         Instant startDate,
         Instant endDate
-) {}
+) {
+
+        @Builder
+        public LimitedReservationStatusFilterRequest(Long eventId, List<LimitedReservationStatus> statuses, Long userId, Instant startDate, Instant endDate) {
+                this.eventId = eventId;
+                this.statuses = statuses;
+                this.userId = userId;
+                this.startDate = startDate;
+                this.endDate = endDate;
+        }
+}
