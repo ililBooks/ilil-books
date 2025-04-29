@@ -20,7 +20,7 @@ import static com.example.ililbooks.global.exception.ErrorMessage.FAILED_SEND_MA
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AsyncNotificationService {
+public class NotificationAsyncService {
     private final JavaMailSender javaMailSender;
     private final BestSellerService bestSellerService;
 
