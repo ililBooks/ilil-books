@@ -11,6 +11,7 @@ import com.example.ililbooks.global.dto.response.Response;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,7 +35,7 @@ public class PaymentRestController {
     @PostMapping("/prepare")
     public Response<PaymentResponse> preparePayment(
             @AuthenticationPrincipal AuthUser authUser,
-            @RequestBody PaymentOrderRequest paymentOrderRequest
+            @Valid @RequestBody PaymentOrderRequest paymentOrderRequest
     ) throws IamportResponseException, IOException {
         return Response.of(paymentService.prepareOrder(authUser, paymentOrderRequest.orderId()));
     }
@@ -45,7 +46,7 @@ public class PaymentRestController {
     @PostMapping("/verify")
     public MessageResponse<PaymentResponse> verifyPayment(
             @AuthenticationPrincipal AuthUser authUser,
-            @RequestBody PaymentVerificationRequest verificationDto
+            @Valid @RequestBody PaymentVerificationRequest verificationDto
     ) throws IamportResponseException, IOException {
         PaymentResponse paymentResponse = paymentService.verifyPayment(authUser, verificationDto);
         String message = PayStatus.PAID.name().equals(paymentResponse.payStatus()) ? "결제 성공" : "결제 실패";
