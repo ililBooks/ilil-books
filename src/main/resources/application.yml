@@ -21,17 +21,39 @@ management:
 spring:
   config:
     import: optional:file:.env[.properties]
+  application:
+    name: ilil-books
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/ililbooks}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+        type:
+          descriptor:
+            sql:
+              bind: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
   data:
     redis:
       host: localhost
       port: 6379
-#      password: ${REDIS_PASSWORD}
     elasticsearch:
       uris: http://localhost:9200
       repositories:
         enabled: true
-  application:
-    name: ilil-books
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -44,29 +66,29 @@ spring:
           starttls:
             enable: true
 
-  datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
-        use_sql_comments: true
-        dialect: org.hibernate.dialect.MySQL8Dialect
-
   rabbitmq:
     host: localhost
     port: 5672
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
     template:
-      exchange: mail.exchange #producer가 데이터를 보낼 교환소
+      exchange: mail.exchange
+
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+      region:
+        static: ${AWS_REGION:ap-northeast-2}
+      stack:
+        auto: false
+      logging:
+        enabled: true
+      cloudwatch:
+        namespace: ilil-books-log
+        log-group: /ilil-books/log
+        log-stream-name: ${random.uuid}
 
 jwt:
   secret:
@@ -76,20 +98,12 @@ book:
   api:
     key: ${BOOK_API_KEY}
 
-cloud:
-  aws:
-    region: ${AWS_REGION}
-    credentials:
-      secret-key: ${AWS_SECRET_ACCESS_KEY}
-      access-key: ${AWS_ACCESS_KEY_ID}
-    s3:
-      bucket: ${AWS_S3_BUCKET_NAME}
-
 client:
   naver:
     client-id: ${NAVER_CLIENT_ID}
     client-secret: ${NAVER_CLIENT_SECRET}
     redirect-uri: ${NAVER_REDIRECT_URI}
+
   google:
     client_id: ${GOOGLE_CLIENT_ID}
     client_secret: ${GOOGLE_CLIENT_SECRET}
@@ -99,6 +113,12 @@ client:
     client-secret: ${KAKAO_CLIENT_SECRET}
     redirect-uri: ${KAKAO_REDIRECT_URI}
 
-portone:
-  api-key: ${PORTONE_API_KEY}
-  api-secret: ${PORTONE_API_SECRET}
+logging:
+  level:
+    root: INFO
+    com.example.ililbooks: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.orm.jdbc.bind: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
