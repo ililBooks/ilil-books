@@ -42,13 +42,13 @@ public class LoggingAspect {
             Object requestBody = extractRequestBody(joinPoint.getArgs());
             Object maskedRequestBody = logMaskingUtil.maskIfNecessary(requestBody);
 
-            LogRequest logRequest = new LogRequest(traceId, method, uri, null, Instant.now(), maskedRequestBody, resolveActionType(uri, method), ip, userAgent, null, null);
+            LogRequest logRequest = LogRequest.of(traceId, method, uri, null, Instant.now(), maskedRequestBody, resolveActionType(uri, method), ip, userAgent, null, null);
             systemLogService.saveRequestLog(logRequest);
 
             Object result = joinPoint.proceed();
 
             Object maskedResponseBody = logMaskingUtil.maskIfNecessary(result);
-            LogResponse logResponse = new LogResponse(traceId, method, uri, null, Instant.now(), maskedResponseBody, resolveActionType(uri, method), ip, userAgent, "SUCCESS", null);
+            LogResponse logResponse = LogResponse.of(traceId, method, uri, null, Instant.now(), maskedResponseBody, resolveActionType(uri, method), ip, userAgent, "SUCCESS", null);
             systemLogService.saveResponseLog(logResponse);
 
             return result;
