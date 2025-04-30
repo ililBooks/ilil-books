@@ -1,39 +1,39 @@
 version: '3.8'
 services:
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: ililBooks
-    ports:
-      - "8081:8081"
-    depends_on:
-#      - db
-#      - elasticsearch
-#      - redis
-      elasticsearch:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    environment:
-      - SPRING_DATASOURCE_URL=${DB_URL_DOCKER}
-      - SPRING_DATASOURCE_USERNAME=${DB_USER}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
-      - BOOK_API_KEY=${BOOK_API_KEY}
-      - SPRING_PROFILES_ACTIVE=docker
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}      # 추가
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} # 추가
-      - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}       # 추가
-      - AWS_REGION=${AWS_REGION}
-    networks:
-      - esnet
-
-    env_file:
-      - .env  # .env 파일 로드
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: ililBooks
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+##      - db
+##      - elasticsearch
+##      - redis
+#      elasticsearch:
+#        condition: service_healthy
+#      db:
+#        condition: service_healthy
+#      redis:
+#        condition: service_started
+#    environment:
+#      - SPRING_DATASOURCE_URL=${DB_URL_DOCKER}
+#      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+#      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+#      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+#      - BOOK_API_KEY=${BOOK_API_KEY}
+#      - SPRING_PROFILES_ACTIVE=docker
+#      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}      # 추가
+#      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} # 추가
+#      - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}       # 추가
+#      - AWS_REGION=${AWS_REGION}
+#    networks:
+#      - esnet
+#
+#    env_file:
+#      - .env  # .env 파일 로드
 
 
   db:

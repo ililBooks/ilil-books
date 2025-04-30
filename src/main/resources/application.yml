@@ -74,21 +74,22 @@ spring:
     template:
       exchange: mail.exchange
 
-  cloud:
-    aws:
-      credentials:
-        access-key: ${AWS_ACCESS_KEY_ID}
-        secret-key: ${AWS_SECRET_ACCESS_KEY}
-      region:
-        static: ${AWS_REGION:ap-northeast-2}
-      stack:
-        auto: false
-      logging:
-        enabled: true
-      cloudwatch:
-        namespace: ilil-books-log
-        log-group: /ilil-books/log
-        log-stream-name: ${random.uuid}
+cloud:
+  aws:
+    s3:
+      bucket: ${AWS_S3_BUCKET_NAME}
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+    region: ${AWS_REGION}
+    stack:
+      auto: false
+    logging:
+      enabled: true
+    cloudwatch:
+      namespace: ilil-books-log
+      log-group: /ilil-books/log
+      log-stream-name: ${random.uuid}
 
 jwt:
   secret:
