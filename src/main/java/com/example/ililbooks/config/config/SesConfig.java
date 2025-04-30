@@ -13,7 +13,7 @@ public class SesConfig {
     @Value("${AWS_SES_ACCESS_KEY}")
     private String accessKey;
 
-    @Value("${AWS_SES_SECRET_KEY}")
+    @Value("${AWS_SES_SECRET_ACCESS_KEY}")
     private String secretKey;
 
     @Value("${AWS_REGION}")
