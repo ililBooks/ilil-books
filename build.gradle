@@ -97,6 +97,7 @@ dependencies {
     implementation "ca.pjer:logback-awslogs-appender:1.6.0"
     implementation 'com.github.iamport:iamport-rest-client-java:0.2.21'
     implementation 'software.amazon.awssdk:ses'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }
 
 tasks.named('test') {
