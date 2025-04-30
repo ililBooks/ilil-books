@@ -25,7 +25,7 @@ spring:
     name: ilil-books
 
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/ililbooks}
+    url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -49,6 +49,7 @@ spring:
     redis:
       host: localhost
       port: 6379
+#      password: ${REDIS_PASSWORD}
     elasticsearch:
       uris: http://localhost:9200
       repositories:
@@ -74,21 +75,23 @@ spring:
     template:
       exchange: mail.exchange
 
-  cloud:
-    aws:
-      credentials:
-        access-key: ${AWS_ACCESS_KEY_ID}
-        secret-key: ${AWS_SECRET_ACCESS_KEY}
-      region:
-        static: ${AWS_REGION:ap-northeast-2}
-      stack:
-        auto: false
-      logging:
-        enabled: true
-      cloudwatch:
-        namespace: ilil-books-log
-        log-group: /ilil-books/log
-        log-stream-name: ${random.uuid}
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+    region:
+      static: ${AWS_REGION}
+    stack:
+      auto: false
+    logging:
+      enabled: true
+    cloudwatch:
+      namespace: ilil-books-log
+      log-group: /ilil-books/log
+      log-stream-name: ${random.uuid}
+  s3:
+    bucket: ${AWS_S3_BUCKET_NAME}
 
 jwt:
   secret:
@@ -103,7 +106,6 @@ client:
     client-id: ${NAVER_CLIENT_ID}
     client-secret: ${NAVER_CLIENT_SECRET}
     redirect-uri: ${NAVER_REDIRECT_URI}
-
   google:
     client_id: ${GOOGLE_CLIENT_ID}
     client_secret: ${GOOGLE_CLIENT_SECRET}
@@ -112,6 +114,10 @@ client:
     client-id: ${KAKAO_CLIENT_ID}
     client-secret: ${KAKAO_CLIENT_SECRET}
     redirect-uri: ${KAKAO_REDIRECT_URI}
+
+portone:
+  api-key: ${PORTONE_API_KEY}
+  api-secret: ${PORTONE_API_SECRET}
 
 logging:
   level:

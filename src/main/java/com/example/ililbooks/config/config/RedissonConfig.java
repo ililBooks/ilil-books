@@ -20,7 +20,7 @@ public class RedissonConfig {
     public RedissonClient redissonClient() {
         Config config = new Config();
         config.useSingleServer()
-                .setAddress("redis://" + redisProperties.getHost() + ":" + redisProperties.getPort())  // <-- 여기
+                .setAddress("redis://" + redisProperties.getHost() + ":" + redisProperties.getPort())
                 .setConnectionMinimumIdleSize(1)
                 .setConnectionPoolSize(10)
                 .setRetryAttempts(3)

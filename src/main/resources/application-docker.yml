@@ -11,9 +11,9 @@ server:
 
 spring:
   datasource:
-    url: ${DB_URL_DOCKER}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${DOCKER_DB_URL}
+    username: ${DOCKER_MYSQL_USER}
+    password: ${DOCKER_MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -27,12 +27,17 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
   spring:
-    redis:
-      host: redis
-      port: 6379
+    config:
+      import: optional:file:.env[.properties]
+    data:
+      redis:
+        host: localhost
+        port: 6379
+    application:
+      name: ilil-books
 
   rabbitmq:
-    host: rabbitmq
+    host: localhost
     port: 5672
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
