@@ -761,14 +761,16 @@ ResponseEntity<String> responseEntity = webClient.get()
 
 > #### 순차적 처리 비교 
 
-<div style="display: flex; justify-content: flex-start; gap: 20px;">
-  <div style="text-align: center;">
-    <img src="https://github.com/user-attachments/assets/3c3583d4-8ea9-47b6-a155-4cf73fbddc58" width="400" height="400">
-  </div>
-  <div style="text-align: center;">
-    <img src="https://github.com/user-attachments/assets/4f284b3f-7001-40f2-90cd-e9c58371ec83" width="400" height="400">
-  </div>
-</div>
+<table style="border-collapse: collapse;">
+  <tr>
+    <td style="text-align: center; padding-right: 10px;">
+      <img src="https://github.com/user-attachments/assets/3c3583d4-8ea9-47b6-a155-4cf73fbddc58" alt="RDBMS Book Information Document" width="1250" height="450">
+    </td>
+    <td style="text-align: center; padding-left: 10px;">
+      <img src="https://github.com/user-attachments/assets/4f284b3f-7001-40f2-90cd-e9c58371ec83" alt="Elasticsearch Book Information Document" width="1250" height="450">
+    </td>
+  </tr>
+</table>
 
 - Async: 랜덤 스레드 할당으로 **<ins>순서 미보장**
 - RabbitMQ: Queue에 담긴 메세지가 요청된 **<ins>순서대로 처리** 
@@ -944,14 +946,16 @@ select * from books where title like '%연구 개발%' and is_deleted = false;
 
 > 책 데이터 약 22만개를 기준으로 검색 성능 비교
 
-<div style="display: flex; justify-content: flex-start; gap: 20px;">
-  <div style="text-align: center;">
-    <img src="https://cdn.gamma.app/1r9zmh8f8xmhk2w/e9abe0eea57a44989ed7c420a2b95d5e/original/image.png" alt="RDBMS Book Information Document" width="300" height="400">
-  </div>
-  <div style="text-align: center;">
-    <img src="https://cdn.gamma.app/1r9zmh8f8xmhk2w/ce2e0bcc48404ec781ce55b5067355cb/original/image.png" alt="Elasticsearch Book Information Document" width="300" height="400">
-  </div>
-</div>
+<table style="border-collapse: collapse;">
+  <tr>
+    <td style="text-align: center; padding-right: 10px;">
+      <img src="https://cdn.gamma.app/1r9zmh8f8xmhk2w/e9abe0eea57a44989ed7c420a2b95d5e/original/image.png" alt="RDBMS Book Information Document" width="350" height="450">
+    </td>
+    <td style="text-align: center; padding-left: 10px;">
+      <img src="https://cdn.gamma.app/1r9zmh8f8xmhk2w/ce2e0bcc48404ec781ce55b5067355cb/original/image.png" alt="Elasticsearch Book Information Document" width="350" height="450">
+    </td>
+  </tr>
+</table>
 
 - **정리 : Elasticsearch 가 성능적으로 더 우세. 데이터 수가 갈 수록 늘어날 것을 고려하면 차이가 더 크게 벌어질 것으로 예상됨**
 
@@ -1021,21 +1025,21 @@ Elasticsearch 의 형태소 분석기를 통한 키워드 유사성을 반영하
 
 이를 적용하기 위해서는 Elasticsearch 를 도입해야함
 
-<div style="display: flex; justify-content: flex-start; gap: 20px;">
-  <div style="text-align: center;">
-    <img src="https://cdn.gamma.app/1r9zmh8f8xmhk2w/9bee6b7a760d44a48e8f57218f852ffa/original/image.png" alt="RDBMS Book Information Document" width="400" height="200">
-    <br><span> title - 5배</span><br>
+<table style="border-collapse: collapse;">
+  <tr>
+    <td style="text-align: center; padding-right: 10px;">
+      <img src="https://cdn.gamma.app/1r9zmh8f8xmhk2w/9bee6b7a760d44a48e8f57218f852ffa/original/image.png" alt="RDBMS Book Information Document" width="350" height="250">
+            <br><span> title - 5배</span><br>
     <span> author - 3배</span><br>
     <span> category - 2배</span><br>
     <span> publisher - 1배</span><br><br>
-
-  </div>
-  <div style="text-align: center;">
-    <img src="https://cdn.gamma.app/1r9zmh8f8xmhk2w/01f8dd7fc7754d13898321df2a644353/original/image.png" alt="Elasticsearch Book Information Document" width="400" height="400">
-    <br><span> 가중치 적용 결과 </span>
-  </div>
-</div>
-
+    </td>
+    <td style="text-align: center; padding-left: 10px;">
+      <img src="https://cdn.gamma.app/1r9zmh8f8xmhk2w/01f8dd7fc7754d13898321df2a644353/original/image.png" alt="Elasticsearch Book Information Document" width="350" height="450">
+        <br><span> 가중치 적용 결과 </span>
+    </td>
+  </tr>
+</table>
 
 <br>
 
@@ -1075,12 +1079,12 @@ Elasticsearch 의 형태소 분석기를 통한 키워드 유사성을 반영하
 <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white">&nbsp;
 <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white">&nbsp;
 <img src="https://img.shields.io/badge/postman-E34F26?style=for-the-badge&logo=postman&logoColor=white">&nbsp;
-<img src="https://img.shields.io/badge/jwt-F80000?style=for-the-badge&logo=json web tokens&logoColor=white">&nbsp;
+<img src="https://img.shields.io/badge/JWT-007BFF?style=for-the-badge&logo=json%20web%20tokens&logoColor=white">&nbsp;
 <br>
 <img src="https://img.shields.io/badge/rabbitMQ-47A248?style=for-the-badge&logo=rabbitMQ&logoColor=white">&nbsp;
-<img src="https://img.shields.io/badge/elasticsearch-005571?style=for-the-badge&logo=html5&logoColor=white">
+<img src="https://img.shields.io/badge/Elasticsearch-005571?style=for-the-badge&logo=elasticsearch&logoColor=white">&nbsp;
 <img src="https://img.shields.io/badge/h2-7952B3?style=for-the-badge&logo=h2&logoColor=white">&nbsp;
-<img src="https://img.shields.io/badge/spring security-000000?style=for-the-badge&logo=spring security&logoColor=white">&nbsp;
+<img src="https://img.shields.io/badge/spring security-000000?style=for-the-badge&logo=spring%20security&logoColor=white">&nbsp;
 <img src="https://img.shields.io/badge/spring data jpa-092E20?style=for-the-badge&logoColor=white">&nbsp;
 <img src="https://img.shields.io/badge/junit5-4053D6?style=for-the-badge&logo=junit5&logoColor=white">
 
@@ -1096,8 +1100,8 @@ Elasticsearch 의 형태소 분석기를 통한 키워드 유사성을 반영하
 <img src="https://img.shields.io/badge/github actions-A86454?style=for-the-badge&logo=githubactions&logoColor=white">&nbsp;
 <img src="https://img.shields.io/badge/docker-DD0031?style=for-the-badge&logo=docker&logoColor=white">&nbsp;
 <img src="https://img.shields.io/badge/load balancing-F7DF1E?style=for-the-badge&logo=awselasticloadbalancing&logoColor=black">&nbsp;
-<img src="https://img.shields.io/badge/route 53-4053D6?style=for-the-badge&logo=amazon route 53&logoColor=white">&nbsp;
-<img src="https://img.shields.io/badge/elastic beanstalk-색상?style=for-the-badge&logo=기술스택아이콘&logoColor=white">
+<img src="https://img.shields.io/badge/route 53-4053D6?style=for-the-badge&logo=amazon%20route%2053&logoColor=white">&nbsp;
+<img src="https://img.shields.io/badge/Elastic%20Beanstalk-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white" alt="Elastic Beanstalk Badge">
 <br>
 <img src="https://img.shields.io/badge/iam-010101?style=for-the-badge&logoColor=white">&nbsp;
 <img src="https://img.shields.io/badge/ecr-DC382D?style=for-the-badge&logo=ecr&logoColor=white">
@@ -1128,13 +1132,15 @@ Elasticsearch 의 형태소 분석기를 통한 키워드 유사성을 반영하
 
 ### 👍🏻 Keep
 
-- 테스트 코드 작성으로 커버리지 56% 달성
+- 테스트 코드 작성으로 Line 커버리지 56% 달성
 
 - 정기적인 스크럼으로 커뮤니케이션 원활
 
-- github 코드리뷰 및 slack 워크스페이스 등 협업 툴 활용
+- 여러 가지 동시성 제어 방법으로 데이터 정합성 보장
 
 - 다양한 개발 기술 경험
+  
+- 프로젝트의 규모, 확장성, 성능 등 여러 지표를 비교해서 기술 선택의 근거를 보충
 
 <br>
 
@@ -1142,15 +1148,9 @@ Elasticsearch 의 형태소 분석기를 통한 키워드 유사성을 반영하
 
 - 서비스 완성도 보완
 
-- 멀티서버 구축 후 RabbitMQ 관련
-
-- 테스트 재시도
+- 멀티서버 환경에서 성능 비교 테스트 재시도
 
 - 코드 리팩토링을 통한 성능 개선
-
-- 이미지 관련 동시성 테스트 진행
-
-- 출판사 권한 확대
 
 - 익명 사용자 로그인 추가
 
