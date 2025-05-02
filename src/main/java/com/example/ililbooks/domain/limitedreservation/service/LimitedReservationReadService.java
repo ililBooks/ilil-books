@@ -7,7 +7,6 @@ import com.example.ililbooks.domain.limitedreservation.dto.response.*;
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
 import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
 import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
-import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationStatusHistoryRepository;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
@@ -27,7 +26,6 @@ public class LimitedReservationReadService {
 
     private final LimitedReservationRepository reservationRepository;
     private final LimitedEventRepository eventRepository;
-    private final LimitedReservationStatusHistoryRepository historyRepository;
 
     /*/ 내 예약 상세 조회 */
     @Transactional(readOnly = true)
@@ -41,16 +39,6 @@ public class LimitedReservationReadService {
     public LimitedReservationStatusResponse getReservationStatus(AuthUser authUser, Long reservationId) {
         LimitedReservation reservation = findOwnReservation(reservationId, authUser.getUserId());
         return LimitedReservationStatusResponse.of(reservation);
-    }
-
-    /*/ 예약 상태 변경 이력 조회 */
-    @Transactional(readOnly = true)
-    public List<LimitedReservationStatusHistoryResponse> getReservationStatusHistory(Long reservationId) {
-        findReservationByIdOrElseThrow(reservationId); // 존재 여부만 확인
-        return historyRepository.findAllByReservationIdOrderByCreatedAtDesc(reservationId)
-                .stream()
-                .map(LimitedReservationStatusHistoryResponse::of)
-                .toList();
     }
 
     /*/ 행사별 예약 전체 조회 */

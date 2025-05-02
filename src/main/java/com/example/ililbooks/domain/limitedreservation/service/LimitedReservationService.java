@@ -5,10 +5,8 @@ import com.example.ililbooks.domain.limitedevent.repository.LimitedEventReposito
 import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationCreateRequest;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
-import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservationStatusHistory;
 import com.example.ililbooks.domain.limitedreservation.enums.LimitedReservationStatus;
 import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
-import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationStatusHistoryRepository;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -35,7 +33,6 @@ public class LimitedReservationService {
     private final LimitedReservationQueueService queueService;
     private final LimitedReservationExpireQueueService expireQueueService;
     private final RedissonLockService redissonLockService;
-    private final LimitedReservationStatusHistoryRepository historyRepository;
 
     private static final int EXPIRATION_MINUTE = 10;
 
@@ -71,7 +68,6 @@ public class LimitedReservationService {
             queueService.enqueue(event.getId(), reservation.getId(), Instant.now());
         }
 
-        historyRepository.save(LimitedReservationStatusHistory.of(reservation.getId(), null, reservation.getStatus()));
         return LimitedReservationResponse.of(reservation);
     }
 
@@ -83,10 +79,10 @@ public class LimitedReservationService {
             throw new BadRequestException(NOT_OWN_RESERVATION.getMessage());
         }
 
-        LimitedReservationStatus from = reservation.getStatus();
         reservation.markCanceled();
+        queueService.remove(reservation.getLimitedEvent().getId(), reservation.getId());
+        promoteNextWaitingReservation(reservation.getLimitedEvent().getId());
 
-        historyRepository.save(LimitedReservationStatusHistory.of(reservation.getId(), from, reservation.getStatus()));
         queueService.remove(reservation.getLimitedEvent().getId(), reservation.getId());
 
         promoteNextWaitingReservation(reservation.getLimitedEvent().getId());
@@ -115,9 +111,7 @@ public class LimitedReservationService {
     // ---- 내부 메서드 ----
 
     private void cancelAndPromote(LimitedReservation reservation) {
-        LimitedReservationStatus from = reservation.getStatus();
         reservation.markCanceled();
-        historyRepository.save(LimitedReservationStatusHistory.of(reservation.getId(), from, reservation.getStatus()));
         queueService.remove(reservation.getLimitedEvent().getId(), reservation.getId());
         promoteNextWaitingReservation(reservation.getLimitedEvent().getId());
     }
@@ -129,10 +123,8 @@ public class LimitedReservationService {
         LimitedReservation waiting = reservationRepository.findById(nextId).orElseThrow(
                 () -> new NotFoundException(NOT_FOUND_RESERVATION.getMessage()));
 
-        LimitedReservationStatus from = waiting.getStatus();
         waiting.markSuccess();
         waiting.getLimitedEvent().decreaseBookQuantity(1);
-        historyRepository.save(LimitedReservationStatusHistory.of(waiting.getId(), from, waiting.getStatus()));
     }
 
     private void validateNotAlreadyReserved(Long userId, LimitedEvent event) {

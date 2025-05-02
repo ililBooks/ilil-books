@@ -6,7 +6,6 @@ import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReserv
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
 import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
-import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationStatusHistoryRepository;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.service.UserService;
@@ -49,9 +48,6 @@ class LimitedReservationServiceTest {
 
     @Mock
     private RedissonLockService redissonLockService;
-
-    @Mock
-    private LimitedReservationStatusHistoryRepository historyRepository;
 
     @InjectMocks
     private LimitedReservationService reservationService;
@@ -146,13 +142,10 @@ class LimitedReservationServiceTest {
         given(reservation.getLimitedEvent()).willReturn(event);
         given(event.getId()).willReturn(1L);
 
-        // When
         reservationService.cancelReservation(authUser, 1L);
 
-        // Then
         verify(reservation).markCanceled();
         verify(queueService).remove(anyLong(), anyLong());
-        verify(historyRepository, times(2)).save(any());
     }
 
     @Test
@@ -179,7 +172,6 @@ class LimitedReservationServiceTest {
         given(expiredReservation.getLimitedEvent()).willReturn(event);
         given(event.getId()).willReturn(1L);
 
-        // 승급 대상 추가
         LimitedReservation promoted = mock(LimitedReservation.class);
 
         given(queueService.dequeue(anyLong())).willReturn(1L);
@@ -187,13 +179,13 @@ class LimitedReservationServiceTest {
         given(promoted.getStatus()).willReturn(WAITING);
         given(promoted.getLimitedEvent()).willReturn(event);
 
+
         // When
         reservationService.expireReservationAndPromote();
 
         // Then
         verify(expiredReservation).markCanceled();
         verify(promoted).markSuccess();
-        verify(historyRepository, atLeastOnce()).save(any());
     }
 
     @Test
@@ -209,7 +201,6 @@ class LimitedReservationServiceTest {
 
         // Then
         verify(reservation, never()).markCanceled();
-        verify(historyRepository, never()).save(any());
     }
 
     @Test
@@ -217,18 +208,13 @@ class LimitedReservationServiceTest {
         // Given
         LimitedReservation reservation = mock(LimitedReservation.class);
 
-        given(reservationRepository.findById(anyLong())).willReturn(Optional.of(reservation));
-        given(reservation.getStatus()).willReturn(RESERVED);
-        given(reservation.isExpired()).willReturn(true);
-        given(reservation.getLimitedEvent()).willReturn(event);
-        given(event.getId()).willReturn(1L);
+        given(reservationRepository.findByOrderId(1L)).willReturn(Optional.of(reservation));
 
         // When
-        reservationService.expireReservationAndPromoteOne(1L);
+        LimitedReservation result = reservationService.findReservationByOrderIdOrElseThrow(1L);
 
         // Then
-        verify(reservation).markCanceled();
-        verify(historyRepository, times(2)).save(any());
+        assertThat(result).isEqualTo(reservation);
     }
 
     @Test
