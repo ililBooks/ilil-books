@@ -24,6 +24,7 @@ public class BookStockService {
                     OptimisticLockException.class,
                     ObjectOptimisticLockingFailureException.class
             },
+            noRetryFor = BadRequestException.class,
             backoff = @Backoff(delay = 100)
     )
     @Transactional
@@ -53,5 +54,10 @@ public class BookStockService {
     @Recover
     public void recover(ObjectOptimisticLockingFailureException e, Long bookId, int quantity) {
         throw new BadRequestException(STOCK_UPDATE_CONFLICT.getMessage());
+    }
+
+    @Recover
+    public void recover(BadRequestException e, Long bookId, int quantity) {
+        throw new BadRequestException(e.getMessage());
     }
 }
