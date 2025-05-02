@@ -208,12 +208,7 @@ CloudWatch에 로그를 전송하는 과정에서 `AccessDeniedException` 오류
 
 <br>
 
-확인 결과, CloudWatch에 로그를 전송하려면 IAM 사용자에게 아래와 같은 권한 부여가 필요했습니다.
-
-- `logs:CreateLogGroup`
-- `logs:CreateLogStream`
-- `logs:PutLogEvents`
-
+확인 결과, CloudWatch에 로그를 전송하려면 IAM 사용자에게 적절한 권한 부여가 필요했습니다.
 하지만 당시 프로젝트에 사용 중인 IAM 사용자(`ililbooks`)는 해당 권한이 없는 상태였습니다.
 
 <br>
@@ -240,6 +235,28 @@ CloudWatch에 로그를 전송하는 과정에서 `AccessDeniedException` 오류
 | ✅ IAM 권한 | `CloudWatchLogsFullAccess` 또는 `logs:*` 관련 정책 |
 | ✅ 네트워크 | 인터넷/VPC 환경에서 로그 전송이 가능한지 확인 |
 | ✅ 스트림 구성 | 로그 그룹 및 로그 스트림 사전 구성 또는 자동 생성 가능 권한 필요 |
+
+</details>
+
+<details> <summary>[🎯 <strong>트러블 슈팅 | 로그 마스킹 유틸이 적용되지 않은 문제</strong></summary>
+
+### 문제 정의
+민감한 정보(이메일, 연락처 등)가 콘솔과 CloudWatch 로그에 그대로 출력되는 현상이 발생
+분명히 LogMaskingUtil 유틸을 통해 마스킹 로직이 정의되어 있었음에도 적용되지 않음
+
+### 원인 분석
+이미 마스킹 유틸이 있다는 것만으로 "자동으로 적용되겠지"라고 착각
+실제로는 어떤 데이터가, 어떤 포맷으로 들어와야 동작하는지에 대한 이해 부족
+로그 출력이 Object.toString() 기반으로 직렬화되어 있었고, 이 포맷은 유틸에서 마스킹 대상이 아니였음
+
+### 해결 과정
+AOP(LoggingAspect)에서 요청·응답 바디를 직렬화하는 시점에 LogMaskingUtil.maskIfNecessary()를 명시적으로 호출하도록 수정
+JSON 기반 직렬화 포맷으로 변환된 객체에 대해 마스킹 로직이 정상적으로 작동되도록 개선
+
+### 결과
+콘솔 및 CloudWatch 모두에서 이메일, 전화번호 등의 민감 정보가 정상적으로 ****로 마스킹 처리
+운영 환경에서 개인정보 노출 위험 완전 차단
+보안 측면의 신뢰도 확보
 
 </details>
 
