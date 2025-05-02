@@ -23,7 +23,7 @@ import java.util.UUID;
 @Table(name = "payments")
 public class Payment extends TimeStamped {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
