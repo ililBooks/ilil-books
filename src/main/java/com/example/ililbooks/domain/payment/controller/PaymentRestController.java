@@ -43,7 +43,7 @@ public class PaymentRestController {
     /* 결제 성공 실패 검증 및 주문 승인 */
     @Operation(summary = "결제 승인", description = "결제 요청을 바탕으로 결제 성공 및 실패를 판단합니다.")
     @Secured(USER)
-    @PostMapping("/verify")
+    @PatchMapping("/verify")
     public MessageResponse<PaymentResponse> verifyPayment(
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestBody PaymentVerificationRequest verificationDto
