@@ -4,13 +4,10 @@ import com.example.ililbooks.domain.limitedevent.entity.LimitedEvent;
 import com.example.ililbooks.domain.limitedevent.repository.LimitedEventRepository;
 import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationStatusFilterRequest;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
-import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationStatusHistoryResponse;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationStatusResponse;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationSummaryResponse;
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
-import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservationStatusHistory;
 import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
-import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationStatusHistoryRepository;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -41,9 +38,6 @@ class LimitedReservationReadServiceTest {
 
     @Mock
     private LimitedEventRepository eventRepository;
-
-    @Mock
-    private LimitedReservationStatusHistoryRepository historyRepository;
 
     @InjectMocks
     private LimitedReservationReadService readService;
@@ -119,22 +113,6 @@ class LimitedReservationReadServiceTest {
         // When & Then
         assertThrows(BadRequestException.class,
                 () -> readService.getReservationStatus(authUser, 1L));
-    }
-
-    @Test
-    void 예약상태_변경이력_조회_성공() {
-        // Given
-        given(reservationRepository.findById(anyLong())).willReturn(Optional.of(reservation));
-
-        LimitedReservationStatusHistory history = mock(LimitedReservationStatusHistory.class);
-
-        given(historyRepository.findAllByReservationIdOrderByCreatedAtDesc(anyLong())).willReturn(List.of(history));
-
-        // When
-        List<LimitedReservationStatusHistoryResponse> result = readService.getReservationStatusHistory(1L);
-
-        // Then
-        assertThat(result).isNotEmpty();
     }
 
     @Test

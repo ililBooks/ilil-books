@@ -6,7 +6,6 @@ import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReserv
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
 import com.example.ililbooks.domain.limitedreservation.entity.LimitedReservation;
 import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationRepository;
-import com.example.ililbooks.domain.limitedreservation.repository.LimitedReservationStatusHistoryRepository;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.enums.UserRole;
 import com.example.ililbooks.domain.user.service.UserService;
