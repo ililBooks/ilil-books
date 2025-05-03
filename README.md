@@ -391,7 +391,7 @@ BeanCreationException: Error creating bean with name 'bookSearchRepository'
 
 - `@Document(indexName = "books")`로 선언된 `BookDocument`의 index가 Elasticsearch에 존재하지 않음
 
----
+<br>
 
 ### 해결 과정
 
@@ -425,7 +425,7 @@ BeanCreationException: Error creating bean with name 'bookSearchRepository'
    }
    ```
 
----
+<br>
 
 ## 결과
 
@@ -434,6 +434,56 @@ BeanCreationException: Error creating bean with name 'bookSearchRepository'
   모든 Elasticsearch 관련 Bean을 **정상적으로 초기화**함
 
 - ElasticsearchRepository 기반의 **도서 검색 기능 구현 가능**
+
+</details>
+
+<details> <summary> [🎯<strong> 트러블 슈팅]  외부 API 응답 text/json으로 인해 직렬화 실패 </strong> </summary>
+
+### 문제 정의
+
+- HTTP 클라이언트를 사용하여 외부 API 데이터를 받아오는 과정에서 **응답 형식 오류 발생**
+
+- MessageConver가 처리 가능한 `aplication/json`이 아닌 `text/json 형태로 응답`이 들어오면서 **아래와 같은 오류 메세지를 응답**
+
+![Image](https://github.com/user-attachments/assets/19ae68a4-e461-462e-920f-9bee935dd90e)
+
+
+
+<br>
+
+### 해결 과정
+
+공공 API의 text/json 응답을 application/json처럼 처리하기 위해 [관련 자료](https://okky.kr/questions/1452961)를 참고하여 다음과 같이 해결하였다.
+
+1️⃣ 응답 형태를 String으로 받는다.
+
+```java
+// String 타입으로 응답
+ResponseEntity<String> responseEntity = webClient.get()
+                .uri(uri)
+                .retrieve()
+                .onStatus(status -> !status.is2xxSuccessful(),
+                        res -> Mono.error(new RuntimeException(BOOK_API_RESPONSE_FAILED.getMessage())))
+                .bodyToMono(String.class)
+                .block();
+```
+
+---
+
+2️⃣ ObjectMapper를 사용하여 JSON 문자열을 객체로 변환
+
+```java
+//json 형태의 데이터 파싱
+BookApiWrapper responseBook = objectMapper.readValue(responseBody, BookApiWrapper.class);
+BookApiResponse[] books = responseBook.getResult();
+```
+
+<br>
+
+## 결과
+
+- 위의 과정을 거치면 **모든 응답을 String 타입**으로 받고 해당 값을 **dto 형태로 담아서 최종적으로 원하는 값을 응답** 가능
+
 
 </details>
 
@@ -781,10 +831,10 @@ ResponseEntity<String> responseEntity = webClient.get()
 <table style="border-collapse: collapse;">
   <tr>
     <td style="text-align: center; padding-right: 10px;">
-      <img src="https://github.com/user-attachments/assets/3c3583d4-8ea9-47b6-a155-4cf73fbddc58" alt="RDBMS Book Information Document" width="1250" height="450">
+      <img src="https://github.com/user-attachments/assets/3c3583d4-8ea9-47b6-a155-4cf73fbddc58" alt="RDBMS Book Information Document" width="1250" height="250">
     </td>
     <td style="text-align: center; padding-left: 10px;">
-      <img src="https://github.com/user-attachments/assets/4f284b3f-7001-40f2-90cd-e9c58371ec83" alt="Elasticsearch Book Information Document" width="1250" height="450">
+      <img src="https://github.com/user-attachments/assets/4f284b3f-7001-40f2-90cd-e9c58371ec83" alt="Elasticsearch Book Information Document" width="1250" height="250">
     </td>
   </tr>
 </table>

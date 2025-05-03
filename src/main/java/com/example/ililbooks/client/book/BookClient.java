@@ -37,7 +37,6 @@ public class BookClient {
 
         String responseBody = webClient.get()
                 .uri(uri)
-                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(),
                         res -> Mono.error(new RuntimeException(BOOK_API_RESPONSE_FAILED.getMessage())))
