@@ -22,7 +22,7 @@ public class NotificationSesController {
     public Response<Void> sendOrderMail(
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        notificationSesService.sendOrderMail(authUser, "order number - 123", BigDecimal.valueOf(10000));
+        notificationSesService.sendOrderMailWithAsync(authUser, "order number - 123", BigDecimal.valueOf(10000));
 //        for (int i = 0; i < 100; i++) {
 //        }
         return Response.empty();

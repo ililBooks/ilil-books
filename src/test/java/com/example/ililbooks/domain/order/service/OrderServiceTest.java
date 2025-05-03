@@ -17,6 +17,7 @@ import com.example.ililbooks.global.asynchronous.rabbitmq.dto.request.MessageOrd
 import com.example.ililbooks.global.asynchronous.rabbitmq.service.RabbitMqService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.NotFoundException;
+import com.example.ililbooks.global.notification.service.NotificationSesService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,11 +56,11 @@ class OrderServiceTest {
     @Mock
     private BestSellerService bestSellerService;
     @Mock
-    private RabbitMqService rabbitMqService;
-    @Mock
     private UserService userService;
     @Mock
     private OrderHistoryService orderHistoryService;
+    @Mock
+    private NotificationSesService notificationSesService;
 
     @InjectMocks
     private OrderService orderService;
@@ -189,7 +190,7 @@ class OrderServiceTest {
         verify(cartService, times(1)).clearCart(authUser);
         verify(orderHistoryService, times(1)).saveOrderHistory(anyMap(), any(Order.class));
         verify(bestSellerService, times(1)).increaseBookSalesByQuantity(anyMap());
-        verify(rabbitMqService, times(1)).sendOrderMessage(any(MessageOrderRequest.class));
+        verify(notificationSesService, times(1)).sendOrderMailWithAsync(any(AuthUser.class), anyString(), any(BigDecimal.class));
     }
 
     @Test
@@ -217,7 +218,7 @@ class OrderServiceTest {
         verify(cartService, times(1)).clearCart(authUser);
         verify(orderHistoryService, times(1)).saveOrderHistory(anyMap(), any(Order.class));
         verify(bestSellerService, times(1)).increaseBookSalesByQuantity(anyMap());
-        verify(rabbitMqService, times(1)).sendOrderMessage(any(MessageOrderRequest.class));
+        verify(notificationSesService, times(1)).sendOrderMailWithAsync(any(AuthUser.class), anyString(), any(BigDecimal.class));
     }
 
     @Test
@@ -243,7 +244,7 @@ class OrderServiceTest {
         verify(cartService, times(1)).clearCart(authUser);
         verify(orderHistoryService, times(1)).saveOrderHistory(anyMap(), any(Order.class));
         verify(bestSellerService, times(1)).increaseBookSalesByQuantity(anyMap());
-        verify(rabbitMqService, times(1)).sendOrderMessage(any(MessageOrderRequest.class));
+        verify(notificationSesService, times(1)).sendOrderMailWithAsync(any(AuthUser.class), anyString(), any(BigDecimal.class));
     }
 
     /* findByIdOrElseThrow */
