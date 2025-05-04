@@ -4,8 +4,6 @@ import com.example.ililbooks.client.book.BookClient;
 import com.example.ililbooks.client.book.dto.BookApiResponse;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.repository.BookRepository;
-import com.example.ililbooks.domain.search.entity.BookDocument;
-import com.example.ililbooks.domain.search.service.BookSearchService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -31,7 +29,6 @@ public class BookOpenApiService {
     private final BookRepository bookRepository;
     private final UserService userService;
     private final BookClient bookClient;
-    private final BookSearchService bookSearchService;
 
     /**
      *  대량 데이터를 저장하기 위해 keywords 배열에 키워드를 담아서 로직 마지막에 한 번에 save 하는 방식
@@ -53,7 +50,6 @@ public class BookOpenApiService {
         BookApiResponse[] books;
 
         List<Book> booksToSave = new ArrayList<>();
-        List<BookDocument> bookDocumentsToSave = new ArrayList<>();
 
         for (String kwd : keywords) {
 
@@ -92,7 +88,6 @@ public class BookOpenApiService {
                             randomStock
                     );
 
-                    BookDocument document = BookDocument.toDocument(book);
 
                     for (Book bookToSave : booksToSave) {
                         if (bookToSave.getIsbn().equals(book.getIsbn())) {
@@ -101,14 +96,12 @@ public class BookOpenApiService {
                     }
 
                     booksToSave.add(book);
-                    bookDocumentsToSave.add(document);
                 } catch (Exception e) {
                     System.out.println("책 저장 실패 (ISBN: " + bookApiResponse.isbn() + "): " + e.getMessage());
                 }
             }
         }
         bookRepository.saveAll(booksToSave);
-        bookSearchService.saveAll(bookDocumentsToSave);
     }
 
     private boolean isValidBookApiResponse(BookApiResponse bookApiResponse) {

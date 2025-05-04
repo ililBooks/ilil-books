@@ -8,7 +8,6 @@ import com.example.ililbooks.domain.book.entity.BookImage;
 import com.example.ililbooks.domain.book.repository.BookRepository;
 import com.example.ililbooks.domain.book.repository.ImageBookRepository;
 import com.example.ililbooks.domain.review.service.ReviewDeleteService;
-import com.example.ililbooks.domain.search.service.BookSearchService;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
 import com.example.ililbooks.global.exception.BadRequestException;
@@ -45,9 +44,6 @@ public class BookServiceTest {
 
     @Mock
     private ReviewDeleteService reviewDeleteService;
-
-    @Mock
-    private BookSearchService bookSearchService;
 
     @Mock
     private ImageBookRepository imageBookRepository;
@@ -137,7 +133,6 @@ public class BookServiceTest {
         //then
         assertEquals(bookResponse, result);
         verify(bookRepository).save(any(Book.class));
-        verify(bookSearchService).saveBookDocumentFromBook(any(Book.class));
     }
 
     @Test
@@ -288,7 +283,6 @@ public class BookServiceTest {
         bookService.updateBook(TEST_ADMIN_AUTH_USER, TEST_BOOK_ID, BOOK_UPDATE_REQUEST);
 
         //then
-        verify(bookSearchService).updateBookDocument(any(Book.class));
     }
 
     @Test
@@ -333,7 +327,6 @@ public class BookServiceTest {
         verify(s3ImageService, times(TEST_LIST_BOOK_IMAGE.size())).deleteImage(anyString());
         verify(imageBookRepository).deleteAllByBookId(anyLong());
         verify(reviewDeleteService).deleteAllReviewByBookId(anyLong());
-        verify(bookSearchService).deleteBookDocument(any(Book.class));
     }
 
     private void setBookAndUserId() {

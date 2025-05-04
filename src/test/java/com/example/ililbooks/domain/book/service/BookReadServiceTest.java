@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.example.ililbooks.domain.book.service.BookServiceTest.TEST_BOOK_IMAGE;
-import static com.example.ililbooks.domain.book.service.BookServiceTest.TEST_BOOK_IMAGE_ID;
 import static com.example.ililbooks.domain.user.enums.LoginType.EMAIL;
 import static com.example.ililbooks.global.exception.ErrorMessage.NOT_FOUND_BOOK;
 import static org.junit.jupiter.api.Assertions.assertEquals;

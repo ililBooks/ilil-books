@@ -9,7 +9,6 @@ import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.repository.BookRepository;
 import com.example.ililbooks.domain.book.repository.ImageBookRepository;
 import com.example.ililbooks.domain.review.service.ReviewDeleteService;
-import com.example.ililbooks.domain.search.service.BookSearchService;
 import com.example.ililbooks.domain.user.entity.Users;
 import com.example.ililbooks.domain.user.service.UserService;
 import com.example.ililbooks.global.dto.AuthUser;
@@ -33,7 +32,6 @@ public class BookService {
     private final BookRepository bookRepository;
     private final UserService userService;
     private final ReviewDeleteService reviewDeleteService;
-    private final BookSearchService bookSearchService;
     private final ImageBookRepository imageBookRepository;
     private final S3ImageService s3ImageService;
 
@@ -60,8 +58,6 @@ public class BookService {
         );
 
         Book savedBook = bookRepository.save(book);
-
-        bookSearchService.saveBookDocumentFromBook(book);
 
         return BookResponse.of(savedBook);
     }
@@ -122,7 +118,6 @@ public class BookService {
                 bookUpdateRequest.limitedType()
                 );
         // BookDocument 수정
-        bookSearchService.updateBookDocument(book);
     }
 
     @Transactional
@@ -143,8 +138,6 @@ public class BookService {
         imageBookRepository.deleteAllByBookId(bookId);
         reviewDeleteService.deleteAllReviewByBookId(bookId);
 
-        // BookDocument 삭제
-        bookSearchService.deleteBookDocument(book);
     }
 
     public Book findBookByIdOrElseThrow(Long bookId) {
