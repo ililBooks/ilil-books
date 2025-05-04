@@ -67,6 +67,7 @@ class LimitedReservationServiceTest {
                 .build();
 
         user = mock(Users.class);
+
         event = mock(LimitedEvent.class);
 
         request = LimitedReservationCreateRequest.builder()
@@ -122,8 +123,7 @@ class LimitedReservationServiceTest {
     void 예약_생성_실패_중복예약() {
         // Given
         given(eventRepository.findById(anyLong())).willReturn(Optional.of(event));
-        given(reservationRepository.findByUsersIdAndLimitedEvent(anyLong(), any()))
-                .willReturn(Optional.of(mock(LimitedReservation.class)));
+        given(reservationRepository.findByUsersIdAndLimitedEvent(anyLong(), any())).willReturn(Optional.of(mock(LimitedReservation.class)));
 
         // When & Then
         assertThrows(BadRequestException.class,
@@ -137,15 +137,16 @@ class LimitedReservationServiceTest {
 
         given(reservationRepository.findById(anyLong())).willReturn(Optional.of(reservation));
         given(reservation.getUsers()).willReturn(user);
-        given(user.getId()).willReturn(authUser.getUserId());
-        given(reservation.getStatus()).willReturn(RESERVED);
+        given(user.getId()).willReturn(1L);
         given(reservation.getLimitedEvent()).willReturn(event);
         given(event.getId()).willReturn(1L);
 
+        // When
         reservationService.cancelReservation(authUser, 1L);
 
+        // Then
         verify(reservation).markCanceled();
-        verify(queueService).remove(anyLong(), anyLong());
+        verify(queueService, times(2)).remove(anyLong(), anyLong());
     }
 
     @Test
@@ -166,19 +167,14 @@ class LimitedReservationServiceTest {
     void 예약_만료_일괄처리() {
         // Given
         LimitedReservation expiredReservation = mock(LimitedReservation.class);
-
         given(reservationRepository.findAllByStatusAndExpiresAtBefore(eq(RESERVED), any())).willReturn(List.of(expiredReservation));
-        given(expiredReservation.getStatus()).willReturn(RESERVED);
         given(expiredReservation.getLimitedEvent()).willReturn(event);
         given(event.getId()).willReturn(1L);
 
         LimitedReservation promoted = mock(LimitedReservation.class);
-
         given(queueService.dequeue(anyLong())).willReturn(1L);
         given(reservationRepository.findById(1L)).willReturn(Optional.of(promoted));
-        given(promoted.getStatus()).willReturn(WAITING);
         given(promoted.getLimitedEvent()).willReturn(event);
-
 
         // When
         reservationService.expireReservationAndPromote();
