@@ -21,6 +21,7 @@ import com.example.ililbooks.global.exception.BadRequestException;
 import com.example.ililbooks.global.exception.NotFoundException;
 import com.example.ililbooks.global.asynchronous.rabbitmq.dto.request.MessageOrderRequest;
 import com.example.ililbooks.global.asynchronous.rabbitmq.service.RabbitMqService;
+import com.example.ililbooks.global.notification.service.NotificationSesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,8 +45,8 @@ public class OrderService {
     private final BookStockService bookStockService;
     private final LimitedReservationReadService limitedReservationReadService;
     private final BestSellerService bestSellerService;
-    private final RabbitMqService rabbitMqService;
     private final UserService userService;
+    private final NotificationSesService notificationSesService;
 
     /* 주문 생성 - 일반판 */
     @Transactional
@@ -77,7 +78,7 @@ public class OrderService {
 
         //알림 수신 동의인 경우
         if (users.isNotificationAgreed()) {
-            rabbitMqService.sendOrderMessage(MessageOrderRequest.of(authUser.getEmail(), authUser.getNickname(), order.getNumber(), order.getTotalPrice()));
+            notificationSesService.sendOrderMailWithAsync(authUser, order.getNumber(), order.getTotalPrice());
         }
 
         return getOrderResponse(order, pageable);
