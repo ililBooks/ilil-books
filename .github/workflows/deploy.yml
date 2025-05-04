@@ -12,8 +12,6 @@ jobs:
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       IMAGE_TAG: ${{ github.sha }}
-      # ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
-      # IMAGE_URI: ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
 
     steps:
       - name: Checkout code
@@ -37,20 +35,6 @@ jobs:
           echo $IMAGE_URI
           docker build -t $IMAGE_URI .
           docker push $IMAGE_URI
-
-      - name: Render task definition using sed
-        run: sed "s|__IMAGE_URI__|${{ env.IMAGE_URI }}|g" ecs-task-def-template.json > ecs-task-def.json
-
-#      - name: debug task definition
-#        run: cat ecs-task-def.json # 디버그용
-
-      - name: Render updated task definition
-        id: render-task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ecs-task-def.json
-          container-name: ilil-books-app
-          image: ${{ env.IMAGE_URI }}
 
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
