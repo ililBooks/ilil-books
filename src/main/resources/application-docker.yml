@@ -10,19 +10,10 @@ server:
       timeout: 1800
 
 spring:
-  config:
-    import: optional:file:.env[.properties]
-  data:
-    redis:
-      host: localhost
-      port: 6379
-  application:
-    name: ilil-books
-
   datasource:
-    url: ${DOCKER_DB_URL}
-    username: ${DOCKER_MYSQL_USER}
-    password: ${DOCKER_MYSQL_PASSWORD}
+    url: ${DB_URL_DOCKER}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -34,6 +25,19 @@ spring:
         format_sql: true
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQLDialect
+
+  spring:
+    redis:
+      host: redis
+      port: 6379
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    template:
+      exchange: order.mail.exchange
 
 jwt:
   secret:
@@ -47,7 +51,23 @@ cloud:
   aws:
     region: ${AWS_REGION}
     credentials:
-      secret-key: ${AWS_SECRET_ACCESS_KEY}
       access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
     s3:
       bucket: ${AWS_S3_BUCKET_NAME}
+
+client:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID}
+    client-secret: ${GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${GOOGLE_REDIRECT_URI}
+
+  naver:
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET}
+    redirect-uri: ${NAVER_REDIRECT_URI}
+
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID}
+    client-secret: ${KAKAO_CLIENT_SECRET}
+    redirect-uri: ${KAKAO_REDIRECT_URI}

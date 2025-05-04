@@ -78,7 +78,7 @@ public class Book extends TimeStamped {
         this.version = version;
     }
 
-    public static Book of(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher ) {
+    public static Book of(Users users, String title, String author, BigDecimal price, String category, int stock, String isbn, String publisher, LimitedType limitedType ) {
         return Book.builder()
                 .users(users)
                 .title(title)
@@ -89,7 +89,7 @@ public class Book extends TimeStamped {
                 .isbn(isbn)
                 .publisher(publisher)
                 .saleStatus(ON_SALE)
-                .limitedType(REGULAR)
+                .limitedType(limitedType)
                 .build();
     }
 
@@ -130,7 +130,6 @@ public class Book extends TimeStamped {
             this.saleStatus = SaleStatus.SOLD_OUT;
         }
         this.stock -= quantity;
-        this.version++;
     }
 
     public void increaseStock(int quantity) {
@@ -139,6 +138,5 @@ public class Book extends TimeStamped {
         if (this.stock > 0 && this.saleStatus == SaleStatus.SOLD_OUT) {
             this.saleStatus = SaleStatus.ON_SALE;
         }
-        this.version++;
     }
 }

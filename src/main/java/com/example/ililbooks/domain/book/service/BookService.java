@@ -5,6 +5,7 @@ import com.example.ililbooks.domain.book.dto.request.BookUpdateRequest;
 import com.example.ililbooks.domain.book.dto.response.BookResponse;
 import com.example.ililbooks.domain.book.entity.Book;
 import com.example.ililbooks.domain.book.entity.BookImage;
+import com.example.ililbooks.domain.book.enums.LimitedType;
 import com.example.ililbooks.domain.book.repository.BookRepository;
 import com.example.ililbooks.domain.book.repository.ImageBookRepository;
 import com.example.ililbooks.domain.review.service.ReviewDeleteService;
@@ -54,7 +55,8 @@ public class BookService {
                 bookCreateRequest.category(),
                 bookCreateRequest.stock(),
                 bookCreateRequest.isbn(),
-                bookCreateRequest.publisher()
+                bookCreateRequest.publisher(),
+                LimitedType.valueOf(bookCreateRequest.limitedType())
         );
 
         Book savedBook = bookRepository.save(book);

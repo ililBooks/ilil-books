@@ -39,5 +39,9 @@ public record BookCreateRequest(
 
         @Schema(example = "문예한국사")
         @NotBlank(message = NOT_NULL_PUBLISHER)
-        String publisher
+        String publisher,
+
+        @Schema(example = "REGULAR")
+        @NotBlank(message = NOT_NULL_LIMITED_TYPE)
+        String limitedType
 ) {}

@@ -27,23 +27,23 @@ public class BestSellerScheduler {
     /* 매일 자정에 daily 베스트셀러 저장 */
     @Scheduled(cron = "0 0 0 * * *")
     public void saveDailyBestSeller() {
-        saveBestSellers("daily", LocalDate.now());
+        saveBestSellers(PeriodType.DAILY, LocalDate.now());
     }
 
     /* 매월 1일에 monthly 베스트셀러 저장 */
     @Scheduled(cron = "0 0 0 1 * *")
     public void saveMonthlyBestSeller() {
-        saveBestSellers("monthly", LocalDate.now());
+        saveBestSellers(PeriodType.MONTHLY, LocalDate.now());
     }
 
     /* 매년 1월 1일에 yearly 베스트셀러 저장 */
     @Scheduled(cron = "0 0 0 1 1 *")
     public void saveYearlyBestSeller() {
-        saveBestSellers("yearly", LocalDate.now());
+        saveBestSellers(PeriodType.YEARLY, LocalDate.now());
     }
 
     /* 베스트셀러 저장 */
-    private void saveBestSellers(String type, LocalDate date) {
+    private void saveBestSellers(PeriodType type, LocalDate date) {
         String key = generateKey(type, date);
 
         int ranking = 1;
@@ -60,7 +60,7 @@ public class BestSellerScheduler {
         for (String bookId : bookIds) {
             BestSeller bestSeller = BestSeller.builder()
                     .bookId(Long.parseLong(bookId))
-                    .periodType(PeriodType.valueOf(type.toUpperCase()))
+                    .periodType(type)
                     .date(instant)
                     .ranking(ranking++)
                     .build();
@@ -69,21 +69,19 @@ public class BestSellerScheduler {
         bestSellerRepository.saveAll(bestSellers);
     }
 
-    private String generateKey(String type, LocalDate date) {
+    private String generateKey(PeriodType type, LocalDate date) {
         return switch (type) {
-            case "daily" -> "bestseller:daily:" + date;
-            case "monthly" -> "bestseller:monthly:" + YearMonth.from(date);
-            case "yearly" -> "bestseller:yearly:" + Year.from(date);
-            default -> throw new IllegalArgumentException(PERIOD_TYPE_NOT_FOUND.getMessage());
+            case DAILY -> "bestseller:daily:" + date;
+            case MONTHLY -> "bestseller:monthly:" + YearMonth.from(date);
+            case YEARLY -> "bestseller:yearly:" + Year.from(date);
         };
     }
 
-    private Instant convertToInstant(String type, LocalDate date) {
+    private Instant convertToInstant(PeriodType type, LocalDate date) {
         return switch (type) {
-            case "daily" -> date.atStartOfDay().toInstant(ZoneOffset.UTC);
-            case "monthly" -> YearMonth.from(date).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC);
-            case "yearly" -> Year.from(date).atMonth(1).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC);
-            default -> throw new IllegalArgumentException(PERIOD_TYPE_NOT_FOUND.getMessage());
+            case DAILY -> date.atStartOfDay().toInstant(ZoneOffset.UTC);
+            case MONTHLY -> YearMonth.from(date).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+            case YEARLY -> Year.from(date).atMonth(1).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC);
         };
     }
 }

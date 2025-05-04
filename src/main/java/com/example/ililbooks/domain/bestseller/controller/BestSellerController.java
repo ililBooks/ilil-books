@@ -1,6 +1,7 @@
 package com.example.ililbooks.domain.bestseller.controller;
 
 import com.example.ililbooks.domain.bestseller.dto.response.BestSellerChartResponse;
+import com.example.ililbooks.domain.bestseller.enums.PeriodType;
 import com.example.ililbooks.domain.bestseller.service.BestSellerService;
 import com.example.ililbooks.global.dto.response.Response;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,6 @@ public class BestSellerController {
             @RequestParam String date,
             @RequestParam String type
     ) {
-        return Response.of(bestSellerService.getBestSellerChart(type, date));
+        return Response.of(bestSellerService.getBestSellerChart(PeriodType.valueOf(type.toUpperCase()), date));
     }
 }

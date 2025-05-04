@@ -3,7 +3,6 @@ package com.example.ililbooks.domain.limitedreservation.controller;
 import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationCreateRequest;
 import com.example.ililbooks.domain.limitedreservation.dto.request.LimitedReservationStatusFilterRequest;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationResponse;
-import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationStatusHistoryResponse;
 import com.example.ililbooks.domain.limitedreservation.dto.response.LimitedReservationStatusResponse;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationReadService;
 import com.example.ililbooks.domain.limitedreservation.service.LimitedReservationService;
@@ -92,14 +91,5 @@ public class LimitedReservationController {
             @PathVariable Long reservationId
     ) {
         return Response.of(queryService.getReservationStatus(authUser, reservationId));
-    }
-
-    /*/ 예약 상태 변경 이력 조회 */
-    @Secured({ADMIN})
-    @GetMapping("/history/{reservationId}")
-    public Response<List<LimitedReservationStatusHistoryResponse>> getReservationStatusHistory(
-            @PathVariable Long reservationId
-    ) {
-        return Response.of(queryService.getReservationStatusHistory(reservationId));
     }
 }
