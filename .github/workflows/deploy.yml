@@ -3,7 +3,7 @@ name: deploy
 on:
   push:
     branches:
-      - main
+      - feat/ci_cd
 
 jobs:
   deploy:
@@ -38,10 +38,19 @@ jobs:
 
       - name: Replace image URI in Dockerrun.aws.json
         run: |
+          echo "Before replacement:"
+          cat Dockerrun.aws.json
           sed -i "s|__IMAGE_URI__|${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}|g" Dockerrun.aws.json
+          echo "After replacement:"
+          cat Dockerrun.aws.json
+
+      - name: Ensure file exists before zipping
+        run: ls -al Dockerrun.aws.json
 
       - name: Zip deployment package
-        run: zip deploy.zip Dockerrun.aws.json
+        run: |
+          zip deploy.zip Dockerrun.aws.json
+          unzip -l deploy.zip
 
       - name: Upload to S3
         run: |
@@ -50,18 +59,18 @@ jobs:
       - name: Create new application version
         run: |
           aws elasticbeanstalk create-application-version \
-          --application-name ${{ secrets.EB_APP_NAME }} \
-          --version-label ${{ env.VERSION_LABEL }} \
-          --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET_NAME }},S3Key=deploy-${{ github.run_number }}.zip
+            --application-name ${{ secrets.EB_APP_NAME }} \
+            --version-label ${{ env.VERSION_LABEL }} \
+            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET_NAME }},S3Key=deploy-${{ github.run_number }}.zip
 
       - name: Deploy to Elastic Beanstalk
         run: |
           aws elasticbeanstalk update-environment \
-          --environment-name ${{ secrets.EB_ENV_NAME }} \
-          --version-label ${{ env.VERSION_LABEL }}
+            --environment-name ${{ secrets.EB_ENV_NAME }} \
+            --version-label ${{ env.VERSION_LABEL }}
 
       - name: Notify via Slack
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_WEB_MESSAGE: "ECS에 프로젝트 배포를 완료하였습니다."
+          SLACK_WEB_MESSAGE: "Elastic Beanstalk에 프로젝트 배포를 완료하였습니다."
