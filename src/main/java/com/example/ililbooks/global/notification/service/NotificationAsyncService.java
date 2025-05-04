@@ -4,12 +4,15 @@ import com.example.ililbooks.domain.bestseller.dto.response.BestSellerChartRespo
 import com.example.ililbooks.domain.bestseller.enums.PeriodType;
 import com.example.ililbooks.domain.bestseller.service.BestSellerService;
 import com.example.ililbooks.global.dto.AuthUser;
+import com.example.ililbooks.global.notification.dto.request.SendRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.ses.SesClient;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,6 +26,8 @@ import static com.example.ililbooks.global.exception.ErrorMessage.FAILED_SEND_MA
 public class NotificationAsyncService {
     private final JavaMailSender javaMailSender;
     private final BestSellerService bestSellerService;
+    private final SesClient sesClient;
+    private final Environment env;
 
     @Async("emailTaskExecutor")
     public void sendOrderMail(AuthUser authUser, String orderNumber, BigDecimal totalPrice) {
@@ -96,5 +101,21 @@ public class NotificationAsyncService {
         } catch (Exception e) {
             log.error(FAILED_SEND_MAIL.getMessage(), e);
         }
+    }
+
+    @Async("emailTaskExecutor")
+    public void sendOrderMailWithSes(AuthUser authUser, String orderNumber, BigDecimal totalPrice) {
+        SendRequest sendRequest = SendRequest.builder()
+                .from(env.getProperty("spring.mail.username"))
+                .subject("주문이 완료되었습니다.")
+                .to(authUser.getEmail())
+                .content("주문 정보\n" +
+                        "-------------------------\n" +
+                        "닉네임: " + authUser.getNickname() + "\n" +
+                        "주문 번호: " + orderNumber + "\n" +
+                        "총 가격: " + totalPrice + "\n")
+                .build();
+
+        sesClient.sendEmail(sendRequest.toSendEmailRequest());
     }
 }

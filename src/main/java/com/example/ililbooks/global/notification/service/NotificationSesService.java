@@ -13,24 +13,10 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class NotificationSesService {
 
-    private final SesClient sesClient;
-    private final Environment env;
+    private final NotificationAsyncService notificationAsyncService;
 
-    /**
-     * Ses를 통해 메일 전송
-     */
-    public void sendOrderMail(AuthUser authUser, String orderNumber, BigDecimal totalPrice) {
-        SendRequest sendRequest = SendRequest.builder()
-                .from(env.getProperty("spring.mail.username"))
-                .subject("주문이 완료되었습니다.")
-                .to(authUser.getEmail())
-                .content("주문 정보\n" +
-                        "-------------------------\n" +
-                        "닉네임: " + authUser.getNickname() + "\n" +
-                        "주문 번호: " + orderNumber + "\n" +
-                        "총 가격: " + totalPrice + "\n")
-                .build();
-
-        sesClient.sendEmail(sendRequest.toSendEmailRequest());
+    // @Async 비동기 처리
+    public void sendOrderMailWithAsync(AuthUser authUser, String orderNumber, BigDecimal price) {
+        notificationAsyncService.sendOrderMailWithSes(authUser, orderNumber, price);
     }
 }
