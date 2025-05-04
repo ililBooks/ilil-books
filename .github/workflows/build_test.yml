@@ -4,14 +4,13 @@ on:
   push:
     branches:
       - dev
-      # - feat/ci_cd # 테스트 용
+#      - feat/ci_cd # 테스트용
 
   pull_request:
     branches:
       - dev
     types:
       - closed
-
 
 jobs:
   test:
@@ -33,8 +32,8 @@ jobs:
       - name: Give permission to gradlew
         run: chmod +x ./gradlew
 
-      - name: Run tests with coverage
-        run: ./gradlew clean test jacocoTestReport
+      - name: Run tests with coverage verification
+        run: ./gradlew clean testCoverage
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
@@ -45,7 +44,7 @@ jobs:
 
   notify:
     name: Send Notification
-    needs: test # job
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
