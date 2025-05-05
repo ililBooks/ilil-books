@@ -2,7 +2,6 @@ package com.example.ililbooks.global.log.collector;
 
 import com.example.ililbooks.global.log.dto.request.LogRequest;
 import com.example.ililbooks.global.log.dto.response.LogResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
@@ -11,7 +10,6 @@ import software.amazon.awssdk.services.cloudwatchlogs.model.*;
 import java.time.Instant;
 import java.util.List;
 
-@Slf4j
 @Component
 public class CloudWatchLogCollector implements LogCollector {
 
@@ -23,7 +21,7 @@ public class CloudWatchLogCollector implements LogCollector {
 
     public CloudWatchLogCollector() {
         this.cloudWatchLogsClient = CloudWatchLogsClient.builder()
-                .region(Region.AP_NORTHEAST_2) // 서울 리전
+                .region(Region.AP_NORTHEAST_2)
                 .build();
         initializeSequenceToken();
     }
@@ -38,9 +36,6 @@ public class CloudWatchLogCollector implements LogCollector {
         sendLogToCloudWatch("RESPONSE", logResponse.toString());
     }
 
-    /*
-     * CloudWatch 로 로그를 전송
-     */
     private void sendLogToCloudWatch(String prefix, String message) {
         InputLogEvent event = InputLogEvent.builder()
                 .message(formatLogMessage(prefix, message))
@@ -51,18 +46,12 @@ public class CloudWatchLogCollector implements LogCollector {
 
         try {
             PutLogEventsResponse response = cloudWatchLogsClient.putLogEvents(request);
-
-            if (response.rejectedLogEventsInfo() != null) {
-                log.error("[CloudWatch] 로그 전송 실패: {}", response.rejectedLogEventsInfo());
-            } else {
-                log.info("[CloudWatch] 로그 전송 성공 (nextSequenceToken: {})", response.nextSequenceToken());
-                this.sequenceToken = response.nextSequenceToken();
-            }
+            this.sequenceToken = response.nextSequenceToken();
 
         } catch (InvalidSequenceTokenException e) {
-            handleInvalidSequenceToken(prefix, message, e);
-        } catch (Exception e) {
-            log.error("[CloudWatch] 로그 전송 중 예외 발생", e);
+            initializeSequenceToken();
+            sendLogToCloudWatch(prefix, message); // 재시도
+        } catch (Exception ignored) {
         }
     }
 
@@ -79,18 +68,6 @@ public class CloudWatchLogCollector implements LogCollector {
         return requestBuilder.build();
     }
 
-    /*
-     * InvalidSequenceToken 예외 처리: sequenceToken 초기화 후 재전송
-     */
-    private void handleInvalidSequenceToken(String prefix, String message, InvalidSequenceTokenException e) {
-        log.warn("[CloudWatch] InvalidSequenceTokenException 발생 - sequenceToken 초기화 후 재시도합니다. 오류 메시지: {}", e.getMessage());
-        initializeSequenceToken();
-        sendLogToCloudWatch(prefix, message);
-    }
-
-    /*
-     * CloudWatch LogStream 의 현재 SequenceToken 을 초기화
-     */
     private void initializeSequenceToken() {
         try {
             DescribeLogStreamsResponse response = cloudWatchLogsClient.describeLogStreams(
@@ -103,20 +80,14 @@ public class CloudWatchLogCollector implements LogCollector {
             List<LogStream> streams = response.logStreams();
             if (!streams.isEmpty()) {
                 this.sequenceToken = streams.get(0).uploadSequenceToken();
-                log.info("[CloudWatch] 초기 SequenceToken 설정 완료: {}", sequenceToken);
             } else {
-                log.warn("[CloudWatch] 해당 로그 스트림이 존재하지 않습니다. (스트림 이름: {})", LOG_STREAM_NAME);
                 this.sequenceToken = null;
             }
-        } catch (Exception e) {
-            log.error("[CloudWatch] SequenceToken 초기화 실패", e);
+        } catch (Exception ignored) {
             this.sequenceToken = null;
         }
     }
 
-    /*
-     * 로그 메시지 형식화
-     */
     private String formatLogMessage(String prefix, String message) {
         return String.format("[%s] %s", prefix, message);
     }
