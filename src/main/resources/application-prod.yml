@@ -25,7 +25,7 @@ spring:
     name: ilil-books
 
   datasource:
-    url: jdbc:ililbooks.ch2g6me4m3k4.ap-northeast-2.rds.amazonaws.com:3306/ililbooks
+    url: jdbc:mysql://ililbooks.ch2g6me4m3k4.ap-northeast-2.rds.amazonaws.com:3306/ililbooks
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
