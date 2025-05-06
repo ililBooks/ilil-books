@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(request -> request.getRequestURI().startsWith("/api/v1/auth")).permitAll()
                         .requestMatchers(SWAGGER_URI).permitAll()
                         .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/").permitAll()
                         .anyRequest().authenticated()
                 ).build();
     }

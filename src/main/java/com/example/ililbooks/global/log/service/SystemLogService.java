@@ -15,12 +15,10 @@ public class SystemLogService {
     private final LogCollector logCollector;
 
     public void saveRequestLog(LogRequest logRequest) {
-        log.debug("[SystemLogService] saveRequestLog 호출됨: {}", logRequest);
         logCollector.collectRequestLog(logRequest);
     }
 
     public void saveResponseLog(LogResponse logResponse) {
-        log.debug("[SystemLogService] saveResponseLog 호출됨: {}", logResponse);
         logCollector.collectResponseLog(logResponse);
     }
 }
